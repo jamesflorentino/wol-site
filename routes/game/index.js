@@ -1,4 +1,4 @@
-var Users = require('./players');
+var Players = require('./players');
 var Player = require('./player');
 var Games = require('./games');
 var Game = require('./game');
@@ -7,7 +7,7 @@ var utils = require('./utils');
 module.exports = function(io) {
     "use strict";
 
-    var users = new Users();
+    var players = new Players();
     var games = new Games();
 
     /**
@@ -16,7 +16,7 @@ module.exports = function(io) {
      */
     function connection(socket) {
         var player;
-        var game;
+        var game; // current game. Allow only one game per session for now.
 
         /**
          * checks the client's authKey cookie
@@ -24,10 +24,10 @@ module.exports = function(io) {
          */
         function setAuthKey(data) {
             var authKey = data.wol_id;
-            player = users.get(authKey);
+            player = players.get(authKey);
             if (player === undefined) {
                 player = new Player();
-                users.add(player);
+                players.add(player);
             }
             assignEvents();
         }
@@ -69,7 +69,6 @@ module.exports = function(io) {
          * Fins a game to join. If none exists, it'll create one.
          */
         function findGame() {
-            var gameID;
             if (game === undefined) {
                 var ava = games.available();
                 game = joinGame(ava || createGame());
@@ -84,21 +83,40 @@ module.exports = function(io) {
             player.name = data.name;
         }
 
+        function disconnect() {
+            player.disconnect();
+        }
+
         /**
          * All the events needed for starting a game.
          */
         function assignEvents() {
+            socket.on('disconnect', disconnect);
             socket.on('game.find', findGame);
             socket.on('player.setName', setName);
             socket.emit('player.setData', {
                 id: player.id,
-                authKey: player.authKey
+                authKey: player.authKey,
+                expiresIn: player.expiresIn,
+                expires: player.expires
             });
+            player.connect();
         }
 
         socket.on('player.setAuthKey', setAuthKey);
     }
 
     io.of('/game').on('connection', connection);
-    io.set('log level', 1);
+    io.enable('browser client minification');  // send minified client
+    io.enable('browser client etag');          // apply etag caching logic based on version number
+    io.enable('browser client gzip');          // gzip the file
+    io.set('log level', 1);                    // reduce logging
+    io.set('transports', [                     // enable all transports (optional if you want flashsocket)
+        'websocket'
+        , 'flashsocket'
+        , 'htmlfile'
+        , 'xhr-polling'
+        , 'jsonp-polling'
+    ]);
+
 };
