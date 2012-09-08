@@ -1,0 +1,1 @@
+define(function(){return {"images":["media/marine.png"],"animations":{"hit":[85,89],"dieStart":[99,122],"attack":[42,77],"defendEnd":[90,98],"defendStart":[78,83],"all":[0,0],"move":[23,34],"defendHold":[84,84],"idle":[1,19],"moveEnd":[35,41],"moveStart":[20,22]},"frames":{"height":97,"count":123,"regY":76,"width":113,"regX":34}};});

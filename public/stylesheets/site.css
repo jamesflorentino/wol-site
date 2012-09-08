@@ -1,0 +1,47 @@
+body {
+    background: #222;
+    margin: 0; padding: 0;
+}
+
+#main {
+    background: #111;
+    position: absolute;
+}
+
+#game {
+    display: inline-block;
+}
+
+
+#ui {
+    background: blue;
+    z-index: 1;
+}
+
+    #ui .preloader {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: black;
+    }
+
+    #ui .preloader .border,
+    #ui .preloader .bar {
+        background: #111;
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        right: 10px;
+        height: 3px;
+        border: 1px solid rgba(111,111,111,0.5);
+        margin-top: -15px;
+        border-radius: 3px;
+    }
+
+    #ui .preloader .bar {
+        background-color: white;
+        border-color: transparent;
+        box-shadow: 0 0 10px 1px #33aaa3;
+        z-index: 1;
+        -webkit-transition: 600ms width;
+    }

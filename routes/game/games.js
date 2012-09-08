@@ -31,7 +31,7 @@ module.exports = (function() {
 
     Games.prototype.occupy = function (game, user) {
         if (game.players.length < game.MAX_USERS) {
-            game.addUser(user);
+            game.addPlayer(user);
             if (game.players.length === game.MAX_USERS) {
                 this.vacant.splice(this.vacant.indexOf(game.id), 1);
             }

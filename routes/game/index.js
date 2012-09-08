@@ -4,7 +4,7 @@ var Games = require('./games');
 var Game = require('./game');
 var utils = require('./utils');
 
-module.exports = function(io) {
+var GameApp = function(io) {
     "use strict";
 
     var players = new Players();
@@ -117,5 +117,24 @@ module.exports = function(io) {
         , 'xhr-polling'
         , 'jsonp-polling'
     ]);
-
 };
+
+/**
+ * Route for the main version
+ * @param req
+ * @param res
+ */
+GameApp.route = function(req, res) {
+    res.render('game', { title: 'Game - Wings Of Lemuria' });
+};
+
+/**
+ * Route for the dev version
+ * @param req
+ * @param res
+ */
+GameApp.routeDev = function(req, res) {
+    res.render('game-test', { title: 'Game - Wings Of Lemuria' });
+};
+
+module.exports = GameApp;

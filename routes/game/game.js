@@ -26,7 +26,7 @@ module.exports = (function(){
      * Add the users into the list.
      * @param player
      */
-    Game.prototype.addUser = function (player) {
+    Game.prototype.addPlayer = function (player) {
         var _this = this;
         this.players.push(player);
         this.log('player.add', {

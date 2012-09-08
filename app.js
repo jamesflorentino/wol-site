@@ -3,12 +3,14 @@
  */
 
 var express = require('express'),
-    routes = require('./routes'),
+    routes = require('./routes/index'),
     user = require('./routes/user'),
+    game = require('./routes/game/index'),
     http = require('http'),
     path = require('path'),
-    stylus = require('stylus')
-    nib = require('nib');
+    stylus = require('stylus'),
+    nib = require('nib')
+    ;
 
 var app = express();
 
@@ -27,23 +29,31 @@ app.configure(function() {
         compile: function(str, path) {
             return stylus(str)
                 .set('filename', path)
-                .set('compress', true)
+                .set('compress', false)
                 .use(nib());
         }
     }));
     app.use(express.static(path.join(__dirname, 'public')));
+    app.get('/', routes.index);
+    app.get('/users', user.list);
 });
+
+app.configure('production', function() {
+    //app.get('/game', game.route);
+})
 
 app.configure('development', function() {
     app.use(express.errorHandler());
+    app.get('/game', game.routeDev);
 });
-
-app.get('/', routes.index);
-app.get('/users', user.list);
 
 var server = http.createServer(app).listen(app.get('port'));
 
 var io = require('socket.io').listen(server);
 
-var game = require('./routes/game')(io);
+/**
+ * Game logic mixin.
+ * @type {*}
+ */
+var game = game(io);
 

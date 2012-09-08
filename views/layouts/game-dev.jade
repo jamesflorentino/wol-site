@@ -1,0 +1,9 @@
+doctype 5
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/game.css')
+    script(src='socket.io/socket.io.js')
+    script(data-main="/javascripts/wolgame/app", src='/javascripts/wolgame/require.js')
+  body
+    block content
