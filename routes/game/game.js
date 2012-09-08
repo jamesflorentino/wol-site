@@ -3,14 +3,17 @@ var events = require('events');
 var util = require('util');
 var Unit = require('./unit');
 var units = require('./units');
+var Grid = require('./grid');
 
 module.exports = (function(){
     function Game() {
         this.id = utils.uuid();
         this.players = [];
-        this.logs = [];
-        this.full = false;
         this.units = [];
+        this.logs = [];
+        this.grid = new Grid();
+        this.full = false;
+        this.grid.generate(8, 8);
         events.EventEmitter.call(this);
     }
     util.inherits(Game, events.EventEmitter);
@@ -30,12 +33,22 @@ module.exports = (function(){
             id: player.id,
             name: player.name
         });
+        if (this.players.length === this.MAX_USERS) {
+            this.start();
+        }
     };
+    /**
+     * Adds a unit in the game.
+     * @param unit
+     */
     Game.prototype.addUnit = function (unit) {
         if (unit && this.units.indexOf(unit) === -1) {
             this.units.push(unit);
-            this.log('unit_add', {
-                id: unit.id
+            this.log('unit.add', {
+                id: unit.id,
+                code: unit.code,
+                name: unit.name,
+                stats: unit.stats.toJSON()
             });
         }
     };
@@ -47,7 +60,7 @@ module.exports = (function(){
         var unitAttr = units[name];
         var unit;
         if (unitAttr) {
-            unit = new Unit(unitAttr);
+            unit = new Unit(name, unitAttr);
             this.addUnit(unit);
         }
         return unit;
@@ -73,15 +86,34 @@ module.exports = (function(){
     Game.prototype.log = function(name, data) {
         var message = { name: name, data: data };
         this.logs.push(message);
-        console.log('message', message);
         this.emit('log', message);
+    };
+    /**
+     * Issue a callback of backlogs.
+     * @param cb
+     */
+    Game.prototype.backlogs = function(cb) {
+        if (cb === undefined) return;
+        var event;
+        for (var i = 0, _len = this.logs.length; i < _len; i++) {
+            event = this.logs[i];
+            cb(event);
+        }
     };
     /**
      * starts the game and sends a few unit into the game.
      */
     Game.prototype.start = function () {
         this.full = true;
-        this.createUnit('marine');
+        var unit = this.createUnit('marine'); // testing
+        unit.move(this.grid.get(0,0));
+        this.log('unit.move', {
+            id: unit.id,
+            tile: {
+                x: unit.tile.x,
+                y: unit.tile.y
+            }
+        });
     };
     return Game;
 })();

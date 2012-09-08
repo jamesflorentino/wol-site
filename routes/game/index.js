@@ -17,7 +17,6 @@ module.exports = function(io) {
     function connection(socket) {
         var player;
         var game; // current game. Allow only one game per session for now.
-
         /**
          * checks the client's authKey cookie
          * @param data
@@ -31,7 +30,6 @@ module.exports = function(io) {
             }
             assignEvents();
         }
-
         /**
          * Registers the current player to the room.
          * @param game
@@ -48,22 +46,23 @@ module.exports = function(io) {
                     games.remove(game);
                 }
             });
-            game.start();
+            game.backlogs(function(event){
+                socket.emit(event.name, event.data);
+            });
             return game;
         }
-
         /**
          * Creates a new game object.
          * @return {*}
          */
         function createGame() {
             var game = new Game();
+            var gameID = game.id;
             game.on('log', function(event) {
-                io.sockets.in(game.id).emit(event.name, true);
-                //console.log("Game (" + game.id + "): ", event.name, '->', JSON.stringify(event.data));
+                io.sockets.in(gameID).emit(event.name, event.data);
+                console.log(" — Game (" + game.id + "): ", event.name, '->', JSON.stringify(event.data));
             });
             games.add(game);
-            io.sockets.in(game.id).emit('unit.add', { foo:'bar' });
             return game;
         }
         /**
@@ -71,11 +70,9 @@ module.exports = function(io) {
          */
         function findGame() {
             if (game === undefined) {
-                var ava = games.available();
-                game = joinGame(ava || createGame());
+                game = joinGame(games.available() || createGame());
             }
         }
-
         /**
          * Sets the name of the player from the client.
          * @param data
@@ -106,11 +103,9 @@ module.exports = function(io) {
             });
             player.connect(socket);
         }
-
         socket.on('player.setAuthKey', setAuthKey);
     }
-
-    io.of('/game').on('connection', connection);
+    io.sockets.on('connection', connection);
     io.enable('browser client minification');  // send minified client
     io.enable('browser client etag');          // apply etag caching logic based on version number
     io.enable('browser client gzip');          // gzip the file

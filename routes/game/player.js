@@ -35,7 +35,6 @@ module.exports = (function(){
         this.socket = socket;
         this.connected = true;
         this.emit('connect', this);
-        console.log('player {' + this.id +'}: clearing remove timeout.');
         clearTimeout(this.timeoutRemove);
     };
     /**
@@ -48,7 +47,6 @@ module.exports = (function(){
         this.emit('disconnect', this);
         this.expiresIn = new Date().getTime() + this.MAX_LIFE;
         clearTimeout(this.timeoutRemove);
-        console.log('player {' + this.id +'}: starting remove timeout.');
         this.timeoutRemove = setTimeout(this.remove.bind(this), this.MAX_LIFE);
     };
     /**

@@ -14,7 +14,6 @@ module.exports = (function() {
             this.vacant.push(game.id);
             this.dictionary[game.id] = game;
             this.length = this.list.length;
-            console.log('Games: creating game', game.id, ' total games:', this.list.length);
         }
         return this;
     };
@@ -24,7 +23,6 @@ module.exports = (function() {
         this.vacant.splice(this.vacant.indexOf(game), 1);
         delete this.dictionary[game.id];
         this.length = this.list.length;
-        console.log('Games: removing game', game.id);
     };
 
     Games.prototype.available = function () {
