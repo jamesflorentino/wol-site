@@ -48,6 +48,7 @@ module.exports = function(io) {
                     games.remove(game);
                 }
             });
+            game.start();
             return game;
         }
 
@@ -58,13 +59,13 @@ module.exports = function(io) {
         function createGame() {
             var game = new Game();
             game.on('log', function(event) {
-                io.sockets.in(game.id).emit(event.name, event.data);
-                console.log("Game (" + game.id + "): ", event.name, JSON.stringify(event.data));
+                io.sockets.in(game.id).emit(event.name, true);
+                //console.log("Game (" + game.id + "): ", event.name, '->', JSON.stringify(event.data));
             });
             games.add(game);
+            io.sockets.in(game.id).emit('unit.add', { foo:'bar' });
             return game;
         }
-
         /**
          * Fins a game to join. If none exists, it'll create one.
          */
@@ -83,6 +84,9 @@ module.exports = function(io) {
             player.name = data.name;
         }
 
+        /**
+         * Tell the player to disconnect.
+         */
         function disconnect() {
             player.disconnect();
         }
@@ -100,7 +104,7 @@ module.exports = function(io) {
                 expiresIn: player.expiresIn,
                 expires: player.expires
             });
-            player.connect();
+            player.connect(socket);
         }
 
         socket.on('player.setAuthKey', setAuthKey);
@@ -110,7 +114,7 @@ module.exports = function(io) {
     io.enable('browser client minification');  // send minified client
     io.enable('browser client etag');          // apply etag caching logic based on version number
     io.enable('browser client gzip');          // gzip the file
-    io.set('log level', 1);                    // reduce logging
+    io.set('log level', 3);                    // reduce logging
     io.set('transports', [                     // enable all transports (optional if you want flashsocket)
         'websocket'
         , 'flashsocket'

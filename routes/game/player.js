@@ -14,13 +14,25 @@ module.exports = (function(){
     util.inherits(Player, events.EventEmitter);
 
     Player.prototype.name = null;
+    /**
+     * The socket connection that this object will use for client-side
+     * communication.
+     * @type {*}
+     */
+    Player.prototype.socket = null;
 
+    /**
+     * A supposed constant variable that tells how long the player object will take
+     * to expire.
+     * @type {Number}
+     */
     Player.prototype.MAX_LIFE = 1000 * 60 * 60 * 24; // 1 day.
     /**
      * Flags the client as connected. It is used to determine if the player is online.
      * Also removes the timeout event from being fired.
      */
-    Player.prototype.connect = function () {
+    Player.prototype.connect = function (socket) {
+        this.socket = socket;
         this.connected = true;
         this.emit('connect', this);
         console.log('player {' + this.id +'}: clearing remove timeout.');
@@ -31,6 +43,7 @@ module.exports = (function(){
      * to the game again. I'm not storing them on the database so this makes sense at the moment.
      */
     Player.prototype.disconnect = function() {
+        this.socket = null;
         this.connected = false;
         this.emit('disconnect', this);
         this.expiresIn = new Date().getTime() + this.MAX_LIFE;
