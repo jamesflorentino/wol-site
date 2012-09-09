@@ -105,18 +105,21 @@ var GameApp = function(io) {
         }
         socket.on('player.setAuthKey', setAuthKey);
     }
-    io.sockets.on('connection', connection);
-    io.enable('browser client minification');  // send minified client
-    io.enable('browser client etag');          // apply etag caching logic based on version number
-    io.enable('browser client gzip');          // gzip the file
-    io.set('log level', 3);                    // reduce logging
-    io.set('transports', [                     // enable all transports (optional if you want flashsocket)
-        'websocket'
-        , 'flashsocket'
-        , 'htmlfile'
-        , 'xhr-polling'
-        , 'jsonp-polling'
-    ]);
+    io.configure(function(){
+        io.sockets.on('connection', connection);
+        io.enable('browser client minification');  // send minified client
+        io.enable('browser client etag');          // apply etag caching logic based on version number
+        io.enable('browser client gzip');          // gzip the file
+        io.set('log level', 3);                    // reduce logging
+        io.set('transports', [                     // enable all transports (optional if you want flashsocket)
+            'websocket'
+            , 'flashsocket'
+            , 'htmlfile'
+            , 'xhr-polling'
+            , 'jsonp-polling'
+        ]);
+    })
+
 };
 
 /**

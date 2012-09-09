@@ -9,6 +9,17 @@ define([
     wol.components.add('unit', function(entity) {
         // an event component is required for this like amongst other things.
         entity.addComponent('events');
+        /**
+         *
+         * @param id
+         * @param name
+         * @param code
+         */
+        entity.metaData = function(id, name, code) {
+            this.id = id;
+            this.name = name;
+            this.code = code;
+        };
         // .attack
         // -------
         // attack another unit

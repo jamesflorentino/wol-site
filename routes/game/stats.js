@@ -7,7 +7,7 @@ function Stats(stats) {
     this.add(new Stat('attack', 200));
     this.add(new Stat('speed', 10));
     this.add(new Stat('range', 2));
-    this.overrideStats(stats);
+    this.set(stats);
 }
 /**
  * Add an attribute
@@ -23,7 +23,7 @@ Stats.prototype.add = function(stat) {
  * Override existing stat data.
  * @param stats
  */
-Stats.prototype.overrideStats = function (stats) {
+Stats.prototype.set = function (stats) {
     var stat;
     var value;
     for (var key in stats) {

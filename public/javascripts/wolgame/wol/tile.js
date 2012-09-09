@@ -10,6 +10,10 @@ define([
             this.x = x;
             this.y = y;
             this.z = x + y;
+            this.f = 0;
+            this.g = 0;
+            this.h = 0;
+            this.parent = null;
         },
         json: function() {
             return {
@@ -17,6 +21,9 @@ define([
                 y: this.y,
                 z: this.z
             };
+        },
+        pos: function() {
+            return this.x + "." + this.y;
         }
     });
 

@@ -39,7 +39,7 @@ app.configure(function() {
 });
 
 app.configure('production', function() {
-    //app.get('/game', game.route);
+    app.get('/game', game.route);
 })
 
 app.configure('development', function() {
@@ -51,9 +51,5 @@ var server = http.createServer(app).listen(app.get('port'));
 
 var io = require('socket.io').listen(server);
 
-/**
- * Game logic mixin.
- * @type {*}
- */
-var game = game(io);
+game(io);
 

@@ -114,7 +114,12 @@ define([
             }
             return result;
         },
-
+        /**
+         * Finding nearest heuristics
+         * @param start
+         * @param destination
+         * @return {Number}
+         */
         euclidean: function(start, destination) {
             var vectorX, vectorY;
             vectorX = Math.pow(start.x - destination.x, 2);

@@ -8,8 +8,10 @@ define([
         HEIGHT: 56,
         position: function(hex, tile, center) {
             var coord = this.coord(tile, center);
-            hex.x = coord.x;
-            hex.y = coord.y;
+            hex.regX = this.WIDTH * 0.5;
+            hex.regY = this.HEIGHT * 0.5;
+            hex.x = coord.x + hex.regX;
+            hex.y = coord.y + hex.regY;
             return coord;
         },
         coord: function(tile, center) {

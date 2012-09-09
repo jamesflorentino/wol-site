@@ -1,9 +1,8 @@
 require([
-
     'wol/wol',
     'game/main'
-
 ], function(wol, Main){
+
     "use strict";
 
     window.onload = function() {

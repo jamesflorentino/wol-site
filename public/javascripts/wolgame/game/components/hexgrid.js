@@ -21,7 +21,7 @@ define([
         // Moves the entity to a tile. Supply with an Array, and it will automatically tween
         // between the points.
         entity.move = function(tileOrTiles) {
-            var tweenObj, tile, nextTile, currentTile;
+            var tweenObj, coord;
             // check if the argument is a tile
             if (wol.isArray(tileOrTiles)) {
                 // emit an event that tells the entity we're starting to move to a point
@@ -29,10 +29,10 @@ define([
                 // initiate a tween.
                 tweenObj = wol.tween.get(entity.container);
                 // iterate through the array, and assign tween chaining
-                wol.each(tileOrTiles, function(tile){
+                wol.each(tileOrTiles, function(tile) {
                     var coord = Hex.coord(tile, true);
                     tweenObj = tweenObj
-                        .call(function(){
+                        .call(function() {
                             entity.container.scaleX = entity._currentPos.x > coord.x ? -1 : 1;
                             entity._currentPos = coord;
                             // we assign the current active tile in the entity for reference.
@@ -52,7 +52,10 @@ define([
                 // Example would be loading a game and you want to immediately place
                 // the entities in their right place.
                 entity.tile = tileOrTiles;
-                entity._currentPos = Hex.position(entity.container, tileOrTiles, true);
+                coord = Hex.coord(tileOrTiles, true);
+                entity.container.x = coord.x;
+                entity.container.y = coord.y;
+                entity._currentPos = coord;
             }
         };
     });

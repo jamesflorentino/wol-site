@@ -106,14 +106,21 @@ module.exports = (function(){
     Game.prototype.start = function () {
         this.full = true;
         var unit = this.createUnit('marine'); // testing
-        unit.move(this.grid.get(0,0));
-        this.log('unit.move', {
+        unit.move(this.grid.get(5,5));
+        this.log('unit.spawn', {
             id: unit.id,
-            tile: {
+            x: unit.tile.x,
+            y: unit.tile.y
+        });
+        setTimeout(function() {
+            unit.move(this.grid.get(2,2));
+            this.log('unit.move', {
+                id: unit.id,
                 x: unit.tile.x,
                 y: unit.tile.y
-            }
-        });
+            });
+        }.bind(this), 1000);
+
     };
     return Game;
 })();

@@ -1,101 +1,119 @@
 define([
-
     'createjs/create',
     'wol/events',
     'wol/utils'
-
-], function(createjs, Events) {
+], function(createjsNS, Events) {
     "use strict";
 
-    var createjs, wol, wait;
+    var createjs = window.createjs;
 
-    // Shim for function binding.
-    if (!Function.prototype.bind) {
-        Function.prototype.bind = function(oThis) {
-            if (typeof this !== "function") {
-                // closest thing possible to the ECMAScript 5 internal IsCallable function
-                throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-            }
-            var aArgs = Array.prototype.slice.call(arguments, 1),
-                fToBind = this,
-                fNOP = function() {},
-                fBound = function() {
-                    return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
-                };
-            fNOP.prototype = this.prototype;
-            fBound.prototype = new fNOP();
-            return fBound;
-        };
-    }
+    (function() {
+        // Shim for function binding.
+        if (!Function.prototype.bind) {
+            Function.prototype.bind = function(oThis) {
+                if (typeof this !== "function") {
+                    // closest thing possible to the ECMAScript 5 internal IsCallable function
+                    throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+                }
+                var aArgs = Array.prototype.slice.call(arguments, 1),
+                    fToBind = this,
+                    fNOP = function() {},
+                    fBound = function() {
+                        return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+                    };
+                fNOP.prototype = this.prototype;
+                fBound.prototype = new fNOP();
+                return fBound;
+            };
+        }
+    })();
 
     // ### wait
     // Shortcut for setTimeout
-    wait = function (ms, cb) {
+
+    var wait = function (ms, cb) {
         return setTimeout(cb, ms);
-    }
-
-
-    // ### createjs
-    // The rendering, preloading, and tween engine.
-    createjs = window.createjs;
+    };
 
     // # wol
     // This namespace (and singleton) will be the central authority of the game.
-    wol = {
-        // ### wol.components
-        // An API for component registration which is then used to apply to entities in the
-        // game.
+    var wol = {
+        /**
+         * An API for component registration which is then used to apply to entities in the
+         * game.
+         */
         components: {
-            // #### wol.components._dictionary
             _dictionary: {},
-            // #### wol.components.add(name, function)
-            add: function(name, component) {
-                if(!this._dictionary[name]) {
+            /**
+             * Add a new component
+             * @param name
+             * @param component
+             * @return {*}
+             */
+            add: function (name, component) {
+                if (!this._dictionary[name]) {
                     this._dictionary[name] = component;
                 }
-                return this;;w
+                return this;
             },
-            // #### wol.component.get(name)
-            // Retrieves the component if it exists.
-            get: function(name) {
+            /**
+             * Retrieves the component if it exists.
+             * @param name
+             * @return {*}
+             */
+            get: function (name) {
                 return this._dictionary[name];
             }
         },
         // ### wol.display
-        // Used for adding display objects in the canvas which is then channeled
-        // towards the createjs.Stage instance.
+        /**
+         * Used for adding display objects in the canvas which is then channeled towards the createjs.Stage instance.
+         */
         display: {
-            // #### wol.display.add(displayObject)
-            add: function(displayObject) {
+            add: function (displayObject) {
                 wol.stage.addChild(displayObject);
             }
         },
-        // ### wol.create
-        // A list of methods that deals with creating instaces of createjs classes like
-        // Bitmap, BitmapAnimation, Container, and caching.
+        /**
+         * A list of methods that deals with creating instaces of createjs classes like
+         * Bitmap, BitmapAnimation, Container, and caching.
+         */
         create: {
-            // #### wol.create.animation(spritesheet)
-            // returns a bitmap animation instance.
+            /**
+             * returns a bitmap animation instance.
+             * @param spritesheet
+             * @return {createjs.BitmapAnimation}
+             */
             animation: function (spritesheet) {
                 var animation = new createjs.BitmapAnimation(spritesheet);
                 return animation;
             },
-            // #### wol.create.container()
-            // returns a createjs.Container
-            container: function() {
+            /**
+             * Returns a createjs.Container
+             * @return {createjs.Container}
+             */
+            container: function () {
                 var container = new createjs.Container();
                 return container;
             },
-            // #### wol.create.bitmap(imageElement)
-            // returns a createjs.Bitmap instance
-            bitmap: function(imageResource) {
+            /**
+             * Creates and returns a createjs.Bitmap instance.
+             * @param imageResource
+             * @return {createjs.Bitmap}
+             */
+            bitmap: function (imageResource) {
                 var bitmap = new createjs.Bitmap(imageResource);
                 return bitmap;
             },
-            // #### wol.create.cache(displayObject, width, height)
-            // Caches an entire container to an offscreen canvas which is
-            // useful if you have a lot of static objects placed under a container.
-            cache: function(displayObject, width, height) {
+            /**
+             * Caches an entire container to an offscreen canvas which is
+             * useful if you have a lot of static objects placed under a container.
+             * @param displayObject
+             * @param width
+             * @param height
+             * @return {*}
+             */
+            cache: function (displayObject, width, height) {
                 wol.debug('displayObject id: ' + displayObject.id + ' CACHING', width, height);
                 if (displayObject.cache) {
                     displayObject.cache(0, 0, width, height);
@@ -104,44 +122,52 @@ define([
                 return this;
             }
         },
-
-        // ### wol.events
-        // For easy event management.
-        events: new Events(),
-        // ### wol.Events
-        // This property contains a list of events for this namespace.
+        /**
+         * Assign an event emitter.
+         */
+        events: new Events,
+        /**
+         * A list of events types.
+         */
         Events: {
-            // #### wol.Events.READY
-            // The event when the game finishes preloading assets.
-            READY: 'wol.ready',
-            // #### wol.Events.PRELOAD_PROGRESS
-            PRELOAD_PROGRESS: 'wol.preload.progress',
-            // #### wol.Events.GAME_START
-            GAME_START: 'wol.game.start'
+            /**
+             * The game has finished loading the assets.
+             */
+            READY:'wol.ready',
+            /**
+             * The game is preloading.
+             */
+            PRELOAD_PROGRESS:'wol.preload.progress',
+            /**
+             * Game is starting.
+             */
+            GAME_START:'wol.game.start'
         },
-
+        /**
+         * A dictionary of spritesheets.
+         */
         spritesheets: {
             sheets: {},
             images: {},
-            add: function(name, frameData) {
+            add: function (name, frameData) {
                 var i, images, imageUri;
                 if (this.sheets[name]) {
-                    return;
+                    return null;
                 }
                 images = frameData.images;
-                for (i=0; i<images.length; i++) {
+                for (i = 0; i < images.length; i++) {
                     imageUri = images[i];
                     // remove invalid Urls
                     if (imageUri.indexOf('.png') < 0) {
-                        images.splice(i,1);
+                        images.splice(i, 1);
                     } else {
                         wol.resources.add(imageUri);
                     }
                 }
                 // If it's fresh data, add it to the ready event.
-                wol.ready(function() {
+                wol.ready(function () {
                     var imageResource, i;
-                    for (i=0; i<images.length; i++) {
+                    for (i = 0; i < images.length; i++) {
                         if (imageResource = wol.resources.get(imageUri)) {
                             images[i] = imageResource;
                         }
@@ -172,19 +198,19 @@ define([
             loader: new createjs.PreloadJS(),
             add: function (urlOrUrls) {
                 var list = Array.prototype.slice.call(arguments);
-                for(var i = 0; i < list.length; i++) {
+                for (var i = 0; i < list.length; i++) {
                     this.manifest.push(list[i]);
                 }
             },
             get: function (idOrUrl) {
                 var result = this.loader.getResult(idOrUrl);
                 if (result === undefined) {
-                    return;
+                    return null;
                 }
                 return this.loader.getResult(idOrUrl).result;
             },
             preload: function (callback) {
-                this.loader.onProgress = function() {
+                this.loader.onProgress = function () {
                     wol.events.emit(wol.Events.PRELOAD_PROGRESS, this.loader.progress);
                 }.bind(this);
                 this.loader.onComplete = callback;
@@ -196,7 +222,7 @@ define([
         ease: createjs.Ease,
         stage: null,
         game: null,
-        init: function(gameClass, container, width, height, fps) {
+        init: function (gameClass, container, width, height, fps) {
             wol.debug('canvas INITIALIZING');
             // create the canvas element to use for the stage
             var canvas = document.createElement('canvas');
@@ -218,37 +244,39 @@ define([
             // start preloading the assets in the manifest and assign
             // a callback.
             wol.debug('preload START');
-            this.resources.preload(function() {
+            this.resources.preload(function () {
                 wol.debug('preload FINISHED');
                 wol.events
                     .emit(wol.Events.READY, wol)
                     .off(wol.Events.READY);
                 // allow things to happen before we start.
-                wait(1000, function(){
+                var time = 1000;
+                time = 10;
+                wait(time, function () {
                     wol.events.emit(wol.Events.GAME_START);
                     wol.play();
                     new gameClass();
                 })
             });
         },
-        $: function(selector){
+        $: function (selector) {
             return document.querySelector(selector);
         },
         // create preloader
-        makeLoadBars: function(){
+        makeLoadBars: function () {
             var bar, border, initW, preloader;
-            preloader= wol.$('#ui .preloader');
+            preloader = wol.$('#ui .preloader');
             border = wol.$('#ui .preloader .border');
             bar = wol.$('#ui .preloader .bar');
             initW = border.clientWidth;
-            wol.events.on(wol.Events.PRELOAD_PROGRESS, function(perc){
+            wol.events.on(wol.Events.PRELOAD_PROGRESS, function (perc) {
                 bar.style.width = (initW * perc) + 'px';
             });
-            wol.events.on(wol.Events.GAME_START, function(perc){
+            wol.events.on(wol.Events.GAME_START, function (perc) {
                 preloader.style.display = 'none';
             });
         },
-        ready: function(callback) {
+        ready: function (callback) {
             wol.events.on(wol.Events.READY, callback);
         },
         update: function () {
@@ -266,27 +294,26 @@ define([
         },
         setDomEvents: function () {
             // stop the rendering when we blur out of the window.
-            window.onblur = function() {
+            window.onblur = function () {
                 this.pause();
                 this.paused = true;
             }.bind(this);
-            window.onfocus = function() {
+            window.onfocus = function () {
                 this.paused = false;
             }.bind(this);
         },
 
-        _dcount: 0, // debug count
-        debug: function() {
-            return;
-            console.log( this._dcount++, Array.prototype.slice.call(arguments) );
+        _dcount:0, // debug count
+        debug: function () {
+            //console.log(this._dcount++, Array.prototype.slice.call(arguments));
         },
 
-        isFunction: isFunction,
-        isArray: isArray,
-        wait: wait,
+        isFunction:isFunction,
+        isArray:isArray,
+        wait:wait,
         each: function (array, callback) {
             var i, _len;
-            for (i=0, _len = array.length; i < _len; i++) {
+            for (i = 0, _len = array.length; i < _len; i++) {
                 callback.call(this, array[i], i);
             }
             return this;

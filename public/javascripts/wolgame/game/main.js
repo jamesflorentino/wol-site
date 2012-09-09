@@ -93,6 +93,7 @@ define([
                 .on('game.join', this.gameJoin.bind(this))
                 // unit events
                 .on('unit.add', this.unitAdd.bind(this))
+                .on('unit.spawn', this.unitSpawn.bind(this))
                 .on('unit.move', this.unitMove.bind(this))
             ;
             this.setAuthKey();
@@ -125,27 +126,72 @@ define([
          * @param data
          */
         unitAdd: function(data) {
-            console.log('unitAdd', data);
             var id = data.id,
-                code = data.code,
                 name = data.name,
+                code = data.code,
                 stats = data.stats
             ;
             var unitClass = this.unitClasses[code];
             if (unitClass) {
                 var unit = new unitClass();
                 this.addEntity(unit);
+                unit.metaData(id, name, code);
+                this.units.add(unit);
+                unit.stats.set(stats);
             }
         },
         /**
          * Server Event: Moves a unit.
          * @param data
          */
+        unitSpawn: function(data) {
+            var unit = this.units.get(data.id);
+            var tile = this.hexgrid.get(data.x, data.y);
+            unit.move(tile);
+            unit.show();
+        },
         unitMove: function(data) {
-            var id = data.id,
-                tile = data.tile
-            ;
-
+            var unit = this.units.get(data.id);
+            var start = unit.tile;
+            var end = this.hexgrid.get(data.x, data.y);
+            var nearestPath = this.findNearestPath(start, end);
+            nearestPath = [start].concat(nearestPath);
+            var hexTiles = this.createTiles(nearestPath, 'hex_target', function(hex, i) {
+                hex.alpha = 0;
+                hex.scaleX = hex.scaleY = 0.25;
+                wol.tween.get(hex)
+                    .wait(i * 30)
+                    .call(function(){
+                        this.add(hex, this.hexContainer);
+                     }.bind(this))
+                    .to({alpha: 1, scaleX: 1, scaleY: 1}, 500, wol.ease.quartInOut)
+                ;
+            }.bind(this));
+            var moveEnd = function() {
+                unit.off('hex.move.end', this);
+                wol.each(hexTiles, function(hex, i) {
+                    wol.tween.get(hex)
+                        .wait(i * 50)
+                        .to({alpha:0, scaleX: 0, scaleY: 0}, 300, wol.ease.quartIn)
+                        .call(function() {
+                            hex.parent.removeChild(hex);
+                        });
+                });
+            };
+            unit.on('hex.move.end', moveEnd);
+            nearestPath.splice(0,1);
+            unit.move(nearestPath);
+        },
+        /**
+         * Client Method:
+         * @param unit
+         */
+        unitRange: function(unit) {
+            var range = unit.stats.get('range').value;
+            var neighbors = this.hexgrid.neighbors(unit.tile, range);
+            this.createTiles(neighbors, 'hex_select', function(hex){
+                this.add(hex, this.hexContainer)
+            }.bind(this))
         }
     });
 
