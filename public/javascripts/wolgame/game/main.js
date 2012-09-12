@@ -92,7 +92,6 @@ define([
                 // game events
                 .on('game.join', this.gameJoin.bind(this))
                 // unit events
-                .on('unit.add', this.unitAdd.bind(this))
                 .on('unit.spawn', this.unitSpawn.bind(this))
                 .on('unit.move', this.unitMove.bind(this))
             ;
@@ -125,30 +124,25 @@ define([
          * Server Event: Adds a unit to the game.
          * @param data
          */
-        unitAdd: function(data) {
+        unitSpawn: function(data) {
             var id = data.id,
                 name = data.name,
                 code = data.code,
-                stats = data.stats
+                stats = data.stats,
+                tileX = data.x,
+                tileY = data.y
             ;
             var unitClass = this.unitClasses[code];
             if (unitClass) {
                 var unit = new unitClass();
-                this.addEntity(unit);
-                unit.metaData(id, name, code);
+                var tile = this.hexgrid.get(tileX, tileY);
+                this.addEntity(unit, id, code, name);
                 this.units.add(unit);
                 unit.stats.set(stats);
+                unit.move(tile);
+                unit.flip(data.direction);
+                unit.show();
             }
-        },
-        /**
-         * Server Event: Moves a unit.
-         * @param data
-         */
-        unitSpawn: function(data) {
-            var unit = this.units.get(data.id);
-            var tile = this.hexgrid.get(data.x, data.y);
-            unit.move(tile);
-            unit.show();
         },
         unitMove: function(data) {
             var unit = this.units.get(data.id);
@@ -160,11 +154,11 @@ define([
                 hex.alpha = 0;
                 hex.scaleX = hex.scaleY = 0.25;
                 wol.tween.get(hex)
-                    .wait(i * 30)
+                    .wait(i * 50)
                     .call(function(){
                         this.add(hex, this.hexContainer);
                      }.bind(this))
-                    .to({alpha: 1, scaleX: 1, scaleY: 1}, 500, wol.ease.quartInOut)
+                    .to({alpha: 1, scaleX: 1, scaleY: 1}, 500, wol.ease.cubicOut)
                 ;
             }.bind(this));
             var moveEnd = function() {
@@ -172,7 +166,7 @@ define([
                 wol.each(hexTiles, function(hex, i) {
                     wol.tween.get(hex)
                         .wait(i * 50)
-                        .to({alpha:0, scaleX: 0, scaleY: 0}, 300, wol.ease.quartIn)
+                        .to({alpha:0, scaleX: 0.25, scaleY: 0.25}, 300, wol.ease.quintIn)
                         .call(function() {
                             hex.parent.removeChild(hex);
                         });

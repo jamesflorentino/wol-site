@@ -71,13 +71,14 @@ define([
          * @param entity
          * @return {*}
          */
-        addEntity: function(entity) {
+        addEntity: function(entity, id, code, name) {
             // since this is a hex-grid game, we should apply a hexgrid component
             // to the entities we add into the display list.
             console.log('add entity');
             entity.addComponent('hexgrid');
             entity.addComponent('unit');
             entity.addComponent('stats');
+            entity.metaData(id, code, name);
             entity.hide();
             this.add(entity.container, this.unitContainer);
             return this;

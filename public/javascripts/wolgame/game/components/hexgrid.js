@@ -4,7 +4,7 @@ define([
     'wol/tile',
     'wol/events',
     'game/hex'
-    
+
 ],function(wol, Tile, Events, Hex){
 
     "use strict";
@@ -29,8 +29,11 @@ define([
                 // initiate a tween.
                 tweenObj = wol.tween.get(entity.container);
                 // iterate through the array, and assign tween chaining
-                wol.each(tileOrTiles, function(tile) {
+                wol.each(tileOrTiles, function(tile, i) {
                     var coord = Hex.coord(tile, true);
+                    var prev = tileOrTiles[i-1] || entity.tile;
+                    // for speeding up the animation a bit when moving the unit diagonally.
+                    var time = entity.moveDuration * (prev.y != tile.y ? 0.75 : 1);
                     tweenObj = tweenObj
                         .call(function() {
                             entity.container.scaleX = entity._currentPos.x > coord.x ? -1 : 1;
@@ -38,7 +41,7 @@ define([
                             // we assign the current active tile in the entity for reference.
                             entity.tile = tile;
                         })
-                        .to(coord, entity.moveDuration);
+                        .to(coord, time);
                 });
                 // tells the entity we're finished moving which can be used to do
                 // stop a move animation.

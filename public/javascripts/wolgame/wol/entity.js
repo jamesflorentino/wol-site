@@ -96,8 +96,8 @@ define([
         // ### entity.flip(direction)
         // Tells the entity to face a certain direction.
         flip: function(direction) {
-            //this.container.scaleX = direction === this.LEFT ? -1 : 1;
-            this.container.scaleX = Math.random() > 0.5 ? -1 : 1;
+            this.container.scaleX = direction === this.LEFT ? -1 : 1;
+            //this.container.scaleX = Math.random() > 0.5 ? -1 : 1;
         },
 
         // ### entity.addComponent(name)
