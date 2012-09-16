@@ -3,7 +3,23 @@ extends layouts/game-dev
 block content
     #main
         #ui
-            .preloader
+            .preloader.hidden
                 .bar
                 .border
+            .unit-active.hidden
+                .title Active Unit
+                .avatar
+                .health
+                    .label HP
+                    .value 300/300
+                .actions
+                    .title Actions
+                    .bars
+                        .bar.empty
+                        .bar.empty
+                        .bar.empty
+                .commands
+                    .move.command Move
+                    .reinforce.command Reinforce
+                    .skip.command Skip
         #game

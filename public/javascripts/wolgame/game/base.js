@@ -24,12 +24,10 @@ define([
     "use strict";
 
     var URI_BACKGROUND = 'media/background.png';
-    var URI_TERRAIN = 'media/terrain.png';
 
     // Include assets to the imageQueue
     wol.resources.add(
-        URI_BACKGROUND,
-        URI_TERRAIN
+        URI_BACKGROUND
     );
 
     // Include the elements sprite sheet
@@ -40,8 +38,6 @@ define([
         hexgrid: new HexGrid(),
 
         background: null,
-
-        terrain: null,
 
         hexContainer: wol.create.container(),
 
@@ -57,14 +53,11 @@ define([
             // Invoke any parent requirements.
             this.parent();
             this.background = wol.create.bitmap(wol.resources.get(URI_BACKGROUND));
-            this.terrain = wol.create.bitmap(wol.resources.get(URI_TERRAIN));
             this.add(this.background);
-            this.add(this.terrain);
             this.add(this.hexContainer);
             this.add(this.unitContainer);
             this.hexgrid.generate(this.columns, this.rows);
             this.createStaticGridDisplay(this.hexgrid);
-            this.terrain.y = this.hexContainer.y = this.unitContainer.y = 150;
         },
         /**
          * Adds an entity to the display list as well as the components needed for the game.

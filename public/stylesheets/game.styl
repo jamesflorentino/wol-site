@@ -1,5 +1,20 @@
 @import "nib"
 
+color-green = #13bbc9
+color-white = white
+
+glow()
+    border: 1px solid color-green
+    inner-glow = 0 0 10px color-green inset
+    outer-glow = 0 0 10px rgba(color-green, 0.5)
+    box-shadow: inner-glow, outer-glow
+
+button()
+    cursor: pointer
+
+bold-text()
+    font-weight: 600
+
 body
     background: #222
     margin: 0
@@ -8,6 +23,11 @@ body
 #main
     background: #111
     position: absolute
+    font-size: 14px
+    font-family: Exo, Helvetica Neue, Arial, sans-serif
+    overflow: hidden
+    width: 960px
+    height: 640px
 
 #game
     display: inline-block
@@ -20,7 +40,11 @@ body
         position: absolute
         width: 100%
         height: 100%
-        background: black
+        //background: url(/media/background.png) top left no-repeat
+        background-color: black
+
+        &.hidden
+            visibility: hidden
 
         .border
         .bar
@@ -40,3 +64,94 @@ body
             box-shadow: 0 0 10px 1px #33aaa3
             z-index: 1
             transition: 600ms
+
+    .unit-active
+        glow()
+        font-weight: 100
+        font-size: 12px
+        text-transform: uppercase
+        color: color-green
+        background: black
+        width: 500px
+        height: 40px
+        z-index: 2
+        position: absolute
+        bottom: 15px
+        left: 15px
+        transition: 400ms bottom
+
+        &.hidden
+            bottom: -70px
+
+        > .title
+            position: absolute
+            top: -25px
+            left: 0px
+
+        .avatar
+            glow()
+            background-color: black
+            width: 28px
+            height: 28px
+            position: absolute
+            left: 5px
+            top: 5px
+            overflow: hidden
+
+        .health
+            position: absolute
+            left: 55px
+            top: 11px
+
+            .label
+                float: left
+                margin-right: 5px
+
+            .value
+                float: left
+                color: color-white
+                font-weight: 600
+
+        .actions
+            position: absolute
+            left: 145px
+            top: 11px
+            height: 16px
+
+            .title
+                line-height: 16px
+                height: 16px
+                float: left
+
+            .bars
+                margin-left: 5px
+                float: left
+
+            .bar
+                glow()
+                box-sizing: border-box
+                width: 38px
+                height: 16px
+                background: rgba(color-green, 0.5)
+                float: left
+                margin-right: 5px
+                &.empty
+                    opacity: 0.25
+
+        .commands
+            position: absolute
+            top: 5px
+            right: 5px
+
+            .command
+                bold-text()
+                button()
+                border: 1px solid color-green
+                padding: 5px
+                background: rgba(color-green, 0.15)
+                float: left
+                margin-left: 2px
+                transition: 200ms
+                &:hover
+                    background: rgba(color-green, 0.5)
+                    color: color-white

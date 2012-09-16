@@ -33,7 +33,8 @@ Game.prototype.addPlayer = function (player) {
     this.players.push(player);
     this.log('player.add', {
         id: player.id,
-        name: player.name
+        name: player.name,
+        index: this.players.length
     });
     if (this.players.length === this.MAX_USERS) {
         this.start();
@@ -119,10 +120,19 @@ Game.prototype.start = function () {
     // test units
     var unit;
     var player;
+    // spawn first player
     player = this.players[0];
     unit = this.createUnit('marine', player);
     unit.face('right');
     this.spawnUnit(unit, this.grid.get(0,4));
+
+    // spawn second player
+    player = this.players[this.players.length-1];
+    unit = this.createUnit('marine', player);
+    unit.face('right');
+    this.spawnUnit(unit, this.grid.get(7,5));
+
+    this.log('game.start', {id: this.id});
 };
 /**
  * Spawns a unit in the game.

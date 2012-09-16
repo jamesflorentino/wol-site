@@ -22,13 +22,9 @@ var GameApp = function(io) {
          * @param data
          */
         function setAuthKey(data) {
-            var authKey = data.wol_id;
+            var authKey = data.authKey;
             player = players.get(authKey);
-            if (player === undefined) {
-                player = new Player();
-                players.add(player);
-            }
-            assignEvents();
+            socket.on('player.set.name', setName);
         }
         /**
          * Registers the current player to the room.
@@ -78,7 +74,12 @@ var GameApp = function(io) {
          * @param data
          */
         function setName(data) {
+            if (!player) {
+                player = new Player();
+                players.add(player);
+            }
             player.name = data.name;
+            assignEvents();
         }
 
         /**
@@ -94,8 +95,7 @@ var GameApp = function(io) {
         function assignEvents() {
             socket.on('disconnect', disconnect);
             socket.on('game.find', findGame);
-            socket.on('player.setName', setName);
-            socket.emit('player.setData', {
+            socket.emit('player.data', {
                 id: player.id,
                 authKey: player.authKey,
                 expiresIn: player.expiresIn,
@@ -103,8 +103,9 @@ var GameApp = function(io) {
             });
             player.connect(socket);
         }
-        socket.on('player.setAuthKey', setAuthKey);
+        socket.on('auth', setAuthKey);
     }
+    // basic configuration
     io.configure(function(){
         io.sockets.on('connection', connection);
         io.enable('browser client minification');  // send minified client

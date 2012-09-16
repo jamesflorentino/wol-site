@@ -28,6 +28,11 @@ module.exports = (function(){
      */
     Player.prototype.MAX_LIFE = 1000 * 60 * 60 * 24; // 1 day.
     /**
+     * Tells if the user is connected  or not.
+     * @type {null}
+     */
+    Player.prototype.connected = null;
+    /**
      * Flags the client as connected. It is used to determine if the player is online.
      * Also removes the timeout event from being fired.
      */
@@ -38,8 +43,9 @@ module.exports = (function(){
         clearTimeout(this.timeoutRemove);
     };
     /**
-     * Issues a countdown when called. It's meant to remove players from memory, if they haven't gone back
-     * to the game again. I'm not storing them on the database so this makes sense at the moment.
+     * Issues a countdown when called. It's meant to remove players from memory,
+     * if they haven't gone back to the game again.
+     * I'm not storing them on the database so this makes sense at the moment.
      */
     Player.prototype.disconnect = function() {
         this.socket = null;

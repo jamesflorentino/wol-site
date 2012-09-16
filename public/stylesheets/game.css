@@ -6,6 +6,11 @@ body {
 #main {
   background: #111;
   position: absolute;
+  font-size: 14px;
+  font-family: Exo, Helvetica Neue, Arial, sans-serif;
+  overflow: hidden;
+  width: 960px;
+  height: 640px;
 }
 #game {
   display: inline-block;
@@ -18,7 +23,10 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: #000;
+  background-color: #000;
+}
+#ui .preloader.hidden {
+  visibility: hidden;
 }
 #ui .preloader .border,
 #ui .preloader .bar {
@@ -44,4 +52,115 @@ body {
   -o-transition: 600ms;
   -ms-transition: 600ms;
   transition: 600ms;
+}
+#ui .unit-active {
+  border: 1px solid #13bbc9;
+  -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  font-weight: 100;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #13bbc9;
+  background: #000;
+  width: 500px;
+  height: 40px;
+  z-index: 2;
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  -webkit-transition: 400ms bottom;
+  -moz-transition: 400ms bottom;
+  -o-transition: 400ms bottom;
+  -ms-transition: 400ms bottom;
+  transition: 400ms bottom;
+}
+#ui .unit-active.hidden {
+  bottom: -70px;
+}
+#ui .unit-active > .title {
+  position: absolute;
+  top: -25px;
+  left: 0px;
+}
+#ui .unit-active .avatar {
+  border: 1px solid #13bbc9;
+  -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  background-color: #000;
+  width: 28px;
+  height: 28px;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  overflow: hidden;
+}
+#ui .unit-active .health {
+  position: absolute;
+  left: 55px;
+  top: 11px;
+}
+#ui .unit-active .health .label {
+  float: left;
+  margin-right: 5px;
+}
+#ui .unit-active .health .value {
+  float: left;
+  color: #fff;
+  font-weight: 600;
+}
+#ui .unit-active .actions {
+  position: absolute;
+  left: 145px;
+  top: 11px;
+  height: 16px;
+}
+#ui .unit-active .actions .title {
+  line-height: 16px;
+  height: 16px;
+  float: left;
+}
+#ui .unit-active .actions .bars {
+  margin-left: 5px;
+  float: left;
+}
+#ui .unit-active .actions .bar {
+  border: 1px solid #13bbc9;
+  -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 38px;
+  height: 16px;
+  background: rgba(19,187,201,0.5);
+  float: left;
+  margin-right: 5px;
+}
+#ui .unit-active .actions .bar.empty {
+  opacity: 0.25;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
+  filter: alpha(opacity=25);
+}
+#ui .unit-active .commands {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+#ui .unit-active .commands .command {
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #13bbc9;
+  padding: 5px;
+  background: rgba(19,187,201,0.15);
+  float: left;
+  margin-left: 2px;
+  -webkit-transition: 200ms;
+  -moz-transition: 200ms;
+  -o-transition: 200ms;
+  -ms-transition: 200ms;
+  transition: 200ms;
+}
+#ui .unit-active .commands .command:hover {
+  background: rgba(19,187,201,0.5);
+  color: #fff;
 }

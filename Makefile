@@ -1,5 +1,5 @@
-minify:
-	cake minify
+server:
+	node app
 
 compile:
 	node tools/build.js -o name=app out=stub.js baseUrl=src/

@@ -65,6 +65,21 @@ define([
                 return this._dictionary[name];
             }
         },
+        dom: {
+            hasClass: function (ele,cls) {
+                return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+            },
+            addClass: function (ele,cls) {
+                if (!this.hasClass(ele,cls)) ele.className += " "+cls;
+            },
+
+            removeClass: function (ele,cls) {
+                if (this.hasClass(ele,cls)) {
+                    var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+                    ele.className=ele.className.replace(reg,' ');
+                }
+            }
+        },
         // ### wol.display
         /**
          * Used for adding display objects in the canvas which is then channeled towards the createjs.Stage instance.
@@ -193,6 +208,7 @@ define([
                 return image;
             }
         },
+
         resources: {
             manifest: [],
             loader: new createjs.PreloadJS(),
@@ -217,12 +233,11 @@ define([
                 this.loader.loadManifest(this.manifest);
             }
         },
-
         tween: createjs.Tween,
         ease: createjs.Ease,
         stage: null,
         game: null,
-        init: function (gameClass, container, width, height, fps) {
+        init: function (gameClass, container, width, height, callback) {
             wol.debug('canvas INITIALIZING');
             // create the canvas element to use for the stage
             var canvas = document.createElement('canvas');
@@ -249,13 +264,14 @@ define([
                 wol.events
                     .emit(wol.Events.READY, wol)
                     .off(wol.Events.READY);
-                // allow things to happen before we start.
+                // allow things to breathe before we start.
                 var time = 1000;
-                time = 10;
+                // time = 10;
                 wait(time, function () {
                     wol.events.emit(wol.Events.GAME_START);
                     wol.play();
-                    new gameClass();
+                    var game = new gameClass();
+                    callback(game);
                 })
             });
         },
@@ -264,15 +280,15 @@ define([
         },
         // create preloader
         makeLoadBars: function () {
-            var bar, border, initW, preloader;
-            preloader = wol.$('#ui .preloader');
-            border = wol.$('#ui .preloader .border');
-            bar = wol.$('#ui .preloader .bar');
-            initW = border.clientWidth;
+            var preloader = wol.$('#ui .preloader');
+            var border = wol.$('#ui .preloader .border');
+            var bar = wol.$('#ui .preloader .bar');
+            var initW = border.clientWidth;
+            wol.dom.removeClass(preloader, 'hidden');
             wol.events.on(wol.Events.PRELOAD_PROGRESS, function (perc) {
                 bar.style.width = (initW * perc) + 'px';
             });
-            wol.events.on(wol.Events.GAME_START, function (perc) {
+            wol.events.on(wol.Events.GAME_START, function () {
                 preloader.style.display = 'none';
             });
         },
@@ -292,6 +308,7 @@ define([
             wol.debug('game RESUMED');
             return this;
         },
+
         setDomEvents: function () {
             // stop the rendering when we blur out of the window.
             window.onblur = function () {
@@ -307,7 +324,6 @@ define([
         debug: function () {
             //console.log(this._dcount++, Array.prototype.slice.call(arguments));
         },
-
         isFunction:isFunction,
         isArray:isArray,
         wait:wait,
