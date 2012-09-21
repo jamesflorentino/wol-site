@@ -100,16 +100,14 @@ define([
              * @return {createjs.BitmapAnimation}
              */
             animation: function (spritesheet) {
-                var animation = new createjs.BitmapAnimation(spritesheet);
-                return animation;
+                return new createjs.BitmapAnimation(spritesheet);
             },
             /**
              * Returns a createjs.Container
              * @return {createjs.Container}
              */
             container: function () {
-                var container = new createjs.Container();
-                return container;
+                return new createjs.Container();
             },
             /**
              * Creates and returns a createjs.Bitmap instance.
@@ -117,8 +115,7 @@ define([
              * @return {createjs.Bitmap}
              */
             bitmap: function (imageResource) {
-                var bitmap = new createjs.Bitmap(imageResource);
-                return bitmap;
+                return new createjs.Bitmap(imageResource);
             },
             /**
              * Caches an entire container to an offscreen canvas which is
@@ -237,6 +234,15 @@ define([
         ease: createjs.Ease,
         stage: null,
         game: null,
+        /**
+         * Initializes a game in the wol namespace. The callback parameter
+         * is invoked after the game finishes preloading the assets.
+         * @param gameClass
+         * @param container
+         * @param width
+         * @param height
+         * @param callback
+         */
         init: function (gameClass, container, width, height, callback) {
             wol.debug('canvas INITIALIZING');
             // create the canvas element to use for the stage

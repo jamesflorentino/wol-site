@@ -40,7 +40,7 @@ module.exports = (function(){
         this.socket = socket;
         this.connected = true;
         this.emit('connect', this);
-        clearTimeout(this.timeoutRemove);
+        clearTimeout(this.timeoutRemoveID);
     };
     /**
      * Issues a countdown when called. It's meant to remove players from memory,
@@ -52,14 +52,17 @@ module.exports = (function(){
         this.connected = false;
         this.emit('disconnect', this);
         this.expiresIn = new Date().getTime() + this.MAX_LIFE;
-        clearTimeout(this.timeoutRemove);
-        this.timeoutRemove = setTimeout(this.remove.bind(this), this.MAX_LIFE);
+        clearTimeout(this.timeoutRemoveID);
+        this.timeoutRemoveID = setTimeout(this.remove.bind(this), this.MAX_LIFE);
     };
     /**
      * Tells all the callbacks to remove this player instance from their memory.
      */
     Player.prototype.remove = function () {
         this.trigger('remove', this);
+    };
+    Player.prototype.ready = function() {
+        this.trigger('ready', this);
     };
     return Player;
 })();

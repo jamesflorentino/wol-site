@@ -19,7 +19,7 @@ define([
     UnitComponent,
     Stats,
     Keys
-) {
+    ) {
 
     "use strict";
 
@@ -67,7 +67,6 @@ define([
         addEntity: function(entity, id, code, name) {
             // since this is a hex-grid game, we should apply a hexgrid component
             // to the entities we add into the display list.
-            console.log('add entity');
             entity.addComponent('hexgrid');
             entity.addComponent('unit');
             entity.addComponent('stats');
@@ -82,7 +81,7 @@ define([
          */
         createStaticGridDisplay: function(grid) {
             var i, _len, tile, hex, image, container, _this = this;
-            image = wol.spritesheets.extract('elements','hex_bg');
+            //image = wol.spritesheets.extract('elements','hex_bg');
             i = 0;
             container = wol.create.container();
             this.createTiles(this.hexgrid.tiles, 'hex_bg', function(hex) {
@@ -106,7 +105,9 @@ define([
         createTiles: function(tiles, type, callback) {
             var image, hex, tile, hexes;
             type || (type = 'hex_select');
-            image = this.cachedTextures[type] || (this.cachedTextures[type] = wol.spritesheets.extract('elements', type));
+            image =
+                this.cachedTextures[type] ||
+                    (this.cachedTextures[type] = wol.spritesheets.extract('elements', type));
             hexes = [];
             for (var i = tiles.length - 1; i >= 0; i--){
                 tile = tiles[i];

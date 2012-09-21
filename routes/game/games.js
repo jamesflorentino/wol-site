@@ -13,8 +13,8 @@ module.exports = (function() {
             this.list.push(game);
             this.vacant.push(game.id);
             this.dictionary[game.id] = game;
-            this.length = this.list.length;
         }
+        this.length = this.list.length;
         return this;
     };
 

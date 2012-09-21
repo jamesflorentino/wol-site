@@ -23,51 +23,9 @@ var GameApp = function(io) {
          */
         function setAuthKey(data) {
             var authKey = data.authKey;
+            // we check if the player exists in our database.
             player = players.get(authKey);
-            socket.on('player.set.name', setName);
-        }
-        /**
-         * Registers the current player to the room.
-         * @param game
-         * @return {*}
-         */
-        function joinGame(game) {
-            var gameID = game.id;
-            games.occupy(game, player);
-            socket.join(gameID);
-            socket.emit('game.join', { id: gameID });
-            socket.on('disconnect', function() {
-                player.connected = false;
-                if (game.connectedPlayers() === 0) {
-                    games.remove(game);
-                }
-            });
-            game.backlogs(function(event){
-                socket.emit(event.name, event.data);
-            });
-            return game;
-        }
-        /**
-         * Creates a new game object.
-         * @return {*}
-         */
-        function createGame() {
-            var game = new Game();
-            var gameID = game.id;
-            game.on('log', function(event) {
-                io.sockets.in(gameID).emit(event.name, event.data);
-                console.log(" — Game (" + game.id + "): ", event.name, '->', JSON.stringify(event.data));
-            });
-            games.add(game);
-            return game;
-        }
-        /**
-         * Fins a game to join. If none exists, it'll create one.
-         */
-        function findGame() {
-            if (game === undefined) {
-                game = joinGame(games.available() || createGame());
-            }
+            subscribe('player.set.name', setName);
         }
         /**
          * Sets the name of the player from the client.
@@ -79,40 +37,111 @@ var GameApp = function(io) {
                 players.add(player);
             }
             player.name = data.name;
-            assignEvents();
-        }
-
-        /**
-         * Tell the player to disconnect.
-         */
-        function disconnect() {
-            player.disconnect();
-        }
-
-        /**
-         * All the events needed for starting a game.
-         */
-        function assignEvents() {
-            socket.on('disconnect', disconnect);
-            socket.on('game.find', findGame);
-            socket.emit('player.data', {
+            // this basically removes the socket reference to the
+            // player object.
+            subscribe('disconnect', player.disconnect.bind(player));
+            // will only accept if there's no current game.
+            subscribe('game.find', findGame);
+            // Update the client with the player data in the server.
+            // id - the public ID of the user.
+            // AuthKey - the private ID of the user used as an
+            // identification
+            publish('player.data', {
                 id: player.id,
                 authKey: player.authKey,
                 expiresIn: player.expiresIn,
                 expires: player.expires
             });
+            // this basically just assigns the socket object to the
+            // player instance.
             player.connect(socket);
         }
-        socket.on('auth', setAuthKey);
+        /**
+         * Registers the current player to the room.
+         * @param game
+         * @return {*}
+         */
+        function joinGame(game) {
+            var gameID = game.id;
+            // reason why we're using a collection method is that so
+            // we can update the vacant games in the list.
+            games.occupy(game, player);
+            // this will tell the client what happened in the game.
+            // which is useful for watching replays.
+            game.backlogs(function(event){
+                publish(event.name, event.data);
+            });
+            // when the client disconnects, we check if the game is empty,
+            // then remove the game from the list.
+            subscribe('disconnect', function() {
+                if (game.connectedPlayers() === 0) {
+                    games.remove(game);
+                }
+            });
+            // when the player's assets are loaded
+            subscribe('ready', playerReady);
+            // subscribe the user to the game list.
+            socket.join(gameID);
+            // Tell the client, he's subscribed to a game.
+            publish('game.join', { id: gameID });
+            return game;
+        }
+        /**
+         * Fins a game to join. If none exists, it'll create one.
+         */
+        function findGame() {
+            if (game === undefined) {
+                game = joinGame(games.available() || createGame());
+            }
+        }
+        /**
+         * Creates a new game object.
+         * @return {*}
+         */
+        function createGame() {
+            var game = new Game();
+            var gameID = game.id;
+            game.on('log', function(event) {
+                io.sockets.in(gameID).emit(event.name, event.data);
+                console.log(
+                    "| >> Game (" + game.id + "): ",
+                    event.name, '->',
+                    JSON.stringify(event.data)
+                );
+            });
+            games.add(game);
+            return game;
+        }
+        /**
+         * When the player has successfully loaded the assets in the game.
+         */
+        function playerReady() {
+            if (game) {
+                game.playerReady(player);
+            }
+        }
+
+        function publish(topic, data) {
+            socket.emit(topic, data);
+        }
+
+        function subscribe(topic, callback) {
+            socket.on(topic, callback);
+        }
+
+        // Listen to only one event first which is the authentication
+        // before proceeding to anything else.
+        subscribe('auth', setAuthKey);
     }
+
     // basic configuration
     io.configure(function(){
         io.sockets.on('connection', connection);
-        io.enable('browser client minification');  // send minified client
-        io.enable('browser client etag');          // apply etag caching logic based on version number
-        io.enable('browser client gzip');          // gzip the file
-        io.set('log level', 3);                    // reduce logging
-        io.set('transports', [                     // enable all transports (optional if you want flashsocket)
+        io.enable('browser client minification');
+        io.enable('browser client etag');
+        io.enable('browser client gzip');
+        io.set('log level', 3);
+        io.set('transports', [
             'websocket'
             , 'flashsocket'
             , 'htmlfile'

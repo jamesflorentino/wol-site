@@ -9,7 +9,7 @@ define([
         this.dictionary = {};
         this.add(new Stat('health', 800));
         this.add(new Stat('attack', 200));
-        this.add(new Stat('speed', 10));
+        this.add(new Stat('recharge', 5));
         this.add(new Stat('range', 2));
         this.set(stats);
     }

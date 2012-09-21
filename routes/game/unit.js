@@ -20,5 +20,9 @@ Unit.prototype.move = function(tile) {
 Unit.prototype.face = function (leftOrRight) {
     this.direction = leftOrRight;
 };
+Unit.prototype.recharge = function(value) {
+    var recharge = this.stats.get('recharge');
+    return recharge.setValue(recharge.value + value);
+};
 
 module.exports = Unit;

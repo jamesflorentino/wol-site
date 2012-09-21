@@ -40,33 +40,56 @@ define([
         unitClasses: {
             'marine': Marine
         },
+        /**
+         * entry point
+         */
         init: function() {
             this.parent();
             this.hexContainer.y = this.unitContainer.y = 150;
             this.hexContainer.x = this.unitContainer.x = 80;
         },
         /**
-         * Spawn units in the game
-         * @param unitCode
-         * @param point
-         * @param direction
+         * add a player to the collection
+         * @param data
          */
-        unitSpawn: function(unitCode, point, direction) {
-            var unitClass = this.unitClasses[unitCode];
+        addPlayer: function(data) {
+            this.players.add({
+                id: data.id,
+                name: data.name
+            });
+        },
+        /**
+         * Server Event: Adds a unit to the game.
+         * @param data
+         */
+        unitSpawn: function(data) {
+            var id = data.id,
+                name = data.name,
+                code = data.code,
+                stats = data.stats,
+                tileX = data.x,
+                tileY = data.y
+            ;
+            var unitClass = this.unitClasses[code];
             if (unitClass) {
                 var unit = new unitClass();
-                var tile = this.hexgrid.get(point.x, point.y);
+                var tile = this.hexgrid.get(tileX, tileY);
                 this.addEntity(unit, id, code, name);
                 this.units.add(unit);
                 unit.stats.set(stats);
                 unit.move(tile);
-                unit.flip(direction);
+                unit.flip(data.direction);
                 unit.show();
             }
         },
-        unitMove: function(unit, point) {
+        /**
+         *
+         * @param data
+         */
+        unitMove: function(data) {
+            var unit = this.units.get(data.id);
             var start = unit.tile;
-            var end = this.hexgrid.get(point.x, point.y);
+            var end = this.hexgrid.get(data.x, data.y);
             var nearestPath = this.findNearestPath(start, end);
             nearestPath = [start].concat(nearestPath);
             var hexTiles = this.createTiles(nearestPath, 'hex_target', function(hex, i) {
