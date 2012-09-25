@@ -121,7 +121,6 @@ require([
         var unit;
         var tile;
         if (unit = game.units.get(data.id)) {
-            unit.move(tile);
         }
     }
 

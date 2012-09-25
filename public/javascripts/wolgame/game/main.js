@@ -4,7 +4,6 @@ define([
     'game/base',
     'game/entities/marine',
     'wol/events'
-
 ], function(
     wol,
     Collection,
@@ -15,38 +14,34 @@ define([
 
     "use strict";
 
-    var vendorName = navigator.vendor.replace(/(^\w+).+/, function (a, b) {
-        return b;
-    });
-
     return Base.extend({
         /**
          * A collection of users in the game.
          */
-        players: new wol.Collection(),
+        players:new wol.Collection(),
         /**
          * A collection of units that can be easily removed, added or referenced.
          */
-        units: new wol.Collection(),
+        units:new wol.Collection(),
         /**
          * The current player's data.
          */
-        player: {
-            name: null,
-            id: null
+        player:{
+            name:null,
+            id:null
         },
         /**
          * A static list of unit classes for easy reference when spawning units
          * from the server.
          */
-        unitClasses: {
-            'marine': Marine
+        unitClasses:{
+            'marine':Marine
         },
-        activeUnit: null,
+        activeUnit:null,
         /**
          * entry point
          */
-        init: function() {
+        init:function () {
             this.parent();
             this.hexContainer.y = this.unitContainer.y = 150;
             this.hexContainer.x = this.unitContainer.x = 80;
@@ -59,17 +54,17 @@ define([
          * add a player to the collection
          * @param data
          */
-        addPlayer: function(data) {
+        addPlayer:function (data) {
             this.players.add({
-                id: data.id,
-                name: data.name
+                id:data.id,
+                name:data.name
             });
         },
         /**
          * Server Event: Adds a unit to the game.
          * @param data
          */
-        unitSpawn: function(data) {
+        unitSpawn:function (data) {
             var id = data.id,
                 name = data.name,
                 code = data.code,
@@ -93,11 +88,11 @@ define([
             }
         },
 
-        updateUnit: function(unit) {
+        updateUnit:function (unit) {
             var _this = this,
                 playerSide;
             playerSide = unit.playerId === this.player.id ? 'hex_player_a' : 'hex_player_b';
-            var hexTiles = this.createTiles([unit.tile], playerSide, function(hex) {
+            var hexTiles = this.createTiles([unit.tile], playerSide, function (hex) {
                 _this.add(hex, _this.hexContainer);
             });
             this.setHexTiles(unit, 'playerSide', hexTiles);
@@ -109,30 +104,30 @@ define([
          * @param unit
          * @param end
          */
-        unitMove: function(unit, end, callback) {
+        unitMove:function (unit, end, callback) {
             var _this = this;
             var start = unit.tile;
             var nearestPath = this.findNearestPath(start, end);
             nearestPath = [start].concat(nearestPath);
-            var hexTiles = this.createTiles(nearestPath, 'hex_target', function(hex, i) {
+            var hexTiles = this.createTiles(nearestPath, 'hex_target', function (hex, i) {
                 _this.add(hex, _this.hexContainer);
             });
             this.setHexTiles(unit, 'move', hexTiles);
-            var moveEnd = (function() {
+            var moveEnd = (function () {
                 unit.off('hex.move.end', moveEnd);
                 _this.clearHexTiles(unit);
                 _this.updateUnit(unit);
                 if (wol.isFunction(callback)) callback();
             });
             unit.on('hex.move.end', moveEnd);
-            nearestPath.splice(0,1);
+            nearestPath.splice(0, 1);
             unit.move(nearestPath);
         },
         /**
          *
          * @param unit
          */
-        unitRange: function(unit) {
+        unitRange:function (unit) {
             var range;
             var neighbors;
             var _this = this;
@@ -144,13 +139,13 @@ define([
                 neighbors = this.hexgrid.neighbors(unit.tile, range);
                 var hexTiles =
                     this.createTiles(neighbors, 'hex_select',
-                        function(hex, i){
+                        function (hex, i) {
                             var tile = neighbors[i];
                             _this.add(hex, hexContainer);
-                            hex.onClick = (function() {
+                            hex.onClick = (function () {
                                 unit.disable();
                                 _this.clearHexTiles(unit);
-                                _this.unitMove(unit, tile, function() {
+                                _this.unitMove(unit, tile, function () {
                                     _this.actUnit(unit);
                                     _this.checkTurn(unit);
                                 });
@@ -162,7 +157,7 @@ define([
             }
         },
 
-        actUnit: function(unit, cost) {
+        actUnit:function (unit, cost) {
             cost || (cost = 1);
             var actions;
             var difference;
@@ -173,7 +168,7 @@ define([
             }
         },
 
-        checkTurn: function(unit) {
+        checkTurn:function (unit) {
             if (unit === this.activeUnit) {
                 var actionStat;
                 actionStat = unit.stats.get('actions');
@@ -184,17 +179,16 @@ define([
             }
         },
 
-        clearHexTiles: function(unit, type) {
+        clearHexTiles:function (unit, type) {
             var _this = this;
-            unit.hexTiles.clear(type, function(hexTiles){
+            unit.hexTiles.clear(type, function (hexTiles) {
                 _this.hexContainer.removeChild.apply(_this.hexContainer, hexTiles);
             });
         },
 
-        setHexTiles: function(unit, type, hexTiles) {
+        setHexTiles:function (unit, type, hexTiles) {
             this.clearHexTiles(unit);
             unit.hexTiles.set(type, hexTiles);
         }
     });
-
 });
