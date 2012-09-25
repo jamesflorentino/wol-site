@@ -19,6 +19,7 @@ function Game() {
 }
 
 util.inherits(Game, events.EventEmitter);
+
 Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;

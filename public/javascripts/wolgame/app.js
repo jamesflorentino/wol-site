@@ -93,7 +93,6 @@ require([
         game.player = player;
         game.on('unit.update', unitUpdate);
         players.forEach(game.addPlayer.bind(game));
-        // game events
         socket
             .on('unit.spawn', unitSpawn)
             .on('unit.move', unitMove)
@@ -101,12 +100,21 @@ require([
             .on('unit.turn', unitTurn)
             .on('units.turn.list', unitsTurnList)
         ;
+
         // initialize mouse events
         wol.dom.click(wol.$('#unit-actions .move.command'), showMoveCommand);
         wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
         wol.keys.on(wol.KeyCodes.V, showMoveCommand);
-
         send('ready');
+
+    }
+
+    function unitMove(data) {
+        var unit, tile;
+        if (unit = game.units.get(data.id)) {
+            if (tile = game.hexgrid.get(data.x, data.y)) {
+            }
+        }
     }
 
     function skipTurn() {
@@ -114,13 +122,6 @@ require([
             send('unit.skip', game.activeUnit.id);
             var actionPanel = wol.$('#unit-actions');
             wol.dom.addClass(actionPanel, 'hidden');
-        }
-    }
-
-    function unitMove(data) {
-        var unit;
-        var tile;
-        if (unit = game.units.get(data.id)) {
         }
     }
 
