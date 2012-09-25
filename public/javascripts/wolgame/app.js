@@ -91,28 +91,61 @@ require([
     function ready(g /** Game **/) {
         game = g;
         game.player = player;
-        game.on('unit.update', unitUpdate);
+        game.on('unit.update', gameUnitUpdate);
+        game.on('unit.move', gameUnitMove);
+        game.on('unit.attack', gameUnitAttack);
+
         players.forEach(game.addPlayer.bind(game));
         socket
             .on('unit.spawn', unitSpawn)
+            .on('unit.attack', unitAttack)
             .on('unit.move', unitMove)
             .on('unit.skip', unitSkip)
             .on('unit.turn', unitTurn)
             .on('units.turn.list', unitsTurnList)
         ;
-
         // initialize mouse events
         wol.dom.click(wol.$('#unit-actions .move.command'), showMoveCommand);
         wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
+        wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
         wol.keys.on(wol.KeyCodes.V, showMoveCommand);
         send('ready');
 
+    }
+    function showCancelCommand() {
+        if (game.activeUnit.playerId === player.id) {
+            game.cancelUnitOptions(game.activeUnit);
+        }
+    }
+
+    function gameUnitAttack(parameters) {
+        var unit = parameters.unit;
+        var target = parameters.target;
+        if (game && target && game.activeUnit === unit) {
+            send('unit.attack', {
+                id: unit.id,
+                targetId: target.id
+            })
+        }
+    }
+
+    function gameUnitMove(parameters) {
+        var unit = parameters.unit;
+        var tile = parameters.tile;
+        send('unit.move', {
+            id: unit.id,
+            x: tile.x,
+            y: tile.y
+        })
     }
 
     function unitMove(data) {
         var unit, tile;
         if (unit = game.units.get(data.id)) {
-            if (tile = game.hexgrid.get(data.x, data.y)) {
+            if (unit.playerId !== player.id) {
+                if (tile = game.hexgrid.get(data.x, data.y)) {
+                    game.unitMove(unit, tile);
+                }
             }
         }
     }
@@ -125,6 +158,21 @@ require([
         }
     }
 
+    function unitAttack(parameters) {
+        var id = parameters.id;
+        var targetId = parameters.targetId;
+        var damage = parameters.damage;
+        var unit;
+        var target;
+        if (unit = game.units.get(id)) {
+            if (unit.playerId !== player.id) {
+                if (target = game.units.get(targetId)) {
+                    game.unitAttack(unit, target);
+                }
+            }
+        }
+    }
+
     function unitSkip(data) {
         var unit;
         if (unit = game.units.get(data.id)) {
@@ -132,7 +180,7 @@ require([
         }
     }
 
-    function unitUpdate(unit) {
+    function gameUnitUpdate(unit) {
         if (unit === game.activeUnit) {
             var actionPanel = wol.$('#unit-actions');
             var actionBars = wol.dom.query(actionPanel, '.bars');
@@ -166,6 +214,10 @@ require([
         wol.dom.removeClass(el, 'hidden');
     }
 
+    /**
+     *
+     * @param data
+     */
     function unitTurn(data) {
         var id = data.id;
         var unit;
@@ -174,12 +226,13 @@ require([
             game.activeUnit = unit;
             unit.tileStart = unit.tile;
             unit.stats.get('actions').reset();
-            game.clearHexTiles(unit);
+            //game.clearHexTiles(unit, 'selected');
             var hexTiles = game.createTiles([unit.tile], 'hex_player_selected', function(hex) {
                 game.hexContainer.addChild(hex);
             });
             unit.hexTiles.set('selected', hexTiles);
             if (unit.playerId === player.id) {
+                unit.enable();
                 // show the unit action panel
                 var actionPanel = wol.$('#unit-actions');
                 var healthStat = unit.stats.get('health');
@@ -247,7 +300,9 @@ require([
     function showMoveCommand() {
         var unit;
         if (unit = game.activeUnit) {
-            game.unitRange(unit);
+            if (unit.playerId === player.id ) {
+                game.unitRange(unit);
+            }
         }
     }
 
@@ -261,7 +316,6 @@ require([
     }
 
     function startGame(data) {
-        var id = data.id;
         if (!game) {
             console.log('starting game');
             wol.init(Game, canvasContainer, 960, 640, ready);

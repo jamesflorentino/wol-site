@@ -1,8 +1,14 @@
 define([
     'createjs/create',
     'wol/events',
-    'wol/utils'
-], function(createjsNS, Events) {
+    'wol/utils',
+    'wol/collection'
+], function(
+    createjsNS,
+    Events,
+    utils,
+    Collection
+){
     "use strict";
 
     var createjs = window.createjs;
@@ -181,30 +187,30 @@ define([
             images: {},
             add: function (name, frameData) {
                 var i, images, imageUri;
-                if (this.sheets[name]) {
-                    return null;
-                }
-                images = frameData.images;
-                for (i = 0; i < images.length; i++) {
-                    imageUri = images[i];
-                    // remove invalid Urls
-                    if (imageUri.indexOf('.png') < 0) {
-                        images.splice(i, 1);
-                    } else {
-                        wol.resources.add(imageUri);
-                    }
-                }
-                // If it's fresh data, add it to the ready event.
-                wol.ready(function () {
-                    var imageResource, i;
+                var _this = this;
+                if (!this.sheets[name]) {
+                    images = frameData.images;
                     for (i = 0; i < images.length; i++) {
-                        if (imageResource = wol.resources.get(imageUri)) {
-                            images[i] = imageResource;
+                        imageUri = images[i];
+                        // remove invalid Urls
+                        if (imageUri.indexOf('.png') < 0) {
+                            images.splice(i, 1);
+                        } else {
+                            wol.resources.add(imageUri);
                         }
                     }
-                    this.sheets[name] = new createjs.SpriteSheet(frameData);
-                }.bind(this));
-                return this;
+                    // If it's fresh data, add it to the ready event.
+                    wol.ready(function () {
+                        var imageResource, i;
+                        for (i = 0; i < images.length; i++) {
+                            if (imageResource = wol.resources.get(imageUri)) {
+                                images[i] = imageResource;
+                            }
+                        }
+                        _this.sheets[name] = new createjs.SpriteSheet(frameData);
+                        wol.debug('SHEETS NAME', _this.sheets[name]);
+                    });
+                }
             },
             get: function (name) {
                 return this.sheets[name];
@@ -348,8 +354,9 @@ define([
         debug: function () {
             //console.log(this._dcount++, Array.prototype.slice.call(arguments));
         },
-        isFunction: isFunction,
-        isArray: isArray,
+        Collection: Collection,
+        isFunction: utils.isFunction,
+        isArray: utils.isArray,
         wait: wait,
         each: function (array, callback) {
             var i, _len;
@@ -357,6 +364,15 @@ define([
                 callback.call(this, array[i], i);
             }
             return this;
+        },
+        filter: function(array, callback) {
+            var result = [];
+            for(var i = 0,_len = array.length; i < _len; i++) {
+                if (callback(array[i])) {
+                    result.push(array[i]);
+                }
+            }
+            return result;
         }
 
     };

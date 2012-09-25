@@ -9,7 +9,7 @@ var Collection = require('./collection');
 
 function Game() {
     this.id = utils.uuid();
-    this.players = [];
+    this.players = new Collection();
     this.units = new Collection();
     this.logs = [];
     this.grid = new Grid();
@@ -24,25 +24,28 @@ Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;
 Game.prototype.maxTurnList = 10;
+
 Game.prototype.activeUnit = null;
+Game.prototype.winner = null;
 /**
  * Max total of players before the game starts.
  * @type {Number}
  * @return {*}
  */
-Game.prototype.MAX_USERS = 2;
+Game.prototype.MAX_USERS = 1;
 /**
  * Add the users into the list.
  * @param player
  * @return {*}
  */
 Game.prototype.addPlayer = function (player) {
-    this.players.push(player);
+    this.players.add(player);
     this.log('player.add', {
         id: player.id,
         name: player.name,
         index: this.players.length
     });
+    console.log('Total players::::::::::::::::', this.players.length);
     if (this.players.length === this.MAX_USERS) {
         this.log('game.start', {
             id: this.id
@@ -89,7 +92,7 @@ Game.prototype.createUnit = function(name, player) {
 Game.prototype.connectedPlayers = function() {
     var total = 0;
     for(var i=0; i<this.players.length; i++) {
-        if (this.players[i].connected) {
+        if (this.players.at(i).connected) {
             total++;
         }
     }
@@ -147,7 +150,7 @@ Game.prototype.start = function () {
     // 0. Start the game
     // this.log('game.start', {id: this.id});
     // 1. Spawn first player's unit
-    player = this.players[0];
+    player = this.players.at(0);
     unit = this.createUnit('marine', player);
     unit.face('right');
     unit.stats.get('recharge').setValue(1);
@@ -158,14 +161,15 @@ Game.prototype.start = function () {
         )
     );
     // 2. Spawn second player's unit
-    player = this.players[this.players.length-1];
+    player = this.players.at(this.players.length-1);
     unit = this.createUnit('marine', player);
     unit.face('left');
     unit.stats.get('recharge').setValue(2);
     this.spawnUnit(
         unit,
         this.grid.get(
-            this.columns - 1,
+            //this.columns - 1,
+            1,
             Math.floor(this.rows * 0.5)
         )
     );
@@ -179,30 +183,42 @@ Game.prototype.start = function () {
  */
 Game.prototype.calculateTurnList = function() {
     this.turnList = [];
-    var i = 0;
-    var unit;
     var interval;
-    var recharge;
-    var calculate = function () {
-        for (i = 0; i < this.units.length; i++) {
-            unit = this.units.at(i);
-            unit.recharge(1);
-            recharge = unit.stats.get('recharge');
-            if (recharge.value === this.maxCharge) {
-                console.log('| max charge reached: ', unit.id);
-                recharge.empty();
-                this.turnList.push(unit.id);
-                if (this.turnList.length === this.maxTurnList) {
-                    clearInterval(interval);
-                    this.log('units.turn.list', {
-                        turnList: this.turnList
-                    });
-                    this.unitTurn();
-                    break;
+    var _this = this;
+    var calculate = (function () {
+        var unit;
+        var i;
+        var recharge;
+        var totalUnits;
+        if ((totalUnits = _this.units.length) > 1) {
+            for (i = 0; i < totalUnits; i++) {
+                unit = _this.units.at(i);
+                unit.recharge();
+                recharge = unit.stats.get('recharge');
+                // if the unit reaches full charge, re-start his gauge and it
+                // to the list.
+                if (recharge.value === _this.maxCharge) {
+                    recharge.empty();
+                    _this.turnList.push(unit.id);
+                    if (_this.turnList.length === _this.maxTurnList) {
+                        clearInterval(interval);
+                        _this.log('units.turn.list', {
+                            turnList: _this.turnList
+                        });
+                        _this.unitTurn();
+                        break;
+                    }
                 }
             }
+        } else {
+            // declare the winner if there's only one unit left.
+            _this.winner = _this.players.get(unit.playerId);
+            _this.log('game.end', {
+                winner: _this.winner.id
+            });
+            clearInterval(interval);
         }
-    }.bind(this);
+    });
     this.activeUnit = null;
     interval = setInterval(calculate, 10);
 };
@@ -211,11 +227,18 @@ Game.prototype.unitTurn = function() {
     var unit,
         id = this.turnList.shift()
         ;
+    // check if there's still a queue in the turn list.
     if (unit = this.units.get(id)) {
-        this.activeUnit = unit;
-        this.log('unit.turn', {
-            id: unit.id
-        });
+        // skip unit if it has died already.
+        if (unit.stats.get('health').value > 0) {
+            unit.stats.get('actions').reset();
+            this.activeUnit = unit;
+            this.log('unit.turn', {
+                id: unit.id
+            });
+        } else {
+            this.unitTurn();
+        }
     } else {
         this.calculateTurnList();
     }
@@ -250,7 +273,7 @@ Game.prototype.playerReady = function(player) {
     console.log('');
     if (!this.started && totalPlayers === this.MAX_USERS) {
         for(var i=0; i<totalPlayers; i++) {
-            if (this.players[i].ready) {
+            if (this.players.at(i).ready) {
                 readyCount++;
             }
         }
@@ -269,13 +292,46 @@ Game.prototype.playerReady = function(player) {
  * @param correction - if the client needs to skip the animation.
  */
 Game.prototype.move = function(unit, tile, correction) {
-    unit.move(tile);
-    this.log('unit.move', {
-        id: unit.id,
-        x: unit.tile.x,
-        y: unit.tile.y,
-        correction: correction
-    });
+    var actionStat = unit.stats.get('actions');
+    var actions = actionStat.value;
+    if (actions > 0) {
+        actionStat.setValue(actions - 1);
+        unit.move(tile);
+        this.log('unit.move', {
+            id: unit.id,
+            x: unit.tile.x,
+            y: unit.tile.y,
+            correction: correction
+        });
+        this.checkActions(unit);
+    }
+};
+
+Game.prototype.attack = function(unit, target) {
+    var actionStat = unit.stats.get('actions');
+    var damageStat = unit.stats.get('damage');
+    var healthStat = target.stats.get('health');
+
+    if (actionStat.value > 0 && healthStat.value > 0) {
+        actionStat.reduce(1);
+        healthStat.reduce(damageStat.value);
+        console.log('|   remaining health', healthStat.value);
+        this.log('unit.attack', {
+            id: unit.id,
+            targetId: target.id,
+            damage: damageStat.value
+        });
+        this.checkActions(unit);
+    }
+};
+
+Game.prototype.checkActions = function(unit) {
+    if (this.activeUnit === unit) {
+        console.log('remaining turns ', unit.id, unit.stats.get('actions'));
+        if (unit.stats.get('actions').value === 0) {
+            this.unitTurn();
+        }
+    }
 };
 
 Game.prototype.skip = function(unitId) {
@@ -288,6 +344,5 @@ Game.prototype.skip = function(unitId) {
             this.unitTurn();
         }
     }
-
-}
+};
 module.exports = Game;

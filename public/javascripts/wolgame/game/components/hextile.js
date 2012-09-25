@@ -21,6 +21,7 @@ function (
             this._dict = {};
             this.add('move');
             this.add('range');
+            this.add('reach');
             this.add('selected');
             this.add('playerSide');
         },

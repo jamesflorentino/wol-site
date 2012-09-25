@@ -16,27 +16,27 @@ define([
         /**
          * A collection of users in the game.
          */
-        players:new wol.Collection(),
+        players: new wol.Collection(),
         /**
          * A collection of units that can be easily removed, added or referenced.
          */
-        units:new wol.Collection(),
+        units: new wol.Collection(),
         /**
          * The current player's data.
          */
-        player:{
-            name:null,
-            id:null
+        player: {
+            name: null,
+            id: null
         },
         /**
          * A static list of unit classes for easy reference when spawning units
          * from the server.
          */
-        unitClasses:{
-            'marine':Marine
+        unitClasses: {
+            'marine': Marine
         },
 
-        activeUnit:null,
+        activeUnit: null,
         /**
          * entry point
          */
@@ -55,8 +55,8 @@ define([
          */
         addPlayer: function (data) {
             this.players.add({
-                id:data.id,
-                name:data.name
+                id: data.id,
+                name: data.name
             });
         },
         /**
@@ -109,8 +109,8 @@ define([
         unitMove: function (unit, end, callback) {
             var _this = this;
             var start = unit.tile;
-            var nearestPath = this.findNearestPath(start, end);
-            nearestPath = [start].concat(nearestPath);
+            var nearestPath;
+            nearestPath = [start].concat(this.findNearestPath(start, end));
             var hexTiles = this.createTiles(nearestPath, 'hex_target', function (hex, i) {
                 _this.add(hex, _this.hexContainer);
             });
@@ -126,38 +126,98 @@ define([
             unit.move(nearestPath);
         },
 
+        unitAttack: function(unit, target) {
+            var unitAttack, unitAttackHit;
+            var damage = unit.stats.get('damage').value;
+            //
+            unitAttack = (function() {
+                unit.off('unit.attack.end', unitAttack);
+                unit.off('unit.attack.hit', unitAttackHit);
+                target.stats.get('health').reduce(damage);
+                if (target.stats.get('health').value === 0) {
+                    target.die();
+                } else {
+                    target.defendEnd();
+                }
+            });
+            unitAttackHit = (function() {
+                target.hit();
+            });
+            unit.on('unit.attack.end', unitAttack);
+            unit.on('unit.attack.hit', unitAttackHit);
+            unit.attack(target);
+            unit.flip(unit.container.x > target.container.x ? unit.LEFT : unit.RIGHT);
+        },
+
         /**
          *
          * @param unit
          */
         unitRange: function (unit) {
-            var range;
-            var neighbors;
-            var _this = this;
-            var hexContainer = this.hexContainer;
             // disregard if the unit is disabled or if there's still
             // a currently generated list of hexTiles.
-            if (!unit.disabled && unit.hexTiles.get('range').length === 0) {
-                range = unit.stats.get('range').value;
-                neighbors = this.hexgrid.neighbors(unit.tile, range);
-                var hexTiles =
-                    this.createTiles(neighbors, 'hex_select',
-                        function (hex, i) {
-                            var tile = neighbors[i];
-                            _this.add(hex, hexContainer);
-                            hex.onClick = (function () {
-                                unit.disable();
-                                _this.clearHexTiles(unit);
-                                _this.unitMove(unit, tile, function () {
-                                    _this.actUnit(unit);
-                                    _this.checkTurn(unit);
-                                });
-                            });
-                        }
-                    );
-                // make the entity remember these tiles.
-                this.setHexTiles(unit, 'range', hexTiles);
+            if (!unit.disabled) {
+                if (unit.hexTiles.get('range').length === 0) {
+                    this.showRange(unit);
+                    this.showReach(unit);
+                }
             }
+        },
+
+        showRange: function(unit) {
+            var _this = this;
+            var range = unit.stats.get('range').value;
+            var neighbors = this.hexgrid.neighbors(unit.currentTile, range);
+            var vacant = wol.filter(neighbors, function(tile) {
+                return !tile.entity;
+            });
+            var hexRange = this.createTiles(vacant, 'hex_select',
+                function (hex, i) {
+                    var tile = vacant[i];
+                    _this.add(hex, _this.hexContainer);
+                    hex.onClick = (function () {
+                        unit.disable();
+                        _this.clearHexTiles(unit, 'range reach');
+                        _this.emit('unit.move', { unit: unit, tile: tile });
+                        _this.unitMove(unit, tile, function () {
+                            _this.actUnit(unit);
+                        });
+                    });
+                }
+            );
+            // make the entity remember these tiles.
+            this.setHexTiles(unit, 'range', hexRange);
+        },
+
+        showReach: function(unit) {
+            var _this = this;
+            var reach = unit.stats.get('reach').value;
+            var neighbors = this.hexgrid.neighbors(unit.currentTile, reach);
+            var occupied = wol.filter(neighbors, function(tile) {
+                return tile.entity
+                    && tile.entity.playerId !== _this.player.id
+                    && tile.entity.stats.get('health').value > 0
+                    ;
+            });
+            var hexReach = this.createTiles(occupied, 'hex_attack', function(hex, i) {
+                var tile = occupied[i];
+                _this.add(hex, _this.hexContainer);
+                hex.onClick = (function() {
+                    var target = tile.entity;
+                    _this.unitAttack(unit, target);
+                    _this.clearHexTiles(unit, 'reach range');
+                    _this.actUnit(unit);
+                    _this.emit('unit.attack', {
+                        unit: unit,
+                        target: target
+                    });
+                });
+            });
+            this.setHexTiles(unit, 'reach', hexReach);
+        },
+
+        cancelUnitOptions: function(unit) {
+            this.clearHexTiles(unit);
         },
 
         /**
@@ -173,6 +233,7 @@ define([
                 actions = unit.stats.get('actions');
                 difference = actions.value - cost;
                 actions.setValue(difference);
+                this.checkTurn(unit);
             }
         },
 
@@ -210,7 +271,7 @@ define([
          * @param hexTiles
          */
         setHexTiles: function (unit, type, hexTiles) {
-            this.clearHexTiles(unit);
+            this.clearHexTiles(unit, type);
             unit.hexTiles.set(type, hexTiles);
         }
     });

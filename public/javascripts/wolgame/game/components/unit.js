@@ -39,6 +39,9 @@ define([
                 return;
             entity.emit('unit.defend.start');
         };
+        entity.defendEnd = function() {
+            entity.emit('unit.defend.end');
+        };
         // .hit
         // ----
         // enables the unit to get hit. main usage is for animation.

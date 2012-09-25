@@ -44,7 +44,8 @@ define([
                 fromA.next = to;
             }
             return entity;
-        }
+        };
+        entity._animation = animation;
     });
 
     // events (component)
@@ -106,7 +107,7 @@ define([
         addComponent: function(name) {
             var component, args;
             if (this._components.indexOf(name) > -1) {
-                return this;
+                return;
             }
             if(component = wol.components.get(name)) {
                 args = Array.prototype.slice.call(arguments);

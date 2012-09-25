@@ -119,6 +119,7 @@ define([
                 if (wol.isFunction(callback)) {
                     callback.call(this, hex, i);
                 }
+
             }
             return hexes;
         },
@@ -163,7 +164,7 @@ define([
                 neighbors = this.hexgrid.neighbors(currentNode);
                 for(i=0, _len = neighbors.length; i < _len; i++) {
                     neighbor = neighbors[i];
-                    if (closedList.indexOf(neighbor) > -1) {
+                    if (closedList.indexOf(neighbor) > -1 || neighbor.entity) {
                         continue;
                     }
                     scoreG = currentNode.g + 1;

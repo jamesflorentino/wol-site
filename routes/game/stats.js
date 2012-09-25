@@ -1,9 +1,8 @@
 var Stat = require('./stat');
 
-function Stats(stats) {
+function Stats() {
     this.list = [];
     this.dictionary = {};
-    this.set(stats);
 }
 /**
  * Add an attribute
@@ -17,15 +16,18 @@ Stats.prototype.add = function(stat) {
 };
 /**
  * Override existing stat data.
- * @param stats
+ * @param attributes
  */
-Stats.prototype.set = function (stats) {
+Stats.prototype.set = function (attributes) {
     var stat;
     var value;
-    for (var key in stats) {
-        value = stats[key];
+    for (var key in attributes) {
+        value = attributes[key];
         if (stat = this.get(key)) {
-            stat.setMax(value);
+            console.log('health.......................', key, stat);
+            stat.setBase(value);
+        } else {
+            this.add(new Stat(key, value));
         }
     }
 };

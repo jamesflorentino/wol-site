@@ -24,6 +24,14 @@ define([
         },
         pos: function() {
             return this.x + "." + this.y;
+        },
+
+        occupy: function(entity) {
+            this.entity = entity;
+        },
+
+        vacate: function() {
+            this.entity = null;
         }
     });
 

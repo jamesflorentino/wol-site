@@ -1,58 +1,76 @@
-function Collection() {
-    this.dictionary = {};
-    this.list = [];
-}
-/**
- * adds a user into the collection.
- * @param model
- */
-Collection.prototype.add = function (model) {
-    if ((model || model.id) && this.list.indexOf(model) === -1) {
-        this.list.push(model);
-        this.dictionary[model.id] = model;
-        model.on('remove', this.remove.bind(this));
-        this.length = this.list.length;
+(function() {
+
+    var Collection = (function() {
+
+        function Collection() {
+            this.dictionary = {};
+            this.list = [];
+            this.length = 0;
+        }
+        /**
+         * adds a user into the collection.
+         * @param model
+         */
+        Collection.prototype = {
+            add: function (model) {
+                if ((model || model.id) && this.list.indexOf(model) === -1) {
+                    this.list.push(model);
+                    this.dictionary[model.id] = model;
+                    model.on('remove', this.remove.bind(this));
+                    this.length = this.list.length;
+                }
+            },
+            /**
+             *
+             * @param index
+             * @return {*}
+             */
+            at: function(index) {
+                return this.list[index];
+            },
+            /**
+             *
+             * @param id
+             * @return {*}
+             */
+            get: function (id) {
+                return this.dictionary[id];
+            },
+
+            /**
+             * Remove player from the collection.
+             * @param model
+             */
+            remove : function (model) {
+                var index = this.list.indexOf(model);
+                if (index > -1) {
+                    this.list.splice(index, 1);
+                    delete this.dictionary[model.id];
+                    this.length = this.list.length;
+                }
+            },
+
+            each : function(callback) {
+                for(var i=0; i<this.list.length; i++) {
+                    callback(this.list[i]);
+                }
+            },
+
+            has : function (model) {
+                return this.list.indexOf(model) > -1;
+            }
+        };
+        return Collection;
+    })();
+
+    // For AMD libraries like RequireJS.
+    if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+        define(function() {
+            return Collection;
+        });
     }
-
-};
-/**
- *
- * @param index
- * @return {*}
- */
-Collection.prototype.at = function(index) {
-    return this.list[index];
-};
-/**
- *
- * @param id
- * @return {*}
- */
-Collection.prototype.get = function (id) {
-    return this.dictionary[id];
-};
-
-/**
- * Remove player from the collection.
- * @param model
- */
-Collection.prototype.remove = function (model) {
-    var index = this.list.indexOf(model);
-    if (index > -1) {
-        this.list.splice(index, 1);
-        delete this.dictionary[model.id];
-        this.length = this.list.length;
+    // For Node.js and Ringo.js
+    if (typeof module == 'object' && module) {
+        module.exports = Collection;
     }
-};
-
-Collection.prototype.each = function(callback) {
-    for(var i=0; i<this.list.length; i++) {
-        callback(this.list[i]);
-    }
-};
-
-Collection.prototype.has = function (model) {
-    return this.list.indexOf(model) > -1;
-}
-
-module.exports = Collection;
+})();

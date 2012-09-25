@@ -120,15 +120,32 @@ var GameApp = function(io) {
                 game.playerReady(player);
                 // all the game events
                 subscribe('unit.move', unitMove);
+                subscribe('unit.attack', unitAttack);
                 subscribe('unit.skip', unitSkip);
+            }
+        }
+
+        function unitAttack(parameters) {
+            var id = parameters.id;
+            var targetId = parameters.targetId;
+            var unit;
+            var target;
+            if (game.winner === null) {
+                if ((unit = game.units.get(id)) && (target = game.units.get(targetId))) {
+                    if (unit === game.activeUnit) {
+                        game.attack(unit, target);
+                    }
+                }
             }
         }
 
         function unitSkip(unitId) {
             var activeUnit = game.activeUnit;
-            if (activeUnit.playerId === player.id) {
-                if (activeUnit.id === unitId ){
-                    game.skip(unitId);
+            if (game.winner === nul) {
+                if (activeUnit.playerId === player.id) {
+                    if (activeUnit.id === unitId ){
+                        game.skip(unitId);
+                    }
                 }
             }
         }
@@ -137,10 +154,13 @@ var GameApp = function(io) {
             var tile;
             var unitId = data.id;
             var activeUnit = game.activeUnit;
-            if (activeUnit == player.id) {
-                if (activeUnit.id === unitId) {
-                    if (tile = game.grid.get(data.x, data.y)) {
-                        game.move(unit, tile);
+            var unit;
+            if (game.winner === null) {
+                if (unit = game.units.get(data.id)) {
+                    if (activeUnit === unit && activeUnit.playerId === player.id) {
+                        if (tile = game.grid.get(data.x, data.y)) {
+                            game.move(unit, tile);
+                        }
                     }
                 }
             }
