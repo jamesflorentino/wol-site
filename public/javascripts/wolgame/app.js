@@ -74,11 +74,10 @@ require([
      */
     function init() {
         socket = io.connect();
-        // these are the initial events. The main game event
-        // listeners are located in the ready() event.
         socket
             .on('player.data', setPlayerData)
             .on('game.join', joinGame)
+            .on('game.start', startGame)
             .on('player.add', addPlayer)
         ;
         setAuthKey();
@@ -92,18 +91,59 @@ require([
     function ready(g /** Game **/) {
         game = g;
         game.player = player;
+        game.on('unit.update', unitUpdate);
         players.forEach(game.addPlayer.bind(game));
         // game events
         socket
             .on('unit.spawn', unitSpawn)
+            .on('unit.move', unitMove)
+            .on('unit.skip', unitSkip)
             .on('unit.turn', unitTurn)
             .on('units.turn.list', unitsTurnList)
         ;
         // initialize mouse events
         wol.dom.click(wol.$('#unit-actions .move.command'), showMoveCommand);
+        wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
         wol.keys.on(wol.KeyCodes.V, showMoveCommand);
 
         send('ready');
+    }
+
+    function skipTurn() {
+        if (game.activeUnit.playerId === player.id) {
+            send('unit.skip', game.activeUnit.id);
+            var actionPanel = wol.$('#unit-actions');
+            wol.dom.addClass(actionPanel, 'hidden');
+        }
+    }
+
+    function unitMove(data) {
+        var unit;
+        var tile;
+        if (unit = game.units.get(data.id)) {
+            unit.move(tile);
+        }
+    }
+
+    function unitSkip(data) {
+        var unit;
+        if (unit = game.units.get(data.id)) {
+            game.clearHexTiles(unit);
+        }
+    }
+
+    function unitUpdate(unit) {
+        if (unit === game.activeUnit) {
+            var actionPanel = wol.$('#unit-actions');
+            var actionBars = wol.dom.query(actionPanel, '.bars');
+            var actionStat = unit.stats.get('actions');
+            var bars = wol.dom.queryAll(actionBars, '.bar:not(.empty)');
+            var index = bars.length - actionStat.value;
+            while(index > 0) {
+                wol.dom.addClass(bars[bars.length - index], 'empty');
+                index--;
+            }
+        }
     }
 
     /**
@@ -133,30 +173,34 @@ require([
         if (unit = game.units.get(id)) {
             game.activeUnit = unit;
             unit.tileStart = unit.tile;
+            unit.stats.get('actions').reset();
+            game.clearHexTiles(unit);
             var hexTiles = game.createTiles([unit.tile], 'hex_player_selected', function(hex) {
                 game.hexContainer.addChild(hex);
             });
             unit.hexTiles.set('selected', hexTiles);
-            // show the unit action panel
-            var actionPanel = wol.$('#unit-actions');
-            var healthStat = unit.stats.get('health');
-            // update the health info
-            wol.$(actionPanel, '.health .value').textContent =
-                healthStat.value + '/' + healthStat.max;
-            wol.dom.removeClass(actionPanel, 'hidden');
-            // update the avatar
-            var avatarElement = wol.$(actionPanel, '.avatar');
-            wol.dom.removeClass(avatarElement);
-            wol.dom.addClass(avatarElement, 'avatar');
-            wol.dom.addClass(avatarElement, unit.code);
-            // update the action bars
-            var actionStat = unit.stats.get('actions');
-            var actionBars = wol.$(actionPanel, '.actions .bars');
-            var barWidth = 100 / actionStat.max;
-            wol.dom.empty(actionBars);
-            for(var i=0; i<actionStat.max; i++) {
-                actionBars.innerHTML += tpl.actionBar();
-                wol.dom.last(actionBars).style.width = barWidth + '%';
+            if (unit.playerId === player.id) {
+                // show the unit action panel
+                var actionPanel = wol.$('#unit-actions');
+                var healthStat = unit.stats.get('health');
+                // update the health info
+                wol.$(actionPanel, '.health .value').textContent =
+                    healthStat.value + '/' + healthStat.max;
+                wol.dom.removeClass(actionPanel, 'hidden');
+                // update the avatar
+                var avatarElement = wol.$(actionPanel, '.avatar');
+                wol.dom.removeClass(avatarElement);
+                wol.dom.addClass(avatarElement, 'avatar');
+                wol.dom.addClass(avatarElement, unit.code);
+                // update the action bars
+                var actionStat = unit.stats.get('actions');
+                var actionBars = wol.$(actionPanel, '.actions .bars');
+                var barWidth = 100 / actionStat.max;
+                wol.dom.empty(actionBars);
+                for(var i=0; i<actionStat.max; i++) {
+                    actionBars.innerHTML += tpl.actionBar();
+                    wol.dom.last(actionBars).style.width = barWidth + '%';
+                }
             }
         }
     }
@@ -196,6 +240,7 @@ require([
      * @param data
      */
     function addPlayer(data) {
+        console.log('addPlayer', data);
         players.push(data);
     }
 
@@ -211,8 +256,14 @@ require([
      * condition here to prevent from re-initializing since this is
      * purely a server-side event.
      */
-    function joinGame() {
+    function joinGame(data) {
+        var id = data.id;
+    }
+
+    function startGame(data) {
+        var id = data.id;
         if (!game) {
+            console.log('starting game');
             wol.init(Game, canvasContainer, 960, 640, ready);
         }
     }

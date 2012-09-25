@@ -89,15 +89,19 @@ define([
                 unit.move(tile);
                 unit.flip(data.direction);
                 unit.show();
-                var playerSide =
-                    playerId === this.player.id ?
-                        'hex_player_a' : 'hex_player_b'
-                    ;
-                var hexTiles = this.createTiles([tile], playerSide, function(hex) {
-                    _this.add(hex, _this.hexContainer);
-                });
-                this.setHexTiles(unit, 'playerSide', hexTiles);
+                this.updateUnit(unit);
             }
+        },
+
+        updateUnit: function(unit) {
+            var _this = this,
+                playerSide;
+            playerSide = unit.playerId === this.player.id ? 'hex_player_a' : 'hex_player_b';
+            var hexTiles = this.createTiles([unit.tile], playerSide, function(hex) {
+                _this.add(hex, _this.hexContainer);
+            });
+            this.setHexTiles(unit, 'playerSide', hexTiles);
+            this.emit('unit.update', unit);
         },
 
         /**
@@ -115,9 +119,9 @@ define([
             });
             this.setHexTiles(unit, 'move', hexTiles);
             var moveEnd = (function() {
-                console.log('off!');
                 unit.off('hex.move.end', moveEnd);
                 _this.clearHexTiles(unit);
+                _this.updateUnit(unit);
                 if (wol.isFunction(callback)) callback();
             });
             unit.on('hex.move.end', moveEnd);
@@ -173,9 +177,9 @@ define([
             if (unit === this.activeUnit) {
                 var actionStat;
                 actionStat = unit.stats.get('actions');
+                this.emit('unit.update', unit);
                 if (actionStat.value > 0) {
                     unit.enable();
-                    this.emit('action', unit);
                 }
             }
         },

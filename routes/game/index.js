@@ -68,8 +68,8 @@ var GameApp = function(io) {
             games.occupy(game, player);
             // this will tell the client what happened in the game.
             // which is useful for watching replays.
-            game.backlogs(function(event){
-                publish(event.name, event.data);
+            game.backlogs(function(name, data){
+                publish(name, data);
             });
             // when the client disconnects, we check if the game is empty,
             // then remove the game from the list.
@@ -104,7 +104,7 @@ var GameApp = function(io) {
             game.on('log', function(event) {
                 io.sockets.in(gameID).emit(event.name, event.data);
                 console.log(
-                    "| >> Game (" + game.id + "): ",
+                    "|  Game (" + game.id + "): ",
                     event.name, '->',
                     JSON.stringify(event.data)
                 );
@@ -118,6 +118,31 @@ var GameApp = function(io) {
         function playerReady() {
             if (game) {
                 game.playerReady(player);
+                // all the game events
+                subscribe('unit.move', unitMove);
+                subscribe('unit.skip', unitSkip);
+            }
+        }
+
+        function unitSkip(unitId) {
+            var activeUnit = game.activeUnit;
+            if (activeUnit.playerId === player.id) {
+                if (activeUnit.id === unitId ){
+                    game.skip(unitId);
+                }
+            }
+        }
+
+        function unitMove(data) {
+            var tile;
+            var unitId = data.id;
+            var activeUnit = game.activeUnit;
+            if (activeUnit == player.id) {
+                if (activeUnit.id === unitId) {
+                    if (tile = game.grid.get(data.x, data.y)) {
+                        game.move(unit, tile);
+                    }
+                }
             }
         }
 

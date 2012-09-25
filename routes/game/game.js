@@ -23,25 +23,30 @@ Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;
 Game.prototype.maxTurnList = 10;
+Game.prototype.activeUnit = null;
 /**
  * Max total of players before the game starts.
  * @type {Number}
  * @return {*}
  */
-Game.prototype.MAX_USERS = 1;
+Game.prototype.MAX_USERS = 2;
 /**
  * Add the users into the list.
  * @param player
  * @return {*}
  */
 Game.prototype.addPlayer = function (player) {
-    var _this = this;
     this.players.push(player);
     this.log('player.add', {
         id: player.id,
         name: player.name,
         index: this.players.length
     });
+    if (this.players.length === this.MAX_USERS) {
+        this.log('game.start', {
+            id: this.id
+        });
+    }
     return this;
 };
 /**
@@ -55,6 +60,12 @@ Game.prototype.addUnit = function (unit) {
     return this;
 };
 
+/**
+ *
+ * @param name
+ * @param player
+ * @return {*}
+ */
 Game.prototype.createUnit = function(name, player) {
     var unitAttr = unitAttributes[name];
     var unit;
@@ -69,6 +80,7 @@ Game.prototype.createUnit = function(name, player) {
     }
     return unit;
 };
+
 /**
  * Get all connected players.
  * @return {Number}
@@ -82,6 +94,7 @@ Game.prototype.connectedPlayers = function() {
     }
     return total;
 };
+
 /**
  * Logs the game data into an array for backlog purposes.
  * @param name
@@ -96,6 +109,7 @@ Game.prototype.log = function(name, data) {
     }.bind(this), this.__callDelay || 0);
     return this;
 };
+
 /**
  * Issue a callback of backlogs.
  * @param cb
@@ -106,10 +120,11 @@ Game.prototype.backlogs = function(cb) {
     var event;
     for (var i = 0, _len = this.logs.length; i < _len; i++) {
         event = this.logs[i];
-        cb(event);
+        cb(event.name, event.data);
     }
     return this;
 };
+
 /**
  * Delays the next function call
  * @param ms
@@ -127,14 +142,15 @@ Game.prototype.start = function () {
     // test units
     var unit;
     var player;
+    console.log('----------------> GAME START', this.id);
     // 0. Start the game
-    this.log('game.start', {id: this.id});
+    // this.log('game.start', {id: this.id});
     // 1. Spawn first player's unit
     player = this.players[0];
     unit = this.createUnit('marine', player);
     unit.face('right');
-    this.spawnUnit(
-        unit,
+    unit.stats.get('recharge').setValue(1);
+    this.spawnUnit(unit,
         this.grid.get(
             0,
             Math.floor(this.rows * 0.5)
@@ -144,6 +160,7 @@ Game.prototype.start = function () {
     player = this.players[this.players.length-1];
     unit = this.createUnit('marine', player);
     unit.face('left');
+    unit.stats.get('recharge').setValue(2);
     this.spawnUnit(
         unit,
         this.grid.get(
@@ -171,24 +188,30 @@ Game.prototype.calculateTurnList = function() {
             unit.recharge(1);
             recharge = unit.stats.get('recharge');
             if (recharge.value === this.maxCharge) {
+                console.log('| max charge reached: ', unit.id);
                 recharge.empty();
                 this.turnList.push(unit.id);
                 if (this.turnList.length === this.maxTurnList) {
                     clearInterval(interval);
-                    this.log('units.turn.list', { turnList: this.turnList } );
+                    this.log('units.turn.list', {
+                        turnList: this.turnList
+                    });
                     this.unitTurn();
                     break;
                 }
             }
         }
     }.bind(this);
-
+    this.activeUnit = null;
     interval = setInterval(calculate, 10);
 };
+
 Game.prototype.unitTurn = function() {
-    var id = this.turnList.shift();
-    var unit;
+    var unit,
+        id = this.turnList.shift()
+        ;
     if (unit = this.units.get(id)) {
+        this.activeUnit = unit;
         this.log('unit.turn', {
             id: unit.id
         });
@@ -213,34 +236,57 @@ Game.prototype.spawnUnit = function (unit, tile) {
         direction: unit.direction
     });
 };
-/**
- * Move a unit to a tile
- * @param unit
- * @param tile
- */
-Game.prototype.moveUnit = function (unit, tile) {
-    unit.move(tile);
-    this.log('unit.move', {
-        id: unit.id,
-        x: unit.tile.x,
-        y: unit.tile.y
-    });
-};
 
 Game.prototype.playerReady = function(player) {
     player.ready = true;
     this.log('player.ready', {
         id: player.id
     });
+    var totalPlayers = this.players.length;
     var readyCount = 0;
-    for(var i=0; i<this.players.length; i++) {
-        if (this.players[i].ready) {
-            readyCount++;
+    console.log('');
+    console.log("PLAYER READY!!!!!   ");
+    console.log('');
+    if (!this.started && totalPlayers === this.MAX_USERS) {
+        for(var i=0; i<totalPlayers; i++) {
+            if (this.players[i].ready) {
+                readyCount++;
+            }
         }
-    }
-    if (readyCount === this.players.length) {
-        setTimeout(this.start.bind(this), 100);
+        if (readyCount === totalPlayers) {
+            console.log('READY COUNT',  readyCount, ' :', totalPlayers);
+            this.started = true;
+            setTimeout(this.start.bind(this), 100);
+        }
     }
 };
 
+/**
+ *
+ * @param unit
+ * @param tile
+ * @param correction - if the client needs to skip the animation.
+ */
+Game.prototype.move = function(unit, tile, correction) {
+    unit.move(tile);
+    this.log('unit.move', {
+        id: unit.id,
+        x: unit.tile.x,
+        y: unit.tile.y,
+        correction: correction
+    });
+};
+
+Game.prototype.skip = function(unitId) {
+    var unit;
+    if (unit = this.units.get(unitId)) {
+        if (this.activeUnit === unit) {
+            this.log('unit.skip', {
+                id: unit.id
+            });
+            this.unitTurn();
+        }
+    }
+
+}
 module.exports = Game;

@@ -66,6 +66,12 @@ define([
             }
         },
         dom: {
+            queryAll: function(el, selector) {
+                return el.querySelectorAll(selector);
+            },
+            query: function(el, selector) {
+                return el.querySelector(selector);
+            },
             hasClass: function (ele,cls) {
                 return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
             },
@@ -330,8 +336,8 @@ define([
         setDomEvents: function () {
             // stop the rendering when we blur out of the window.
             window.onblur = function () {
-                this.pause();
-                this.paused = true;
+                //this.pause();
+                //this.paused = true;
             }.bind(this);
             window.onfocus = function () {
                 this.paused = false;
