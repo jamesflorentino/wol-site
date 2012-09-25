@@ -106,7 +106,7 @@ define([
         addComponent: function(name) {
             var component, args;
             if (this._components.indexOf(name) > -1) {
-                return;
+                return this;
             }
             if(component = wol.components.get(name)) {
                 args = Array.prototype.slice.call(arguments);

@@ -5,6 +5,7 @@ define([
     'game/textures/elements',
     'game/hex',
     'game/components/hexgrid',
+    'game/components/hextile',
     'game/components/unit',
     'game/components/stats',
     'wol/keys'
@@ -16,6 +17,7 @@ define([
     elements,
     Hex,
     HexGridComponent,
+    HexTileComponent,
     UnitComponent,
     Stats,
     Keys
@@ -69,13 +71,9 @@ define([
             // to the entities we add into the display list.
             entity.addComponent('hexgrid');
             entity.addComponent('unit');
+            entity.addComponent('hextile');
             entity.metaData(id, code, name, playerId);
             entity.hide();
-            entity.hexes = {
-                range: [],
-                selected: [],
-                playerSide: []
-            };
             this.add(entity.container, this.unitContainer);
             return this;
         },

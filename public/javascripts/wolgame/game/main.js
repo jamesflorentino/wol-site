@@ -89,10 +89,14 @@ define([
                 unit.move(tile);
                 unit.flip(data.direction);
                 unit.show();
-                var playerSide = playerId === this.player.id ? 'hex_player_a' : 'hex_player_b';
-                unit.hexes.playerSide = this.createTiles([tile], playerSide, function(hex) {
+                var playerSide =
+                    playerId === this.player.id ?
+                        'hex_player_a' : 'hex_player_b'
+                    ;
+                var hexTiles = this.createTiles([tile], playerSide, function(hex) {
                     _this.add(hex, _this.hexContainer);
                 });
+                this.setHexTiles(unit, 'playerSide', hexTiles);
             }
         },
 
@@ -108,39 +112,14 @@ define([
             nearestPath = [start].concat(nearestPath);
             var hexTiles = this.createTiles(nearestPath, 'hex_target', function(hex, i) {
                 _this.add(hex, _this.hexContainer);
-                /**
-                hex.alpha = 0;
-                hex.scaleX = hex.scaleY = 0.25;
-                wol.tween.get(hex)
-                    .wait(i * 50)
-                    .call(function(){
-                        _this.add(hex, _this.hexContainer);
-                    })
-                    .to({
-                        alpha: 1,
-                        scaleX: 1,
-                        scaleY: 1
-                    }, 500, wol.ease.cubicOut)
-                ;
-                /***/
             });
-
-            var moveEnd = function() {
-                unit.off('hex.move.end');
-                _this.hexContainer.removeChild.apply(_this.hexContainer, hexTiles);
+            this.setHexTiles(unit, 'move', hexTiles);
+            var moveEnd = (function() {
+                console.log('off!');
+                unit.off('hex.move.end', moveEnd);
+                _this.clearHexTiles(unit);
                 if (wol.isFunction(callback)) callback();
-                /**
-                wol.each(hexTiles, function(hex, i) {
-                    wol.tween.get(hex)
-                        .wait(i * 50)
-                        .to({ alpha:0, scaleX: 0.25, scaleY: 0.25 }, 300, wol.ease.quintIn )
-                        .call(function() {
-                            hex.parent.removeChild(hex);
-                        });
-                });
-                if (callback) callback();
-                /**/
-            };
+            });
             unit.on('hex.move.end', moveEnd);
             nearestPath.splice(0,1);
             unit.move(nearestPath);
@@ -154,22 +133,28 @@ define([
             var neighbors;
             var _this = this;
             var hexContainer = this.hexContainer;
-            if (!unit.disabled && unit.hexes.range.length === 0) {
+            // disregard if the unit is disabled or if there's still
+            // a currently generated list of hexTiles.
+            if (!unit.disabled && unit.hexTiles.get('range').length === 0) {
                 range = unit.stats.get('range').value;
                 neighbors = this.hexgrid.neighbors(unit.tile, range);
-                unit.hexes.range = this.createTiles(neighbors, 'hex_select', function(hex, i){
-                        var tile = neighbors[i];
-                        _this.add(hex, hexContainer);
-                        hex.onClick = function() {
-                            unit.disable();
-                            _this.clearHexes(unit);
-                            _this.unitMove(unit, tile, function() {
-                                _this.actUnit(unit);
-                                _this.checkTurn(unit);
+                var hexTiles =
+                    this.createTiles(neighbors, 'hex_select',
+                        function(hex, i){
+                            var tile = neighbors[i];
+                            _this.add(hex, hexContainer);
+                            hex.onClick = (function() {
+                                unit.disable();
+                                _this.clearHexTiles(unit);
+                                _this.unitMove(unit, tile, function() {
+                                    _this.actUnit(unit);
+                                    _this.checkTurn(unit);
+                                });
                             });
-                        };
-                    }
-                );
+                        }
+                    );
+                // make the entity remember these tiles.
+                this.setHexTiles(unit, 'range', hexTiles);
             }
         },
 
@@ -195,21 +180,16 @@ define([
             }
         },
 
-        /**
-         *
-         * @param unit
-         * @param targets
-         */
-        clearHexes: function(unit, targets) {
-            var names = ['range', 'selected', 'playerSide'];
-            var hexes;
-            for(var i=0; i<names.length; i++) {
-                hexes = unit.hexes[names[i]];
-                if (targets === undefined || targets.indexOf('range') > -1) {
-                    this.hexContainer.removeChild.apply(this.hexContainer, hexes);
-                    unit.hexes[names[i]] = [];
-                }
-            }
+        clearHexTiles: function(unit, type) {
+            var _this = this;
+            unit.hexTiles.clear(type, function(hexTiles){
+                _this.hexContainer.removeChild.apply(_this.hexContainer, hexTiles);
+            });
+        },
+
+        setHexTiles: function(unit, type, hexTiles) {
+            this.clearHexTiles(unit);
+            unit.hexTiles.set(type, hexTiles);
         }
     });
 

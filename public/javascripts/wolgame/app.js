@@ -92,7 +92,6 @@ require([
     function ready(g /** Game **/) {
         game = g;
         game.player = player;
-        game.on('test', checkTurn);
         players.forEach(game.addPlayer.bind(game));
         // game events
         socket
@@ -133,12 +132,11 @@ require([
         /// most of these are DOM UI stuff. Don't worry :-)
         if (unit = game.units.get(id)) {
             game.activeUnit = unit;
-            game.clearHexes(unit);
             unit.tileStart = unit.tile;
-            unit.hexes.selected =
-                game.createTiles([unit.tile], 'hex_player_selected', function(hex) {
-                    game.hexContainer.addChild(hex);
-                });
+            var hexTiles = game.createTiles([unit.tile], 'hex_player_selected', function(hex) {
+                game.hexContainer.addChild(hex);
+            });
+            unit.hexTiles.set('selected', hexTiles);
             // show the unit action panel
             var actionPanel = wol.$('#unit-actions');
             var healthStat = unit.stats.get('health');
@@ -161,13 +159,6 @@ require([
                 wol.dom.last(actionBars).style.width = barWidth + '%';
             }
         }
-    }
-
-    function checkTurn(unit) {
-        unit.hexes.selected =
-            game.createTiles([unit.tile], 'hex_player_selected', function(hex) {
-                game.hexContainer.addChild(hex);
-            });
     }
 
     function unitSpawn(data) {

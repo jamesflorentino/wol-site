@@ -21,8 +21,9 @@ define([
             this.list = {};
         } else if (!isFunction(listener)) {
             this.list[topic] = [];
-        } else if (callbacks = this.list[name]) {
+        } else if (callbacks = this.list[topic]) {
             callbacks.splice(callbacks.indexOf(listener), 1);
+        } else {
         }
         return this;
     };
