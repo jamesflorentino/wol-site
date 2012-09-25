@@ -78,6 +78,18 @@ define([
                     var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
                     ele.className=ele.className.replace(reg,' ');
                 }
+            },
+            first: function(el) {
+                return el.firstElementChild;
+            },
+            last: function(el) {
+                return el.lastElementChild;
+            },
+            empty: function(el) {
+                return el.innerHTML = '';
+            },
+            click: function(el, callback) {
+                el.addEventListener('click', callback);
             }
         },
         // ### wol.display
@@ -281,8 +293,8 @@ define([
                 })
             });
         },
-        $: function (selector) {
-            return document.querySelector(selector);
+        $: function (parent, selector) {
+            return selector !== void 0 ? parent.querySelector(selector) : document.querySelector(parent);
         },
         // create preloader
         makeLoadBars: function () {
@@ -330,9 +342,9 @@ define([
         debug: function () {
             //console.log(this._dcount++, Array.prototype.slice.call(arguments));
         },
-        isFunction:isFunction,
-        isArray:isArray,
-        wait:wait,
+        isFunction: isFunction,
+        isArray: isArray,
+        wait: wait,
         each: function (array, callback) {
             var i, _len;
             for (i = 0, _len = array.length; i < _len; i++) {

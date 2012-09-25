@@ -3,10 +3,6 @@ var Stat = require('./stat');
 function Stats(stats) {
     this.list = [];
     this.dictionary = {};
-    this.add(new Stat('health', 800));
-    this.add(new Stat('attack', 200));
-    this.add(new Stat('speed', 10));
-    this.add(new Stat('range', 2));
     this.set(stats);
 }
 /**

@@ -64,14 +64,18 @@ define([
          * @param entity
          * @return {*}
          */
-        addEntity: function(entity, id, code, name) {
+        addEntity: function(entity, id, code, name, playerId) {
             // since this is a hex-grid game, we should apply a hexgrid component
             // to the entities we add into the display list.
             entity.addComponent('hexgrid');
             entity.addComponent('unit');
-            entity.addComponent('stats');
-            entity.metaData(id, code, name);
+            entity.metaData(id, code, name, playerId);
             entity.hide();
+            entity.hexes = {
+                range: [],
+                selected: [],
+                playerSide: []
+            };
             this.add(entity.container, this.unitContainer);
             return this;
         },
@@ -144,10 +148,13 @@ define([
                 // case END: The result has been found.
                 if (currentNode.pos() === end.pos()) {
                     var current = currentNode;
+                    var parent;
                     var tiles = [];
                     while (current.parent) {
                         tiles.push(current);
-                        current = current.parent;
+                        parent = current.parent; // capture the parent element.
+                        current.parent = null; // clear the tile's parent
+                        current = parent; // move to the next parent
                     }
                     return tiles.reverse();
                 }

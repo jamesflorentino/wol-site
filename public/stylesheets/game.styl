@@ -3,14 +3,32 @@
 color-green = #13bbc9
 color-white = white
 
+border-left-radius(val)
+    border-top-left-radius val
+    border-bottom-left-radius val
+
+border-right-radius(val)
+    border-top-right-radius val
+    border-bottom-right-radius val
+
+square(width)
+    width: width
+    height: width
+
 glow()
     border: 1px solid color-green
     inner-glow = 0 0 10px color-green inset
     outer-glow = 0 0 10px rgba(color-green, 0.5)
     box-shadow: inner-glow, outer-glow
 
+glow-text()
+    outer-glow = 0 0 10px color-green
+    shadow = 0 0 5px color-green
+    text-shadow outer-glow, shadow
+
 button()
     cursor: pointer
+    border-radius: 5px
 
 bold-text()
     font-weight: 600
@@ -20,6 +38,12 @@ body
     margin: 0
     padding: 0
 
+.avatar
+    background url(/images/avatars.png) top left no-repeat
+    border-radius: 5px
+    &.marine
+        background-position -7px -6px
+
 #main
     background: #111
     position: absolute
@@ -28,19 +52,63 @@ body
     overflow: hidden
     width: 960px
     height: 640px
+    //background: url(/media/background.png) top left no-repeat
 
 #game
     display: inline-block
 
+.title
+    color white
+    font-weight: bold
+    font-size: 12px
+    glow-text()
+
+#turn-list
+    position absolute
+    bottom 15px
+    right 15px
+    height 42px
+    transition 400ms
+
+    &.hidden
+        bottom: -30px - 42px
+
+    ul
+        margin 0
+        padding 0
+
+    .title
+        position absolute
+        top -25px
+        left 0
+        text-transform uppercase
+
+    .unit
+    li
+        vertical-align top
+        background-color black
+        display inline-block
+        margin-right: 5px
+        transition 400ms
+        square(30px)
+        glow()
+
+        &:first-child
+            square(40px)
+            border-color white
+
+        &.leaving
+            square(0)
+            opacity: 0
+            margin-left: -5px
+
 #ui
-    background: blue
     z-index: 1
 
     .preloader
         position: absolute
         width: 100%
         height: 100%
-        //background: url(/media/background.png) top left no-repeat
         background-color: black
 
         &.hidden
@@ -67,7 +135,6 @@ body
 
     .unit-active
         glow()
-        font-weight: 100
         font-size: 12px
         text-transform: uppercase
         color: color-green
@@ -79,6 +146,7 @@ body
         bottom: 15px
         left: 15px
         transition: 400ms bottom
+        border-radius: 5px
 
         &.hidden
             bottom: -70px
@@ -122,19 +190,32 @@ body
                 line-height: 16px
                 height: 16px
                 float: left
+                font-weight normal
+                font-size: inherit
+                color inherit
 
             .bars
                 margin-left: 5px
                 float: left
+                width 130px
 
             .bar
                 glow()
                 box-sizing: border-box
-                width: 38px
+                width: 0
                 height: 16px
                 background: rgba(color-green, 0.5)
                 float: left
-                margin-right: 5px
+                border: 1px solid color-green
+                &:not(:first-child)
+                    border-left-color: black
+
+                &:first-child
+                    border-left-radius(5px)
+
+                &:last-child
+                    border-right-radius(5px)
+
                 &.empty
                     opacity: 0.25
 
@@ -152,6 +233,7 @@ body
                 float: left
                 margin-left: 2px
                 transition: 200ms
+                box-shadow: 0 0 10px color-green inset
                 &:hover
                     background: rgba(color-green, 0.5)
                     color: color-white

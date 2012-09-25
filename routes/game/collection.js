@@ -11,7 +11,9 @@ Collection.prototype.add = function (model) {
         this.list.push(model);
         this.dictionary[model.id] = model;
         model.on('remove', this.remove.bind(this));
+        this.length = this.list.length;
     }
+
 };
 /**
  *
@@ -39,13 +41,18 @@ Collection.prototype.remove = function (model) {
     if (index > -1) {
         this.list.splice(index, 1);
         delete this.dictionary[model.id];
+        this.length = this.list.length;
     }
 };
 
 Collection.prototype.each = function(callback) {
-    for(var i = 0, _len = this.list.length; i < _len; i++) {
+    for(var i=0; i<this.list.length; i++) {
         callback(this.list[i]);
     }
 };
+
+Collection.prototype.has = function (model) {
+    return this.list.indexOf(model) > -1;
+}
 
 module.exports = Collection;

@@ -7,10 +7,6 @@ define([
     function Stats(stats) {
         this.list = [];
         this.dictionary = {};
-        this.add(new Stat('health', 800));
-        this.add(new Stat('attack', 200));
-        this.add(new Stat('recharge', 5));
-        this.add(new Stat('range', 2));
         this.set(stats);
     }
     /**
@@ -37,6 +33,8 @@ define([
             }
             if (stat = this.get(key)) {
                 stat.setMax(value);
+            } else {
+                this.add(new Stat(key, value));
             }
         }
     };

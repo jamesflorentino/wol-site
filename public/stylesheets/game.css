@@ -3,6 +3,14 @@ body {
   margin: 0;
   padding: 0;
 }
+.avatar {
+  background: url("/images/avatars.png") top left no-repeat;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.avatar.marine {
+  background-position: -7px -6px;
+}
 #main {
   background: #111;
   position: absolute;
@@ -15,8 +23,69 @@ body {
 #game {
   display: inline-block;
 }
+.title {
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: 0 0 10px #13bbc9, 0 0 5px #13bbc9;
+}
+#turn-list {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  height: 42px;
+  -webkit-transition: 400ms;
+  -moz-transition: 400ms;
+  -o-transition: 400ms;
+  -ms-transition: 400ms;
+  transition: 400ms;
+}
+#turn-list.hidden {
+  bottom: -72px;
+}
+#turn-list ul {
+  margin: 0;
+  padding: 0;
+}
+#turn-list .title {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  text-transform: uppercase;
+}
+#turn-list .unit,
+#turn-list li {
+  vertical-align: top;
+  background-color: #000;
+  display: inline-block;
+  margin-right: 5px;
+  -webkit-transition: 400ms;
+  -moz-transition: 400ms;
+  -o-transition: 400ms;
+  -ms-transition: 400ms;
+  transition: 400ms;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #13bbc9;
+  -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+  box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
+}
+#turn-list .unit:first-child,
+#turn-list li:first-child {
+  width: 40px;
+  height: 40px;
+  border-color: #fff;
+}
+#turn-list .unit.leaving,
+#turn-list li.leaving {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  filter: alpha(opacity=0);
+  margin-left: -5px;
+}
 #ui {
-  background: #00f;
   z-index: 1;
 }
 #ui .preloader {
@@ -57,7 +126,6 @@ body {
   border: 1px solid #13bbc9;
   -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
   box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
-  font-weight: 100;
   font-size: 12px;
   text-transform: uppercase;
   color: #13bbc9;
@@ -73,6 +141,8 @@ body {
   -o-transition: 400ms bottom;
   -ms-transition: 400ms bottom;
   transition: 400ms bottom;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 #ui .unit-active.hidden {
   bottom: -70px;
@@ -118,10 +188,14 @@ body {
   line-height: 16px;
   height: 16px;
   float: left;
+  font-weight: normal;
+  font-size: inherit;
+  color: inherit;
 }
 #ui .unit-active .actions .bars {
   margin-left: 5px;
   float: left;
+  width: 130px;
 }
 #ui .unit-active .actions .bar {
   border: 1px solid #13bbc9;
@@ -130,11 +204,22 @@ body {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  width: 38px;
+  width: 0;
   height: 16px;
   background: rgba(19,187,201,0.5);
   float: left;
-  margin-right: 5px;
+  border: 1px solid #13bbc9;
+}
+#ui .unit-active .actions .bar:not(:first-child) {
+  border-left-color: #000;
+}
+#ui .unit-active .actions .bar:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+#ui .unit-active .actions .bar:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 #ui .unit-active .actions .bar.empty {
   opacity: 0.25;
@@ -149,6 +234,8 @@ body {
 #ui .unit-active .commands .command {
   font-weight: 600;
   cursor: pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   border: 1px solid #13bbc9;
   padding: 5px;
   background: rgba(19,187,201,0.15);
@@ -159,6 +246,8 @@ body {
   -o-transition: 200ms;
   -ms-transition: 200ms;
   transition: 200ms;
+  -webkit-box-shadow: 0 0 10px #13bbc9 inset;
+  box-shadow: 0 0 10px #13bbc9 inset;
 }
 #ui .unit-active .commands .command:hover {
   background: rgba(19,187,201,0.5);

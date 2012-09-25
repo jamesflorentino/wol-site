@@ -1,6 +1,7 @@
 define([
     
-    'wol/wol'
+    'wol/wol',
+    'game/components/stats'
 
 ], function(wol) {
 
@@ -9,16 +10,18 @@ define([
     wol.components.add('unit', function(entity) {
         // an event component is required for this like amongst other things.
         entity.addComponent('events');
+        entity.addComponent('stats');
         /**
          *
          * @param id
          * @param name
          * @param code
          */
-        entity.metaData = function(id, name, code) {
+        entity.metaData = function(id, code, name, playerId) {
             this.id = id;
             this.name = name;
             this.code = code;
+            this.playerId = playerId;
         };
         // .attack
         // -------
@@ -55,7 +58,13 @@ define([
 
         entity.show = function() {
             entity.container.visible = true;
-        }
+        };
+        entity.disable = function () {
+            entity.disabled = true;
+        };
+        entity.enable = function() {
+            entity.disabled = false;
+        };
     });
 
 });

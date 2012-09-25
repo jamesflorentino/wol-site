@@ -1,5 +1,8 @@
 var utils = require('./utils');
+var events = require('events');
+var util = require('util');
 var Stats = require('./stats');
+var Stat = require('./stat');
 
 function Unit(code, attributes) {
     this.id = utils.uuid();
@@ -7,7 +10,18 @@ function Unit(code, attributes) {
     this.name = attributes.name;
     this.stats = new Stats(attributes.stats);
     this.tile = null;
+
+    this.stats.add(new Stat('health', 800));
+    this.stats.add(new Stat('attack', 200));
+    this.stats.add(new Stat('speed', 10));
+    this.stats.add(new Stat('range', 2));
+    this.stats.add(new Stat('actions', 3));
+    this.stats.add(new Stat('recharge', 5));
+    events.EventEmitter.call(this);
 }
+
+util.inherits(Unit, events.EventEmitter);
+
 /**
  *
  * @param tile

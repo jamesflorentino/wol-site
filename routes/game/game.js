@@ -22,6 +22,7 @@ util.inherits(Game, events.EventEmitter);
 Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;
+Game.prototype.maxTurnList = 10;
 /**
  * Max total of players before the game starts.
  * @type {Number}
@@ -48,7 +49,7 @@ Game.prototype.addPlayer = function (player) {
  * @param unit
  */
 Game.prototype.addUnit = function (unit) {
-    if (unit && this.units.indexOf(unit) === -1) {
+    if (unit && !this.units.has(unit)) {
         this.units.add(unit);
     }
     return this;
@@ -57,10 +58,13 @@ Game.prototype.addUnit = function (unit) {
 Game.prototype.createUnit = function(name, player) {
     var unitAttr = unitAttributes[name];
     var unit;
+    var recharge;
     if (unitAttr) {
         unit = new Unit(name, unitAttr);
         unit.playerId = player.id;
-        unit.stats.get('recharge').setMax(this.maxCharge);
+        recharge = unit.stats.get('recharge');
+        recharge.setMax(this.maxCharge);
+        recharge.empty();
         this.addUnit(unit);
     }
     return unit;
@@ -148,30 +152,49 @@ Game.prototype.start = function () {
         )
     );
     // 3. Generate a turn list.
-    this.generateTurnList();
+    this.calculateTurnList();
     // 4. Announce a unit turn.
 };
 
 /**
  * Generate a unit turn list. The iteration sequence starts
  */
-Game.prototype.generateTurnList = function() {
-    var charge;
+Game.prototype.calculateTurnList = function() {
     this.turnList = [];
-    while(this.turnList.length > 0) {
-        this.units.each(function(unit) {
-            // Add 1 recharge value.
-            charge = unit.recharge(1);
-            // if the unit reaches its maximum charge level,
-            // Let's push it to the turn List and empty the unit's
-            // recharge level.
-            if (charge === this.maxCharge) {
+    var i = 0;
+    var unit;
+    var interval;
+    var recharge;
+    var calculate = function () {
+        for (i = 0; i < this.units.length; i++) {
+            unit = this.units.at(i);
+            unit.recharge(1);
+            recharge = unit.stats.get('recharge');
+            if (recharge.value === this.maxCharge) {
+                recharge.empty();
                 this.turnList.push(unit.id);
-                charge.empty();
+                if (this.turnList.length === this.maxTurnList) {
+                    clearInterval(interval);
+                    this.log('units.turn.list', { turnList: this.turnList } );
+                    this.unitTurn();
+                    break;
+                }
             }
-        }.bind(this));
+        }
+    }.bind(this);
+
+    interval = setInterval(calculate, 10);
+};
+Game.prototype.unitTurn = function() {
+    var id = this.turnList.shift();
+    var unit;
+    if (unit = this.units.get(id)) {
+        this.log('unit.turn', {
+            id: unit.id
+        });
+    } else {
+        this.calculateTurnList();
     }
-    this.log('units.turn.list', { turnList: this.turnList } );
 };
 /**
  * Spawns a unit in the game.
@@ -216,7 +239,7 @@ Game.prototype.playerReady = function(player) {
         }
     }
     if (readyCount === this.players.length) {
-        setTimeout(this.start.bind(this), 1000);
+        setTimeout(this.start.bind(this), 100);
     }
 };
 
