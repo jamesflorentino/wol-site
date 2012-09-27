@@ -42,6 +42,8 @@ require([
 
     var players = [];
 
+    var teamUsers = {};
+
     var menuState = null;
 
     var tpl = {
@@ -58,7 +60,7 @@ require([
          * @return {*}
          */
         turnList: function(data) {
-            return this.sub("<li class='avatar {{code}}'></li>", data);
+            return this.sub("<li class='avatar {{code}} {{alternate}}'></li>", data);
         },
         /**
          *
@@ -75,6 +77,7 @@ require([
      * Load the assets later.
      */
     function init() {
+        wol.events.emit('sheet.mirror.marine');
         socket = io.connect();
         socket
             .on('auth.response', authResponse)
@@ -242,11 +245,13 @@ require([
         var domList = wol.$(el, 'ul');
         var unit;
         var id;
+        var alternate;
         domList.innerHTML = '';
         for (var i = 0, total = list.length; i < total; i++) {
             id = list[i];
             if (unit = game.units.get(id)) {
-                domList.innerHTML += tpl.turnList({ code: unit.code });
+                alternate = teamUsers[unit.playerId].index > 1 ? 'alt' : '';
+                domList.innerHTML += tpl.turnList({ code: unit.code, alternate: alternate });
             }
         }
         wol.dom.removeClass(el, 'hidden');
@@ -296,11 +301,8 @@ require([
      * @param data
      */
     function addPlayer(data) {
-        console.log('addPlayer', data);
         players.push(data);
-        // detect player race.
-        if (data.id !== player.id && data.team === player.team) {
-        }
+        teamUsers[data.id] = data;
     }
 
     function unitSpawn(data) {

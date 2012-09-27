@@ -9,18 +9,19 @@ define([
     "use strict";
 
     var sheetName = 'game.entities.marine';
-    var sheetNameAlt = 'game.entities.marine.2';
+    var sheetNameAlt = 'game.entities.marine2';
 
     // let's adjust the offset a bit
     frameData.frames.regX = 30;
     frameData.frames.regY = 77;
 
     // add spritesheet data to the resource manager
-    wol.spritesheets.add(sheetName, frameData);
-    if (wol.config.units.mirrored.marine) {
+    wol.events.on('sheet.mirror.marine', function() {
         var mirroredFrameData = JSON.parse(JSON.stringify(frameData));
+        mirroredFrameData.images = [mirroredFrameData.images[0].replace('.png','_2.png')];
         wol.spritesheets.add(sheetNameAlt, mirroredFrameData);
-    }
+    });
+    wol.spritesheets.add(sheetName, frameData);
 
 
     /**
@@ -34,7 +35,8 @@ define([
             this.parent();
             var _this = this;
             // add spriteshsetes
-            this.addComponent('spritesheet', wol.spritesheets.get(parameters.alternate ? sheetNameAlt :  sheetName));
+            console.log('alternate', parameters.altUnit);
+            this.addComponent('spritesheet', wol.spritesheets.get(parameters.altUnit ? sheetNameAlt :  sheetName));
             this.addComponent('events');
             this.addComponent('hexgrid');
             this.moveDuration = 500;

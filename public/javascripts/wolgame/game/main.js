@@ -54,16 +54,13 @@ define([
          * @param data
          */
         addPlayer: function (data) {
-            this.players.add({
-                id: data.id,
-                name: data.name
-            });
+            this.players.add(data);
         },
         /**
          * Server Event: Adds a unit to the game.
          * @param data
          */
-        unitSpawn: function (data, altUnit) {
+        unitSpawn: function (data) {
             var id = data.id,
                 name = data.name,
                 code = data.code,
@@ -73,8 +70,10 @@ define([
                 playerId = data.playerId
                 ;
             var unitClass = this.unitClasses[code];
-            if (unitClass) {
-                var unit = new unitClass({altUnit: altUnit});
+            var player = this.players.get(playerId);
+            if (unitClass && player) {
+                console.log(player);
+                var unit = new unitClass({ altUnit: player.index > 1 });
                 var tile = this.hexgrid.get(tileX, tileY);
                 this.addEntity(unit, id, code, name, playerId);
                 this.units.add(unit);

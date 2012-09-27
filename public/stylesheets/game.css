@@ -13,6 +13,9 @@ html {
 .avatar.marine {
   background-position: -7px -6px;
 }
+.avatar.marine.alt {
+  background-position: -55px -6px;
+}
 #main {
   -webkit-user-select: none;
   -moz-user-select: none;
