@@ -8,7 +8,7 @@ require([
     Game,
     Cookies,
     keys
-){
+    ){
     "use strict";
 
     // use for name
@@ -41,6 +41,8 @@ require([
     var player = {};
 
     var players = [];
+
+    var menuState = null;
 
     var tpl = {
         sub: function(string, object) {
@@ -78,9 +80,17 @@ require([
             .on('player.data', setPlayerData)
             .on('game.join', joinGame)
             .on('game.start', startGame)
+            .on('game.end', endGame)
             .on('player.add', addPlayer)
         ;
+        log('initializing');
+        wol.dom.empty(wol.$('#modal-message ul'));
         setAuthKey();
+    }
+
+    function log(message) {
+        var logList = wol.$('#modal-message ul');
+        logList.innerHTML += "<li>" + message + "</li>";
     }
 
     /**
@@ -89,9 +99,11 @@ require([
      * @param g
      */
     function ready(g /** Game **/) {
+        hideMessageLog();
         game = g;
         game.player = player;
         game.on('unit.update', gameUnitUpdate);
+        game.on('unit.act', gameUnitAct);
         game.on('unit.move', gameUnitMove);
         game.on('unit.attack', gameUnitAttack);
 
@@ -110,11 +122,33 @@ require([
         wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
         wol.keys.on(wol.KeyCodes.V, showMoveCommand);
         send('ready');
-
     }
+
+    function hideUnitActionMenu() {
+        var actionPanel = wol.$('#unit-actions');
+        wol.dom.addClass(actionPanel, 'hidden');
+        menuState = null;
+    }
+
+    function hideMessageLog() {
+        wol.dom.addClass(wol.$('#modal-message'), 'hidden');
+    }
+
     function showCancelCommand() {
         if (game.activeUnit.playerId === player.id) {
             game.cancelUnitOptions(game.activeUnit);
+            menuState = 'cancel';
+        }
+    }
+
+    function gameUnitAct(unit) {
+        var actionStats;
+        menuState = null;
+        if (unit && unit.stats && unit.stats.get) {
+            if ((actionStats = unit.stats.get('actions')) && actionStats.value === 0) {
+                game.clearHexTiles(unit);
+                hideUnitActionMenu();
+            }
         }
     }
 
@@ -153,8 +187,7 @@ require([
     function skipTurn() {
         if (game.activeUnit.playerId === player.id) {
             send('unit.skip', game.activeUnit.id);
-            var actionPanel = wol.$('#unit-actions');
-            wol.dom.addClass(actionPanel, 'hidden');
+            hideUnitActionMenu();
         }
     }
 
@@ -258,6 +291,14 @@ require([
         }
     }
 
+    /**
+     * @param data
+     */
+    function addPlayer(data) {
+        console.log('addPlayer', data);
+        players.push(data);
+    }
+
     function unitSpawn(data) {
         game.unitSpawn(data);
     }
@@ -290,19 +331,20 @@ require([
     }
 
     /**
-     * @param data
+     *
      */
-    function addPlayer(data) {
-        console.log('addPlayer', data);
-        players.push(data);
-    }
-
     function showMoveCommand() {
         var unit;
-        if (unit = game.activeUnit) {
-            if (unit.playerId === player.id ) {
-                game.unitRange(unit);
+        if (menuState === 'move') {
+            showCancelCommand();
+        } else {
+            if (unit = game.activeUnit) {
+                if (unit.playerId === player.id ) {
+                    game.unitRange(unit);
+                    menuState = 'move';
+                }
             }
+
         }
     }
 
@@ -313,12 +355,36 @@ require([
      */
     function joinGame(data) {
         var id = data.id;
+        log('Game found. Waiting for players...');
     }
 
     function startGame(data) {
         if (!game) {
-            console.log('starting game');
+            log('starting game');
             wol.init(Game, canvasContainer, 960, 640, ready);
+            log('loading game');
+        }
+    }
+
+    function endGame(data) {
+        console.log('leave game', data);
+        if (game) {
+            var messageLog = wol.$('#modal-message');
+            switch(data.type) {
+                case 'player.leave':
+                    wol.dom.removeClass(messageLog, 'hidden');
+                    log(data.message);
+                    break;
+                case 'player.win':
+                    var victoryMessage = wol.$('#victory-message');
+                    wol.dom.addClass(victoryMessage, 'active');
+                    wol.dom.query(victoryMessage, '.message').textContent = data.winnerId === player.id ?
+                        'Your team is victorious!' : 'Your forces have been eliminated';
+                    if (data.winnerId !== player.id) {
+                        wol.dom.addClass(victoryMessage,'lost');
+                    }
+                    break;
+            }
         }
     }
 
@@ -332,6 +398,7 @@ require([
         player.authKey = data.authKey;
         Cookies.set('wol_id', player.authKey);
         send('game.find');
+        log('Finding game...');
     }
 
     /**
@@ -340,6 +407,7 @@ require([
     function setAuthKey() {
         var authKey = Cookies.get('wol_id');
         send('auth', { authKey: authKey});
+        log('authenticating...');
         wol.wait(1000, function() {
             send('player.set.name', { name: vendorName });
         });

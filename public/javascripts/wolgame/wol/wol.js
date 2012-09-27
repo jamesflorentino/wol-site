@@ -340,14 +340,21 @@ define([
         },
 
         setDomEvents: function () {
+            var _this = this;
+            /**
+            document.body.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            });
+            /**/
             // stop the rendering when we blur out of the window.
-            window.onblur = function () {
-                //this.pause();
-                //this.paused = true;
-            }.bind(this);
-            window.onfocus = function () {
-                this.paused = false;
-            }.bind(this);
+            window.onblur = (function () {
+                //_this.pause();
+                //_this.paused = true;
+            });
+            window.onfocus = (function () {
+                _this.paused = false;
+            });
+
         },
 
         _dcount:0, // debug count

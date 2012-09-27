@@ -179,9 +179,8 @@ define([
                         unit.disable();
                         _this.clearHexTiles(unit, 'range reach');
                         _this.emit('unit.move', { unit: unit, tile: tile });
-                        _this.unitMove(unit, tile, function () {
-                            _this.actUnit(unit);
-                        });
+                        _this.actUnit(unit);
+                        _this.unitMove(unit, tile);
                     });
                 }
             );
@@ -216,8 +215,11 @@ define([
             this.setHexTiles(unit, 'reach', hexReach);
         },
 
+        /**
+         * @param unit
+         */
         cancelUnitOptions: function(unit) {
-            this.clearHexTiles(unit);
+            this.clearHexTiles(unit, 'range');
         },
 
         /**
@@ -234,6 +236,7 @@ define([
                 difference = actions.value - cost;
                 actions.setValue(difference);
                 this.checkTurn(unit);
+                this.emit('unit.act', unit);
             }
         },
 

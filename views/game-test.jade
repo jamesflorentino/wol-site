@@ -3,6 +3,12 @@ extends layouts/game-dev
 block content
     #main
         #ui
+            #victory-message
+                .logo
+                .message You win
+                a.find.game(href='/game') Player another game
+            #modal-message
+                ul.logs
             .preloader.hidden
                 .bar
                 .border

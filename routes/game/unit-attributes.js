@@ -2,7 +2,8 @@ var units = {
     'marine': {
         name: 'Lemurian Marine',
         stats: {
-            health: 100
+            health: 800,
+            damage: 200
         }
     }
 };

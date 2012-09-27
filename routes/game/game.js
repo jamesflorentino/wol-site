@@ -10,6 +10,7 @@ var Collection = require('./collection');
 function Game() {
     this.id = utils.uuid();
     this.players = new Collection();
+    this.deadUnits = [];
     this.units = new Collection();
     this.logs = [];
     this.grid = new Grid();
@@ -24,7 +25,6 @@ Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;
 Game.prototype.maxTurnList = 10;
-
 Game.prototype.activeUnit = null;
 Game.prototype.winner = null;
 /**
@@ -32,7 +32,7 @@ Game.prototype.winner = null;
  * @type {Number}
  * @return {*}
  */
-Game.prototype.MAX_USERS = 1;
+Game.prototype.MAX_USERS = 2;
 /**
  * Add the users into the list.
  * @param player
@@ -212,10 +212,7 @@ Game.prototype.calculateTurnList = function() {
             }
         } else {
             // declare the winner if there's only one unit left.
-            _this.winner = _this.players.get(unit.playerId);
-            _this.log('game.end', {
-                winner: _this.winner.id
-            });
+            this.endGame(unit.playerId);
             clearInterval(interval);
         }
     });
@@ -285,6 +282,13 @@ Game.prototype.playerReady = function(player) {
     }
 };
 
+Game.prototype.userDisconnect = function() {
+    this.log('game.end', {
+        type: 'player.leave',
+        message: 'Your opponent left the game.'
+    })
+};
+
 /**
  *
  * @param unit
@@ -321,7 +325,38 @@ Game.prototype.attack = function(unit, target) {
             targetId: target.id,
             damage: damageStat.value
         });
+        if(healthStat.value === 0) {
+            this.deadUnits.push(target.id);
+            console.log('WAHH PATAY!!!');
+            this.checkWinningConditions();
+        }
         this.checkActions(unit);
+    }
+};
+
+Game.prototype.checkWinningConditions = function() {
+    var playerUnitsLeft = {};
+    this.players.each(function(player) {
+        playerUnitsLeft[player.id] = 0;
+    });
+    this.units.each(function(unit) {
+        if (unit.stats.get('health').value > 0) {
+            playerUnitsLeft[unit.playerId]++;
+        }
+    });
+    var losingPlayers = [];
+    var winningPlayers = [];
+    this.players.each(function(player) {
+        if (playerUnitsLeft[player.id] === 0) {
+            losingPlayers.push(player);
+        } else {
+            winningPlayers.push(player);
+        }
+    });
+    console.log('winning players', winningPlayers.length);
+    console.log('losing players', losingPlayers.length);
+    if (winningPlayers.length === 1) {
+        this.end(winningPlayers[0].id);
     }
 };
 
@@ -344,5 +379,13 @@ Game.prototype.skip = function(unitId) {
             this.unitTurn();
         }
     }
+};
+
+Game.prototype.end = function(playerId) {
+    this.winner = this.players.get(playerId);
+    this.log('game.end', {
+        winnerId: this.winner.id,
+        type: 'player.win'
+    });
 };
 module.exports = Game;

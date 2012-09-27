@@ -25,7 +25,14 @@ var GameApp = function(io) {
             var authKey = data.authKey;
             // we check if the player exists in our database.
             player = players.get(authKey);
-            subscribe('player.set.name', setName);
+            if (player && player.socket) {
+                publish('error', {
+                    type: 'connection',
+                    message: "You're already connected to a game."
+                })
+            } else {
+                subscribe('player.set.name', setName);
+            }
         }
         /**
          * Sets the name of the player from the client.
@@ -76,6 +83,8 @@ var GameApp = function(io) {
             subscribe('disconnect', function() {
                 if (game.connectedPlayers() === 0) {
                     games.remove(game);
+                } else {
+                    game.userDisconnect();
                 }
             });
             // when the player's assets are loaded
@@ -141,7 +150,7 @@ var GameApp = function(io) {
 
         function unitSkip(unitId) {
             var activeUnit = game.activeUnit;
-            if (game.winner === nul) {
+            if (game.winner === null) {
                 if (activeUnit.playerId === player.id) {
                     if (activeUnit.id === unitId ){
                         game.skip(unitId);
