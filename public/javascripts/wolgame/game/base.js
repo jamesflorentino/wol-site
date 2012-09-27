@@ -82,19 +82,17 @@ define([
          * @param grid
          */
         createStaticGridDisplay: function(grid) {
-            var i, _len, tile, hex, image, container, _this = this;
-            //image = wol.spritesheets.extract('elements','hex_bg');
-            i = 0;
+            var i, container, _this = this;
             container = wol.create.container();
+            /**/
             this.createTiles(this.hexgrid.tiles, 'hex_bg', function(hex) {
                 _this.add(hex, container);
             });
+            /**/
             // Cache the hexTile container.
             // We wait for a tick before we cache it. Because sometimes
             // Chrome fails to render on initial load.
-            wol.wait(0, function(){
-                wol.create.cache(container, wol.width, wol.height);
-            });
+            wol.create.cache(container, wol.width, wol.height);
             this.add(container, this.hexContainer);
         },
         /**
@@ -105,15 +103,12 @@ define([
          * @return {Array}
          */
         createTiles: function(tiles, type, callback) {
-            var image, hex, tile, hexes;
+            var hex, tile, hexes;
             type || (type = 'hex_select');
-            image =
-                this.cachedTextures[type] ||
-                    (this.cachedTextures[type] = wol.spritesheets.extract('elements', type));
             hexes = [];
             for (var i = tiles.length - 1; i >= 0; i--){
                 tile = tiles[i];
-                hex = wol.create.bitmap(image);
+                hex = this.getTexture(type);
                 hexes.push(hex);
                 Hex.position(hex, tile);
                 if (wol.isFunction(callback)) {
@@ -122,6 +117,10 @@ define([
 
             }
             return hexes;
+        },
+
+        getTexture: function(name) {
+            return wol.spritesheets.extract('elements', name);
         },
 
         findNearestPath: function(start, end) {

@@ -63,7 +63,7 @@ define([
          * Server Event: Adds a unit to the game.
          * @param data
          */
-        unitSpawn: function (data) {
+        unitSpawn: function (data, altUnit) {
             var id = data.id,
                 name = data.name,
                 code = data.code,
@@ -74,7 +74,7 @@ define([
                 ;
             var unitClass = this.unitClasses[code];
             if (unitClass) {
-                var unit = new unitClass();
+                var unit = new unitClass({altUnit: altUnit});
                 var tile = this.hexgrid.get(tileX, tileY);
                 this.addEntity(unit, id, code, name, playerId);
                 this.units.add(unit);
@@ -82,6 +82,15 @@ define([
                 unit.move(tile);
                 unit.flip(data.direction);
                 unit.show();
+                //--
+                var hexPlayerSide = this.getTexture(
+                    unit.playerId === this.player.id ? 'hex_player_a' : 'hex_player_b'
+                );
+                hexPlayerSide.regX = 81 * 0.5;
+                hexPlayerSide.regY = 49 * 0.5;
+                unit.container.addChildAt(hexPlayerSide, 0);
+                unit.hexTiles.set('playerSide', [hexPlayerSide]);
+                //--
                 this.updateUnit(unit);
             }
         },
@@ -91,13 +100,6 @@ define([
          * @param unit
          */
         updateUnit: function (unit) {
-            var _this = this,
-                playerSide;
-            playerSide = unit.playerId === this.player.id ? 'hex_player_a' : 'hex_player_b';
-            var hexTiles = this.createTiles([unit.tile], playerSide, function (hex) {
-                _this.add(hex, _this.hexContainer);
-            });
-            this.setHexTiles(unit, 'playerSide', hexTiles);
             this.emit('unit.update', unit);
         },
 
@@ -117,8 +119,9 @@ define([
             this.setHexTiles(unit, 'move', hexTiles);
             var moveEnd = (function () {
                 unit.off('hex.move.end', moveEnd);
-                _this.clearHexTiles(unit);
+                _this.clearHexTiles(unit, 'move');
                 _this.updateUnit(unit);
+                _this.emit('unit.act.end', unit);
                 if (wol.isFunction(callback)) callback();
             });
             unit.on('hex.move.end', moveEnd);
@@ -129,10 +132,12 @@ define([
         unitAttack: function(unit, target) {
             var unitAttack, unitAttackHit;
             var damage = unit.stats.get('damage').value;
+            var _this = this;
             //
             unitAttack = (function() {
                 unit.off('unit.attack.end', unitAttack);
                 unit.off('unit.attack.hit', unitAttackHit);
+                _this.emit('unit.act.end', unit);
                 target.stats.get('health').reduce(damage);
                 if (target.stats.get('health').value === 0) {
                     target.die();
@@ -194,7 +199,7 @@ define([
             var neighbors = this.hexgrid.neighbors(unit.currentTile, reach);
             var occupied = wol.filter(neighbors, function(tile) {
                 return tile.entity
-                    && tile.entity.playerId !== _this.player.id
+                    //&& tile.entity.playerId !== _this.player.id
                     && tile.entity.stats.get('health').value > 0
                     ;
             });
@@ -263,7 +268,12 @@ define([
         clearHexTiles: function (unit, type) {
             var _this = this;
             unit.hexTiles.clear(type, function (hexTiles) {
-                _this.hexContainer.removeChild.apply(_this.hexContainer, hexTiles);
+                var i, hex, _len = hexTiles.length;
+                for (i=0; i<_len; i++) {
+                    hex = hexTiles[i];
+                    hex.parent.removeChild(hex);
+                }
+                //_this.hexContainer.removeChild.apply(_this.hexContainer, hexTiles);
             });
         },
 
@@ -276,6 +286,25 @@ define([
         setHexTiles: function (unit, type, hexTiles) {
             this.clearHexTiles(unit, type);
             unit.hexTiles.set(type, hexTiles);
+        },
+
+        setUnitActive: function(unit) {
+            // clear the previous activeUnit object's active hex sprite
+            var hexSelect;
+            var hexPlayerSide;
+            if (this.activeUnit) {
+                this.activeUnit.hexTiles.get('playerSide')[0].visible = true;
+                this.clearHexTiles(this.activeUnit, 'active');
+            }
+            // get the texture from the buffer and use it as an image resource
+            hexSelect = this.getTexture('hex_player_selected');
+            hexSelect.regX = 107 * 0.5;
+            hexSelect.regY = 75 * 0.5;
+            hexPlayerSide = unit.hexTiles.get('playerSide')[0];
+            hexPlayerSide.visible = false;
+            unit.container.addChildAt(hexSelect, hexPlayerSide.parent.getChildIndex(hexPlayerSide) + 1);
+            unit.hexTiles.set('active', [hexSelect]);
+            this.activeUnit = unit;
         }
     });
 });

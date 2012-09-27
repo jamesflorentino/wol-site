@@ -58,6 +58,17 @@
 
             has : function (model) {
                 return this.list.indexOf(model) > -1;
+            },
+
+            toJSON: function() {
+                var list = [];
+                for(var i= 0, _len = this.list.length; i<_len; i++) {
+                    list.push({
+                        id: this.list[i].id,
+                        name: this.list[i].name
+                    });
+                }
+                return list;
             }
         };
         return Collection;

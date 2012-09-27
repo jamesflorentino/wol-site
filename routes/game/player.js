@@ -26,7 +26,8 @@ module.exports = (function(){
      * to expire.
      * @type {Number}
      */
-    Player.prototype.MAX_LIFE = 1000 * 60 * 60 * 24; // 1 day.
+    //Player.prototype.MAX_LIFE = 1000 * 60 * 60 * 24; // 1 day.
+    Player.prototype.MAX_LIFE = 1000; // 1 second lol
     /**
      * Tells if the user is connected  or not.
      * @type {null}
@@ -59,10 +60,14 @@ module.exports = (function(){
      * Tells all the callbacks to remove this player instance from their memory.
      */
     Player.prototype.remove = function () {
-        this.trigger('remove', this);
+        this.emit('remove', this);
     };
+
+    /**
+     *
+     */
     Player.prototype.ready = function() {
-        this.trigger('ready', this);
+        this.emit('ready', this);
     };
     return Player;
 })();

@@ -128,7 +128,7 @@ html {
   -ms-transition: 600ms;
   transition: 600ms;
 }
-#ui .unit-active {
+#ui #unit-actions {
   border: 1px solid #13bbc9;
   -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
   box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
@@ -142,27 +142,27 @@ html {
   position: absolute;
   bottom: 15px;
   left: 15px;
-  -webkit-transition: 400ms bottom;
-  -moz-transition: 400ms bottom;
-  -o-transition: 400ms bottom;
-  -ms-transition: 400ms bottom;
-  transition: 400ms bottom;
+  -webkit-transition: 400ms;
+  -moz-transition: 400ms;
+  -o-transition: 400ms;
+  -ms-transition: 400ms;
+  transition: 400ms;
   -webkit-border-radius: 5px;
   border-radius: 5px;
 }
-#ui .unit-active.hidden {
+#ui #unit-actions.hidden {
   -webkit-transform: translatey(200%);
   -moz-transform: translatey(200%);
   -o-transform: translatey(200%);
   -ms-transform: translatey(200%);
   transform: translatey(200%);
 }
-#ui .unit-active > .title {
+#ui #unit-actions > .title {
   position: absolute;
   top: -25px;
   left: 0px;
 }
-#ui .unit-active .avatar {
+#ui #unit-actions .avatar {
   border: 1px solid #13bbc9;
   -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
   box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
@@ -174,27 +174,27 @@ html {
   top: 5px;
   overflow: hidden;
 }
-#ui .unit-active .health {
+#ui #unit-actions .health {
   position: absolute;
   left: 55px;
   top: 11px;
 }
-#ui .unit-active .health .label {
+#ui #unit-actions .health .label {
   float: left;
   margin-right: 5px;
 }
-#ui .unit-active .health .value {
+#ui #unit-actions .health .value {
   float: left;
   color: #fff;
   font-weight: 600;
 }
-#ui .unit-active .actions {
+#ui #unit-actions .actions {
   position: absolute;
   left: 145px;
   top: 11px;
   height: 16px;
 }
-#ui .unit-active .actions .title {
+#ui #unit-actions .actions .title {
   line-height: 16px;
   height: 16px;
   float: left;
@@ -202,12 +202,12 @@ html {
   font-size: inherit;
   color: inherit;
 }
-#ui .unit-active .actions .bars {
+#ui #unit-actions .actions .bars {
   margin-left: 5px;
   float: left;
   width: 130px;
 }
-#ui .unit-active .actions .bar {
+#ui #unit-actions .actions .bar {
   border: 1px solid #13bbc9;
   -webkit-box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
   box-shadow: 0 0 10px #13bbc9 inset, 0 0 10px rgba(19,187,201,0.5);
@@ -220,28 +220,28 @@ html {
   float: left;
   border: 1px solid #13bbc9;
 }
-#ui .unit-active .actions .bar:not(:first-child) {
+#ui #unit-actions .actions .bar:not(:first-child) {
   border-left-color: #000;
 }
-#ui .unit-active .actions .bar:first-child {
+#ui #unit-actions .actions .bar:first-child {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
-#ui .unit-active .actions .bar:last-child {
+#ui #unit-actions .actions .bar:last-child {
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }
-#ui .unit-active .actions .bar.empty {
+#ui #unit-actions .actions .bar.empty {
   opacity: 0.25;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
   filter: alpha(opacity=25);
 }
-#ui .unit-active .commands {
+#ui #unit-actions .commands {
   position: absolute;
   top: 5px;
   right: 5px;
 }
-#ui .unit-active .commands .command {
+#ui #unit-actions .commands .command {
   font-weight: 600;
   cursor: pointer;
   -webkit-border-radius: 5px;
@@ -259,7 +259,7 @@ html {
   -webkit-box-shadow: 0 0 10px #13bbc9 inset;
   box-shadow: 0 0 10px #13bbc9 inset;
 }
-#ui .unit-active .commands .command:hover {
+#ui #unit-actions .commands .command:hover {
   background: rgba(19,187,201,0.5);
   color: #fff;
 }
@@ -402,7 +402,7 @@ html {
 #modal-message {
   -webkit-box-shadow: 0 0 65px #13bbc9 inset;
   box-shadow: 0 0 65px #13bbc9 inset;
-  background: rgba(0,0,0,0.5);
+  background: rgba(34,50,55,0.85);
   color: #fff;
   position: absolute;
   top: 0;

@@ -29,9 +29,9 @@ module.exports = (function() {
         return this.get(this.vacant[0]);
     };
 
-    Games.prototype.occupy = function (game, user) {
+    Games.prototype.occupy = function (game, user, team) {
         if (game.players.length < game.MAX_USERS) {
-            game.addPlayer(user);
+            game.addPlayer(user, team);
             if (game.players.length === game.MAX_USERS) {
                 this.vacant.splice(this.vacant.indexOf(game.id), 1);
             }
@@ -41,6 +41,16 @@ module.exports = (function() {
 
     Games.prototype.get = function(id) {
         return this.dictionary[id];
+    };
+
+    Games.prototype.toJSON = function() {
+        var json = [];
+        var item;
+        for(var i=0; i<this.list.length; i++) {
+            item = this.list[i];
+            json.push(item.toJSON());
+        }
+        return json;
     };
 
     return Games;

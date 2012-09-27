@@ -5,17 +5,23 @@ define([
     'game/textures/marine',
     'game/components/hexgrid'
 
-], function(wol, Entity, marine) {
+], function(wol, Entity, frameData, hexgrid) {
     "use strict";
 
-    var SHEET_NAME = 'game.entities.marine';
+    var sheetName = 'game.entities.marine';
+    var sheetNameAlt = 'game.entities.marine.2';
 
     // let's adjust the offset a bit
-    marine.frames.regX = 30;
-    marine.frames.regY = 77;
+    frameData.frames.regX = 30;
+    frameData.frames.regY = 77;
 
     // add spritesheet data to the resource manager
-    wol.spritesheets.add(SHEET_NAME, marine);
+    wol.spritesheets.add(sheetName, frameData);
+    if (wol.config.units.mirrored.marine) {
+        var mirroredFrameData = JSON.parse(JSON.stringify(frameData));
+        wol.spritesheets.add(sheetNameAlt, mirroredFrameData);
+    }
+
 
     /**
     * Marine
@@ -24,11 +30,11 @@ define([
     **/
     return wol.Entity.extend({
 
-        init: function() {
+        init: function(parameters) {
             this.parent();
             var _this = this;
             // add spriteshsetes
-            this.addComponent('spritesheet', wol.spritesheets.get(SHEET_NAME));
+            this.addComponent('spritesheet', wol.spritesheets.get(parameters.alternate ? sheetNameAlt :  sheetName));
             this.addComponent('events');
             this.addComponent('hexgrid');
             this.moveDuration = 500;

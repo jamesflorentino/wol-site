@@ -11,13 +11,19 @@ function Unit(code, attributes) {
     this.stats = new Stats();
     this.tile = null;
 
-    // load the default
+    // basic health
     this.stats.add(new Stat('health', 800));
+    // base damage
     this.stats.add(new Stat('damage', 200));
-    this.stats.add(new Stat('speed', 10));
+    //this.stats.add(new Stat('speed', 10));
+    // number of tiles it can move in an action.
     this.stats.add(new Stat('range', 2));
-    this.stats.add(new Stat('reach', 4));
+    // number of tiles it can hit its target
+    this.stats.add(new Stat('reach', 1));
+    // how many action points the unit has. default is 3.
     this.stats.add(new Stat('actions', 3));
+    // gets filled up by 1 bar, when it reaches max
+    // the unit gets its turn.
     this.stats.add(new Stat('recharge', 5));
 
     // override stats with custom settings

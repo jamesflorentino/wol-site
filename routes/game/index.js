@@ -10,6 +10,14 @@ var GameApp = function(io) {
     var players = new Players();
     var games = new Games();
 
+    this.getPlayers = function() {
+        return players.toJSON();
+    };
+
+    this.getGames = function() {
+        return games.toJSON();
+    };
+
     /**
      * Event handler when someone connects.
      * @param socket
@@ -23,16 +31,38 @@ var GameApp = function(io) {
          */
         function setAuthKey(data) {
             var authKey = data.authKey;
-            // we check if the player exists in our database.
+            // does the player exist in memory?
             player = players.get(authKey);
-            if (player && player.socket) {
-                publish('error', {
-                    type: 'connection',
-                    message: "You're already connected to a game."
-                })
+            if (player) {
+                // is he currently in a session?
+                if (player.socket) {
+                    publish('auth.response', {
+                        type: 'error',
+                        error: "You're already connected to a game."
+                    });
+                } else {
+                    playerSetData();
+                }
             } else {
-                subscribe('player.set.name', setName);
+                publish('auth.response', {
+                    type: 'new_user'
+                });
             }
+            subscribe('player.set.name', setName);
+        }
+
+        function playerSetData() {
+            player.connect(socket);
+            subscribe('disconnect', player.disconnect.bind(player));
+            subscribe('game.find', findGame);
+            publish('auth.response', {
+                type: 'connected',
+                id: player.id,
+                name: player.name,
+                authKey: player.authKey,
+                expiresIn: player.expiresIn,
+                expires: player.expires
+            });
         }
         /**
          * Sets the name of the player from the client.
@@ -41,38 +71,24 @@ var GameApp = function(io) {
         function setName(data) {
             if (!player) {
                 player = new Player();
+                player.name = data.name;
                 players.add(player);
+                playerSetData();
+            } else {
+                player.name = data.name;
             }
-            player.name = data.name;
-            // this basically removes the socket reference to the
-            // player object.
-            subscribe('disconnect', player.disconnect.bind(player));
-            // will only accept if there's no current game.
-            subscribe('game.find', findGame);
-            // Update the client with the player data in the server.
-            // id - the public ID of the user.
-            // AuthKey - the private ID of the user used as an
-            // identification
-            publish('player.data', {
-                id: player.id,
-                authKey: player.authKey,
-                expiresIn: player.expiresIn,
-                expires: player.expires
-            });
-            // this basically just assigns the socket object to the
-            // player instance.
-            player.connect(socket);
+            publish('player.set.name', { name: player.name });
         }
         /**
          * Registers the current player to the room.
          * @param game
          * @return {*}
          */
-        function joinGame(game) {
+        function joinGame(game, team) {
             var gameID = game.id;
             // reason why we're using a collection method is that so
             // we can update the vacant games in the list.
-            games.occupy(game, player);
+            games.occupy(game, player, team);
             // this will tell the client what happened in the game.
             // which is useful for watching replays.
             game.backlogs(function(name, data){
@@ -98,9 +114,10 @@ var GameApp = function(io) {
         /**
          * Fins a game to join. If none exists, it'll create one.
          */
-        function findGame() {
+        function findGame(parameters) {
+            var team = parameters.team;
             if (game === undefined) {
-                game = joinGame(games.available() || createGame());
+                game = joinGame(games.available() || createGame(), team);
             }
         }
         /**
@@ -223,5 +240,4 @@ GameApp.route = function(req, res) {
 GameApp.routeDev = function(req, res) {
     res.render('game-test', { title: 'Game - Wings Of Lemuria' });
 };
-
 module.exports = GameApp;

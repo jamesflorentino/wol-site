@@ -40,5 +40,18 @@ module.exports = (function() {
         }
     };
 
+    Players.prototype.toJSON = function() {
+        var json = [];
+        var item;
+        for(var i=this.list.length - 1; i > -1; i--) {
+            item = this.list[i];
+            json.push({
+                id: item.id,
+                name: item.name
+            });
+        }
+        return json;
+    };
+
     return Players;
 })();

@@ -44,6 +44,12 @@ define([
     // # wol
     // This namespace (and singleton) will be the central authority of the game.
     var wol = {
+        config: {
+            units: {
+                mirrored: {
+                }
+            }
+        },
         /**
          * An API for component registration which is then used to apply to entities in the
          * game.
@@ -184,7 +190,6 @@ define([
          */
         spritesheets: {
             sheets: {},
-            images: {},
             add: function (name, frameData) {
                 var i, images, imageUri;
                 var _this = this;
@@ -208,7 +213,6 @@ define([
                             }
                         }
                         _this.sheets[name] = new createjs.SpriteSheet(frameData);
-                        wol.debug('SHEETS NAME', _this.sheets[name]);
                     });
                 }
             },
@@ -216,17 +220,9 @@ define([
                 return this.sheets[name];
             },
             extract: function (name, frameName) {
-                var image;
-                var id = name + "." + frameName; // e.g. elements.hex_bg
-                image = this.images[id];
-                // check if this doesn't exist yet
-                if (image === undefined) {
-                    // create a new instance of the image.
-                    image = createjs.SpriteSheetUtils.extractFrame(this.get(name), frameName);
-                    // add it to the dictionary.
-                    this.images[id] = image;
-                }
-                return image;
+                var animation = wol.create.animation(this.get(name));
+                animation.gotoAndStop(frameName);
+                return animation;
             }
         },
 

@@ -5,7 +5,7 @@
 var express = require('express'),
     routes = require('./routes/index'),
     user = require('./routes/user'),
-    game = require('./routes/game/index'),
+    Game = require('./routes/game/index'),
     http = require('http'),
     path = require('path'),
     stylus = require('stylus'),
@@ -13,6 +13,9 @@ var express = require('express'),
     ;
 
 var app = express();
+
+// the game instance of the server
+var game;
 
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
@@ -36,20 +39,26 @@ app.configure(function() {
     app.use(express.static(path.join(__dirname, 'public')));
     app.get('/', routes.index);
     app.get('/users', user.list);
+    app.get('/games-info', function(req, res) {
+        res.json({
+            games: game.getGames(),
+            players: game.getPlayers()
+        });
+    })
 });
 
 app.configure('production', function() {
-    app.get('/game', game.route);
+    app.get('/game', Game.route);
 })
 
 app.configure('development', function() {
     app.use(express.errorHandler());
-    app.get('/game', game.routeDev);
+    app.get('/game', Game.routeDev);
 });
 
 var server = http.createServer(app).listen(app.get('port'));
 
 var io = require('socket.io').listen(server);
 
-game(io);
+game = new Game(io);
 

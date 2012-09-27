@@ -22,7 +22,7 @@ function (
             this.add('move');
             this.add('range');
             this.add('reach');
-            this.add('selected');
+            this.add('active');
             this.add('playerSide');
         },
         /**

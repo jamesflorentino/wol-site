@@ -77,7 +77,7 @@ require([
     function init() {
         socket = io.connect();
         socket
-            .on('player.data', setPlayerData)
+            .on('auth.response', authResponse)
             .on('game.join', joinGame)
             .on('game.start', startGame)
             .on('game.end', endGame)
@@ -104,6 +104,7 @@ require([
         game.player = player;
         game.on('unit.update', gameUnitUpdate);
         game.on('unit.act', gameUnitAct);
+        game.on('unit.act.end', gameUnitActEnd);
         game.on('unit.move', gameUnitMove);
         game.on('unit.attack', gameUnitAttack);
 
@@ -141,12 +142,16 @@ require([
         }
     }
 
+    function gameUnitActEnd(unit) {
+        menuState = null;
+    }
+
     function gameUnitAct(unit) {
         var actionStats;
-        menuState = null;
+        menuState = 'acting';
         if (unit && unit.stats && unit.stats.get) {
             if ((actionStats = unit.stats.get('actions')) && actionStats.value === 0) {
-                game.clearHexTiles(unit);
+                game.clearHexTiles(unit, 'active');
                 hideUnitActionMenu();
             }
         }
@@ -209,7 +214,7 @@ require([
     function unitSkip(data) {
         var unit;
         if (unit = game.units.get(data.id)) {
-            game.clearHexTiles(unit);
+            game.clearHexTiles(unit, 'active');
         }
     }
 
@@ -256,14 +261,10 @@ require([
         var unit;
         /// most of these are DOM UI stuff. Don't worry :-)
         if (unit = game.units.get(id)) {
-            game.activeUnit = unit;
+            game.setUnitActive(unit);
+            // active unit is used to identify if the unit commands need to be shown.
             unit.tileStart = unit.tile;
             unit.stats.get('actions').reset();
-            //game.clearHexTiles(unit, 'selected');
-            var hexTiles = game.createTiles([unit.tile], 'hex_player_selected', function(hex) {
-                game.hexContainer.addChild(hex);
-            });
-            unit.hexTiles.set('selected', hexTiles);
             if (unit.playerId === player.id) {
                 unit.enable();
                 // show the unit action panel
@@ -297,27 +298,13 @@ require([
     function addPlayer(data) {
         console.log('addPlayer', data);
         players.push(data);
+        // detect player race.
+        if (data.id !== player.id && data.team === player.team) {
+        }
     }
 
     function unitSpawn(data) {
         game.unitSpawn(data);
-    }
-
-    /**
-     *
-     * @param data
-     */
-    function unitEnd(data) {
-        var id = data.id;
-        var unit;
-        if (unit = game.units.get(id)) {
-            // remove all hexTiles child elements.
-            wol.each(unit.hexTiles, function(hex){
-                game.hexContainer.removeChild(hex);
-            });
-            unit.hexTiles = [];
-            //game.activeUnit = null;
-        }
     }
 
     /**
@@ -337,7 +324,7 @@ require([
         var unit;
         if (menuState === 'move') {
             showCancelCommand();
-        } else {
+        } else if (menuState !== 'acting') {
             if (unit = game.activeUnit) {
                 if (unit.playerId === player.id ) {
                     game.unitRange(unit);
@@ -373,6 +360,7 @@ require([
             switch(data.type) {
                 case 'player.leave':
                     wol.dom.removeClass(messageLog, 'hidden');
+                    wol.dom.addClass(wol.$('#unit-actions'),'hidden');
                     log(data.message);
                     break;
                 case 'player.win':
@@ -388,17 +376,36 @@ require([
         }
     }
 
+    function findGame() {
+        setTeam();
+        log('Finding game...');
+        send('game.find', { team: player.team });
+    }
+
     /**
      * Update the client player information
      * @param data
      */
-    function setPlayerData(data) {
-        player.id = data.id;
-        player.name = data.name;
-        player.authKey = data.authKey;
-        Cookies.set('wol_id', player.authKey);
-        send('game.find');
-        log('Finding game...');
+    function authResponse(data) {
+        switch (data.type) {
+            case 'error':
+                log('error: ' + data.error);
+                break;
+            case 'new_user':
+                log('welcome, stranger!');
+                log('please set your name to login.');
+                log("You will temporarily be identified via cookies.");
+                setName();
+                break;
+            case 'connected':
+                player.id = data.id;
+                player.name = data.name;
+                player.authKey = data.authKey;
+                Cookies.set('wol_id', player.authKey);
+                log('You are now connected, ' + player.name);
+                findGame();
+                break;
+        }
     }
 
     /**
@@ -406,11 +413,22 @@ require([
      */
     function setAuthKey() {
         var authKey = Cookies.get('wol_id');
-        send('auth', { authKey: authKey});
         log('authenticating...');
-        wol.wait(1000, function() {
-            send('player.set.name', { name: vendorName });
+        send('auth', { authKey: authKey});
+    }
+
+    function setName() {
+        player.name = vendorName;
+        log('Player set name');
+        send('player.set.name', {
+            name: player.name
         });
     }
+
+    function setTeam() {
+        player.team = 'lemurians';
+        log('Setting team to :' + player.team);
+    }
+
     init();
 });

@@ -16,6 +16,7 @@ function Game() {
     this.grid = new Grid();
     this.full = false;
     this.grid.generate(this.columns, this.rows);
+    this.teams = {};
     events.EventEmitter.call(this);
 }
 
@@ -24,28 +25,39 @@ util.inherits(Game, events.EventEmitter);
 Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;
-Game.prototype.maxTurnList = 10;
-Game.prototype.activeUnit = null;
-Game.prototype.winner = null;
 /**
- * Max total of players before the game starts.
+ * Maximum number of users that is needed to start a game.
  * @type {Number}
- * @return {*}
  */
 Game.prototype.MAX_USERS = 2;
+/**
+ * @type {Number}
+ */
+Game.prototype.maxTurnList = 10;
+/**
+ * The unit that's currently taking its turn.
+ * @type {null}
+ */
+Game.prototype.activeUnit = null;
+/**
+ * The player object who won this game.
+ * @type {null}
+ */
+Game.prototype.winner = null;
 /**
  * Add the users into the list.
  * @param player
  * @return {*}
  */
-Game.prototype.addPlayer = function (player) {
+Game.prototype.addPlayer = function (player, team) {
     this.players.add(player);
+    this.setTeam(player, team);
     this.log('player.add', {
         id: player.id,
-        name: player.name,
-        index: this.players.length
+        name: player.name, // todo: set this to be user-definable
+        index: this.players.length,
+        team: this.teams[player.id] // race of the team. todo: set this to be user-definable
     });
-    console.log('Total players::::::::::::::::', this.players.length);
     if (this.players.length === this.MAX_USERS) {
         this.log('game.start', {
             id: this.id
@@ -53,6 +65,7 @@ Game.prototype.addPlayer = function (player) {
     }
     return this;
 };
+
 /**
  * Adds a unit in the game.
  * @param unit
@@ -65,7 +78,6 @@ Game.prototype.addUnit = function (unit) {
 };
 
 /**
- *
  * @param name
  * @param player
  * @return {*}
@@ -258,6 +270,14 @@ Game.prototype.spawnUnit = function (unit, tile) {
     });
 };
 
+Game.prototype.toJSON = function() {
+    return {
+        id: this.id,
+        name: this.name,
+        players: this.players.toJSON()
+    };
+};
+
 Game.prototype.playerReady = function(player) {
     player.ready = true;
     this.log('player.ready', {
@@ -369,6 +389,10 @@ Game.prototype.checkActions = function(unit) {
     }
 };
 
+Game.prototype.setTeam = function(player, team) {
+    this.teams[player.id] = team;
+};
+
 Game.prototype.skip = function(unitId) {
     var unit;
     if (unit = this.units.get(unitId)) {
@@ -388,4 +412,8 @@ Game.prototype.end = function(playerId) {
         type: 'player.win'
     });
 };
+
+Game.prototype.getTeam = function(player) {
+    return this.teams[player.id];
+}
 module.exports = Game;
