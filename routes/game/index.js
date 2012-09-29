@@ -10,12 +10,13 @@ var GameApp = function(io) {
     var players = new Players();
     var games = new Games();
 
-    this.getPlayers = function() {
-        return players.toJSON();
-    };
-
-    this.getGames = function() {
-        return games.toJSON();
+    this.api = {
+        players: function(req, res) {
+            res.json(players.toJSON());
+        },
+        games: function(req, res) {
+            res.json(games.toJSON());
+        }
     };
 
     /**
@@ -240,4 +241,5 @@ GameApp.route = function(req, res) {
 GameApp.routeDev = function(req, res) {
     res.render('game-test', { title: 'Game - Wings Of Lemuria' });
 };
+
 module.exports = GameApp;

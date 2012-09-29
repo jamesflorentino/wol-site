@@ -12,39 +12,28 @@ var express = require('express'),
     nib = require('nib')
     ;
 
-var app = express();
+var app = express.createServer(express.logger());
 
 // the game instance of the server
 var game;
 
 app.configure(function() {
-    app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
-    app.use(express.logger('dev'));
+    app.set('view options', { layout: false });
     app.use(express.bodyParser());
     app.use(express.methodOverride());
-    app.use(express.cookieParser('your secret here'));
-    app.use(express.session());
     app.use(app.router);
     app.use(stylus.middleware({
         src: __dirname + '/public',
-        compile: function(str, path) {
+        compile: (function(str, path) {
             return stylus(str)
                 .set('filename', path)
                 .set('compress', false)
                 .use(nib());
-        }
+        })
     }));
-    app.use(express.static(path.join(__dirname, 'public')));
-    app.get('/', routes.index);
-    app.get('/users', user.list);
-    app.get('/games-info', function(req, res) {
-        res.json({
-            games: game.getGames(),
-            players: game.getPlayers()
-        });
-    })
+    app.use(express.static(__dirname + '/public'));
 });
 
 app.configure('production', function() {
@@ -56,9 +45,14 @@ app.configure('development', function() {
     app.get('/game', Game.routeDev);
 });
 
-var server = http.createServer(app).listen(app.get('port'));
+app.listen(process.env.PORT || 3000, function() {
+    console.log('started');
+});
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(app);
 
 game = new Game(io);
-
+// routes
+app.get('/', routes.index);
+app.get('/players', game.api.players);
+app.get('/games', game.api.games);

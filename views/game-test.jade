@@ -1,4 +1,8 @@
-extends layouts/game-dev
+extends layout_game
+
+block scripts
+    script(src='/socket.io/socket.io.js')
+    script(src='/javascripts/app.js')
 
 block content
     #main
