@@ -54,7 +54,7 @@ io.configure(function () {
 });
 /**/
 
-app.listen(process.env.PORT || 3000, function() {
+app.listen(process.env.VCAP_APP_PORT || process.env.PORT || 3000, function() {
     console.log('WEB SERVER HAS STARTED.');
 });
 
