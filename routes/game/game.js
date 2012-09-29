@@ -279,14 +279,12 @@ Game.prototype.toJSON = function() {
 
 Game.prototype.playerReady = function(player) {
     player.ready = true;
+    console.log('client ', player.id, ' is ready!');
     this.log('player.ready', {
         id: player.id
     });
     var totalPlayers = this.players.length;
     var readyCount = 0;
-    console.log('');
-    console.log("PLAYER READY!!!!!   ");
-    console.log('');
     if (!this.started && totalPlayers === this.MAX_USERS) {
         for(var i=0; i<totalPlayers; i++) {
             if (this.players.at(i).ready) {
@@ -294,7 +292,7 @@ Game.prototype.playerReady = function(player) {
             }
         }
         if (readyCount === totalPlayers) {
-            console.log('READY COUNT',  readyCount, ' :', totalPlayers);
+            console.log('All clients ready to rock!');
             this.started = true;
             setTimeout(this.start.bind(this), 100);
         }

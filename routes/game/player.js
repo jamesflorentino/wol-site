@@ -9,6 +9,7 @@ module.exports = (function(){
         this.authKey = utils.guid();
         this.connected = true;
         this.expiresIn = new Date().getTime() + this.MAX_LIFE;
+        this.ready = false;
         events.EventEmitter.call(this);
     }
     util.inherits(Player, events.EventEmitter);
@@ -63,11 +64,5 @@ module.exports = (function(){
         this.emit('remove', this);
     };
 
-    /**
-     *
-     */
-    Player.prototype.ready = function() {
-        this.emit('ready', this);
-    };
     return Player;
 })();

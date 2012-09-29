@@ -55,7 +55,6 @@ var GameApp = function(io) {
 
         function playerSetData() {
             player.connect(socket);
-            subscribe('disconnect', player.disconnect.bind(player));
             subscribe('game.find', findGame);
             publish('auth.response', {
                 type: 'connected',
@@ -99,6 +98,7 @@ var GameApp = function(io) {
             // when the client disconnects, we check if the game is empty,
             // then remove the game from the list.
             subscribe('disconnect', function() {
+                player.disconnect();
                 if (game.connectedPlayers() === 0) {
                     games.remove(game);
                 } else {
