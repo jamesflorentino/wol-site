@@ -2,7 +2,6 @@ server:
 	node app
 
 production:
-	make compile
 	NODE_ENV=production node app.js
 
 compile:
