@@ -17,6 +17,7 @@ var express = require('express'),
 // the game instance of the server
 var game;
 
+
 app.configure(function() {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
@@ -45,7 +46,7 @@ app.configure('development', function() {
     app.get('/game', Game.routeDev);
 });
 
-var port = process.env.VCAP_APP_PORT || process.env.PORT || 3000;
+var port = 8080;
 var server = http.createServer(app).listen(port);
 
 io = io.listen(server);
