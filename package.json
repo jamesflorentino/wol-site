@@ -1,15 +1,19 @@
 {
-  "name": "wings-of-lemuria",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node app"
-  },
-  "dependencies": {
-    "express": "2.5.x",
-    "jade": "*",
-    "stylus": "*",
-    "nib": "*",
-    "socket.io": "*"
-  }
+    "name": "wings-of-lemuria",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node app"
+    },
+    "dependencies": {
+        "express": "2.5.x",
+        "jade": "*",
+        "stylus": "*",
+        "nib": "*",
+        "socket.io": "*"
+    },
+    "engines": {
+        "node": "0.6.13",
+        "npm": "1.1.41"
+    }
 }
