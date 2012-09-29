@@ -131,6 +131,7 @@ require([
     function hideUnitActionMenu() {
         var actionPanel = wol.$('#unit-actions');
         wol.dom.addClass(actionPanel, 'hidden');
+        game.clearHexTiles(game.activeUnit, 'range reach');
         menuState = null;
     }
 
