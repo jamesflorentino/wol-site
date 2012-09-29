@@ -48,13 +48,15 @@ app.configure('development', function() {
 // Heroku, Y U NO support websockets in 2012?
 /**/
 io.configure(function () {
-    //io.set("transports", ["xhr-polling"]);
-    io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
+    io.set("transports", ["xhr-polling"]);
+    //io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
     io.set("polling duration", 10);
 });
 /**/
 
-app.listen(process.env.VCAP_APP_PORT || process.env.PORT || 3000, function() {
+var port = process.env.VCAP_APP_PORT;
+console.log('Im listening to ' + port);
+app.listen(port, function() {
     console.log('WEB SERVER HAS STARTED.');
 });
 
