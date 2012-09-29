@@ -2,9 +2,6 @@
     "name": "wings-of-lemuria",
     "version": "0.0.1",
     "private": true,
-    "scripts": {
-        "start": "node app"
-    },
     "dependencies": {
         "express": "2.5.x",
         "jade": "*",
