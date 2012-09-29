@@ -9,10 +9,10 @@ var express = require('express'),
     http = require('http'),
     path = require('path'),
     stylus = require('stylus'),
-    nib = require('nib')
+    nib = require('nib'),
+    app = express.createServer(express.logger()),
+    io = require('socket.io').listen(app)
     ;
-
-var app = express.createServer(express.logger());
 
 // the game instance of the server
 var game;
@@ -41,15 +41,22 @@ app.configure('production', function() {
 });
 
 app.configure('development', function() {
-    app.use(express.errorHandler());
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
     app.get('/game', Game.routeDev);
 });
 
-app.listen(process.env.PORT || 3000, function() {
-    console.log('started');
+// Heroku, Y U NO support websockets in 2012?
+/**/
+io.configure(function () {
+    //io.set("transports", ["xhr-polling"]);
+    io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
+    io.set("polling duration", 10);
 });
+/**/
 
-var io = require('socket.io').listen(app);
+app.listen(process.env.PORT || 3000, function() {
+    console.log('WEB SERVER HAS STARTED.');
+});
 
 game = new Game(io);
 // routes

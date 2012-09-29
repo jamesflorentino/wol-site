@@ -5,6 +5,7 @@ var Game = require('./game');
 var utils = require('./utils');
 
 var GameApp = function(io) {
+
     "use strict";
 
     var players = new Players();
@@ -206,22 +207,7 @@ var GameApp = function(io) {
         subscribe('auth', setAuthKey);
     }
 
-    // basic configuration
-    io.configure(function(){
-        io.sockets.on('connection', connection);
-        io.enable('browser client minification');
-        io.enable('browser client etag');
-        io.enable('browser client gzip');
-        io.set('log level', 3);
-        io.set('transports', [
-            'websocket'
-            , 'flashsocket'
-            , 'htmlfile'
-            , 'xhr-polling'
-            , 'jsonp-polling'
-        ]);
-    })
-
+    io.sockets.on('connection', connection);
 };
 
 /**
