@@ -10,8 +10,8 @@ var express = require('express'),
     path = require('path'),
     stylus = require('stylus'),
     nib = require('nib'),
-    app = express.createServer(express.logger()),
-    io = require('socket.io').listen(app)
+    app = express(),
+    io = require('socket.io')
     ;
 
 // the game instance of the server
@@ -45,23 +45,28 @@ app.configure('development', function() {
     app.get('/game', Game.routeDev);
 });
 
-// Heroku, Y U NO support websockets in 2012?
-/**/
-io.configure(function () {
-    io.set("transports", ["xhr-polling"]);
-    //io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
-    io.set("polling duration", 10);
-});
-/**/
+var port = process.env.VCAP_APP_PORT || process.env.PORT || 3000;
+var server = http.createServer(app).listen(port);
 
-var port = process.env.VCAP_APP_PORT || process.env.PORT;
-console.log('Im listening to ' + port);
-app.listen(port, function() {
-    console.log('WEB SERVER HAS STARTED.');
-});
-
+io = io.listen(server);
 game = new Game(io);
+
 // routes
 app.get('/', routes.index);
 app.get('/players', game.api.players);
 app.get('/games', game.api.games);
+
+
+io.configure(function () {
+    io.enable('browser client minification');  // send minified client
+    io.enable('browser client etag');          // apply etag caching logic based on version number
+    io.enable('browser client gzip');          // gzip the file
+    io.set('log level', 1);                    // reduce logging
+    io.set('transports', [                     // enable all transports (optional if you want flashsocket)
+        'websocket'
+        , 'flashsocket'
+        , 'htmlfile'
+        , 'xhr-polling'
+        , 'jsonp-polling'
+    ]);
+});
