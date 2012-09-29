@@ -54,7 +54,7 @@ io.configure(function () {
 });
 /**/
 
-var port = process.env.VCAP_APP_PORT;
+var port = process.env.VCAP_APP_PORT || process.env.PORT;
 console.log('Im listening to ' + port);
 app.listen(port, function() {
     console.log('WEB SERVER HAS STARTED.');
