@@ -3,11 +3,16 @@ extends layouts/game
 block content
     #main
         #ui
+            #victory-message
+                .logo
+                .message You win
+                a.find.game(href='/game') Player another game
+            #modal-message
+                ul.logs
             .preloader.hidden
                 .bar
                 .border
             #turn-list.hidden
-                .title Turn List
                 ul
             #unit-actions.unit-active.hidden
                 .title Active Unit

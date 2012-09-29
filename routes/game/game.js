@@ -54,9 +54,9 @@ Game.prototype.addPlayer = function (player, team) {
     this.setTeam(player, team);
     this.log('player.add', {
         id: player.id,
-        name: player.name, // todo: set this to be user-definable
+        name: player.name,
         index: this.players.length,
-        team: this.teams[player.id] // race of the team. todo: set this to be user-definable
+        team: this.getTeam(player)
     });
     if (this.players.length === this.MAX_USERS) {
         this.log('game.start', {
@@ -180,8 +180,7 @@ Game.prototype.start = function () {
     this.spawnUnit(
         unit,
         this.grid.get(
-            //this.columns - 1,
-            1,
+            this.columns - 1,
             Math.floor(this.rows * 0.5)
         )
     );
@@ -415,5 +414,5 @@ Game.prototype.end = function(playerId) {
 
 Game.prototype.getTeam = function(player) {
     return this.teams[player.id];
-}
+};
 module.exports = Game;

@@ -26,7 +26,7 @@ require([
      * The canvas container.
      * @type {HTMLElement}
      */
-    var canvasContainer = document.getElementById('game');
+    var canvasContainer;
     /**
      * An instance of a game.
      * @type {Game}
@@ -350,6 +350,7 @@ require([
     function startGame(data) {
         if (!game) {
             log('starting game');
+            canvasContainer = document.getElementById('game');
             wol.init(Game, canvasContainer, 960, 640, ready);
             log('loading game');
         }
@@ -431,6 +432,5 @@ require([
         player.team = 'lemurians';
         log('Setting team to :' + player.team);
     }
-
-    init();
+    window.addEventListener('load', init);
 });

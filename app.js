@@ -49,7 +49,7 @@ app.configure(function() {
 
 app.configure('production', function() {
     app.get('/game', Game.route);
-})
+});
 
 app.configure('development', function() {
     app.use(express.errorHandler());
