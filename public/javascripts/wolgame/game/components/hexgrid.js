@@ -40,7 +40,10 @@ define([
                     var time = entity.moveDuration * (prev.y != tile.y ? 0.75 : 1);
                     tweenObj = tweenObj
                         .call(function() {
-                            entity.container.scaleX = entity._currentPos.x > coord.x ? -1 : 1;
+                            //entity.container.scaleX = entity._currentPos.x > coord.x ? -1 : 1;
+                            entity.flip(
+                                entity._currentPos.x > coord.x ? 'left' : 'right'
+                            );
                             entity._currentPos = coord;
                             // we assign the current active tile in the entity for reference.
                             entity.tile = tile;

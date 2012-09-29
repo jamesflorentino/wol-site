@@ -81,7 +81,7 @@ define([
                 unit.move(tile);
                 unit.flip(data.direction);
                 unit.show();
-                //--
+                // show the player side indicator
                 var hexPlayerSide = this.getTexture(
                     unit.playerId === this.player.id ? 'hex_player_a' : 'hex_player_b'
                 );
@@ -89,7 +89,13 @@ define([
                 hexPlayerSide.regY = 49 * 0.5;
                 unit.container.addChildAt(hexPlayerSide, 0);
                 unit.hexTiles.set('playerSide', [hexPlayerSide]);
-                //--
+                // add a health gauge in the list
+                var barHealthBg = this.getTexture('bar_health_bg');
+                var barHealthBar = this.getTexture('bar_health');
+                barHealthBg.y = -100;
+                barHealthBar.y = barHealthBg.y + 1;
+                unit.container.addChild(barHealthBg);
+                unit.container.addChild(barHealthBar);
                 this.updateUnit(unit);
             }
         },
@@ -223,7 +229,7 @@ define([
          * @param unit
          */
         cancelUnitOptions: function(unit) {
-            this.clearHexTiles(unit, 'range');
+            this.clearHexTiles(unit, 'range reach');
         },
 
         /**

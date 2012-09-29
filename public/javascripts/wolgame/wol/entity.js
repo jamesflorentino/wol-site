@@ -45,6 +45,13 @@ define([
             }
             return entity;
         };
+        /**
+         *
+         * @param direction
+         */
+        entity.flip = function(direction) {
+            animation.scaleX = direction === 'left' ? -1 : 1;
+        };
         entity._animation = animation;
     });
 

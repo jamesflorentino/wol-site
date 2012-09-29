@@ -114,6 +114,7 @@ define([
             }
             return result;
         },
+
         /**
          * Finding nearest heuristics
          * @param start
