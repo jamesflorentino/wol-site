@@ -23,6 +23,9 @@
         Stat.prototype.reset = function(val) {
             this.value = this.max;
         };
+        Stat.prototype.ratio = function() {
+            return this.value / this.max;
+        };
         return Stat;
     })();
 

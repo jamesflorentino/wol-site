@@ -4,7 +4,7 @@ var units = {
         stats: {
             health: 800,
             damage: 200,
-            reach: 3
+            reach: 2
         }
     }
 };

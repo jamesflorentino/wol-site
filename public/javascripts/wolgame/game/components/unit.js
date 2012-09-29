@@ -42,6 +42,15 @@ define([
         entity.defendEnd = function() {
             entity.emit('unit.defend.end');
         };
+        entity.receiveDamage = function(damage) {
+            entity.stats.get('health').reduce(damage);
+            if (entity.stats.get('health').value === 0) {
+                entity.die();
+            } else {
+                entity.defendEnd();
+            }
+            entity.emit('unit.damage.receive', damage);
+        };
         // .hit
         // ----
         // enables the unit to get hit. main usage is for animation.

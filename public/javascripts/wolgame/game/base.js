@@ -123,6 +123,16 @@ define([
             return wol.spritesheets.extract('elements', name);
         },
 
+        getTextureSize: function(texture) {
+            var spriteSheet = texture.spriteSheet;
+            var frameIndex = spriteSheet.getAnimation(texture.currentAnimation).frames[0][0];
+            var assetData = spriteSheet.getFrame(frameIndex);
+            return {
+                width: assetData.rect.width,
+                height: assetData.rect.height
+            };
+        },
+
         findNearestPath: function(start, end) {
             var openList,
                 closedList,

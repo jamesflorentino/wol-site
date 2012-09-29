@@ -67,7 +67,8 @@ define([
                 stats = data.stats,
                 tileX = data.x,
                 tileY = data.y,
-                playerId = data.playerId
+                playerId = data.playerId,
+                _this = this
                 ;
             var unitClass = this.unitClasses[code];
             var player = this.players.get(playerId);
@@ -93,9 +94,21 @@ define([
                 var barHealthBg = this.getTexture('bar_health_bg');
                 var barHealthBar = this.getTexture('bar_health');
                 barHealthBg.y = -100;
+                barHealthBg.x = -23;
                 barHealthBar.y = barHealthBg.y + 1;
+                barHealthBar.x = barHealthBg.x + 1;
                 unit.container.addChild(barHealthBg);
                 unit.container.addChild(barHealthBar);
+
+                // update the health bar whenever the unit takes damage
+                unit.on('unit.damage.receive', function(damage) {
+                    var healthStatRatio = unit.stats.get('health').ratio();
+                    wol.tween.get(barHealthBar).to({
+                        scaleX: healthStatRatio
+                    }, 100);
+                    // show damage indicator
+                    _this.unitDamage(unit, damage);
+                });
                 this.updateUnit(unit);
             }
         },
@@ -143,12 +156,7 @@ define([
                 unit.off('unit.attack.end', unitAttack);
                 unit.off('unit.attack.hit', unitAttackHit);
                 _this.emit('unit.act.end', unit);
-                target.stats.get('health').reduce(damage);
-                if (target.stats.get('health').value === 0) {
-                    target.die();
-                } else {
-                    target.defendEnd();
-                }
+                target.receiveDamage(damage);
             });
             unitAttackHit = (function() {
                 target.hit();
@@ -310,6 +318,37 @@ define([
             unit.container.addChildAt(hexSelect, hexPlayerSide.parent.getChildIndex(hexPlayerSide) + 1);
             unit.hexTiles.set('active', [hexSelect]);
             this.activeUnit = unit;
+        },
+
+        unitDamage: function(unit, damage) {
+            var damageArray;
+            var dimensions;
+            var prevX;
+            var unitY;
+            var targetY;
+            var _this = this;
+            prevX = unit.container.x;
+            unitY = unit.container.y - 100;
+            targetY = unitY - 10;
+            damageArray = String(damage).split('');
+            wol.each(damageArray, function(damageString, i) {
+                var frameName = 'damage_' + damageString;
+                var damageText = _this.getTexture(frameName);
+                dimensions = _this.getTextureSize(damageText);
+                prevX += dimensions.width;
+                damageText.x = prevX;
+                damageText.y = unitY;
+                damageText.alpha = 0;
+                _this.add(damageText, _this.unitContainer);
+                //_this.unitContainer.addChild(damageText);
+                wol.tween.get(damageText)
+                    .wait(i * 50)
+                    .to({ y: targetY, alpha: 1 }, 300, wol.ease.backInOut)
+                    .wait(1000).call(function() {
+                        _this.unitContainer.removeChild(damageText);
+                    });
+            });
+
         }
     });
 });
