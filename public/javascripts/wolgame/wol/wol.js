@@ -34,15 +34,14 @@ define([
         }
     })();
 
-    // ### wait
-    // Shortcut for setTimeout
-
     var wait = function (ms, cb) {
         return setTimeout(cb, ms);
     };
 
-    // # wol
-    // This namespace (and singleton) will be the central authority of the game.
+    /**
+     * The namespace for the game's core authority.
+     * @type {Object}
+     */
     var wol = {
         config: {
             units: {

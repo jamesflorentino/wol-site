@@ -46,6 +46,8 @@ require([
 
     var menuState = null;
 
+    var gameEnded = false;
+
     var tpl = {
         sub: function(string, object) {
             var str = string;
@@ -77,7 +79,7 @@ require([
      * Load the assets later.
      */
     function init() {
-        wol.events.emit('sheet.mirror.marine');
+        wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
         socket = io.connect();
         socket
             .on('auth.response', authResponse)
@@ -85,6 +87,7 @@ require([
             .on('game.start', startGame)
             .on('game.end', endGame)
             .on('player.add', addPlayer)
+            .on('players.ready', playersReady)
         ;
         log('initializing');
         wol.dom.empty(wol.$('#modal-message ul'));
@@ -97,35 +100,47 @@ require([
     }
 
     /**
+     * When both clients are already ready for the game
+     */
+    function playersReady() {
+        log('Players both ready. Initiating Game');
+        hideMessageLog();
+    }
+
+    /**
      * When the game is initialized and ready to be
      * manipulated.
      * @param g
      */
     function ready(g /** Game **/) {
-        hideMessageLog();
-        game = g;
-        game.player = player;
-        game.on('unit.update', gameUnitUpdate);
-        game.on('unit.act', gameUnitAct);
-        game.on('unit.act.end', gameUnitActEnd);
-        game.on('unit.move', gameUnitMove);
-        game.on('unit.attack', gameUnitAttack);
+        if (!gameEnded) {
+            game = g;
+            game.player = player;
+            game.on('unit.update', gameUnitUpdate);
+            game.on('unit.act', gameUnitAct); // when a unit does an action
+            game.on('unit.act.end', gameUnitActEnd);
+            game.on('unit.move', gameUnitMove);
+            game.on('unit.attack', gameUnitAttack);
 
-        players.forEach(game.addPlayer.bind(game));
-        socket
-            .on('unit.spawn', unitSpawn)
-            .on('unit.attack', unitAttack)
-            .on('unit.move', unitMove)
-            .on('unit.skip', unitSkip)
-            .on('unit.turn', unitTurn)
-            .on('units.turn.list', unitsTurnList)
-        ;
-        // initialize mouse events
-        wol.dom.click(wol.$('#unit-actions .move.command'), showMoveCommand);
-        wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
-        wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
-        wol.keys.on(wol.KeyCodes.V, showMoveCommand);
-        send('ready');
+            players.forEach(game.addPlayer.bind(game));
+            socket
+                .on('unit.spawn', unitSpawn)
+                .on('unit.attack', unitAttack)
+                .on('unit.move', unitMove)
+                .on('unit.skip', unitSkip)
+                .on('unit.turn', unitTurn)
+                .on('units.turn.list', unitsTurnList)
+            ;
+            // initialize mouse events
+            wol.dom.click(wol.$('#unit-actions .move.command'), showMoveCommand);
+            wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
+            wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
+            wol.keys.on(wol.KeyCodes.V, showMoveCommand);
+            log('Map loaded. Waiting for opponent...');
+            send('ready');
+        } else {
+            log('Map loaded. But opponent left the game.');
+        }
     }
 
     function hideUnitActionMenu() {
@@ -298,6 +313,16 @@ require([
         }
     }
 
+    function showEndGame(message, lost) {
+        var victoryMessage = wol.$('#victory-message');
+        wol.dom.addClass(victoryMessage, 'active');
+        wol.dom.query(victoryMessage, '.message').textContent = message;
+        if (lost) {
+            wol.dom.addClass(victoryMessage,'lost');
+        }
+        log(message);
+    }
+
     /**
      * @param data
      */
@@ -316,7 +341,6 @@ require([
      * @param data
      */
     function send(topic, data) {
-        console.log(arguments);
         socket.emit(topic, data);
     }
 
@@ -358,26 +382,23 @@ require([
     }
 
     function endGame(data) {
-        console.log('leave game', data);
-        if (game) {
-            var messageLog = wol.$('#modal-message');
-            switch(data.type) {
-                case 'player.leave':
-                    wol.dom.removeClass(messageLog, 'hidden');
-                    wol.dom.addClass(wol.$('#unit-actions'),'hidden');
-                    log(data.message);
-                    break;
-                case 'player.win':
-                    var victoryMessage = wol.$('#victory-message');
-                    wol.dom.addClass(victoryMessage, 'active');
-                    wol.dom.query(victoryMessage, '.message').textContent = data.winnerId === player.id ?
-                        'Your team is victorious!' : 'Your forces have been eliminated';
-                    if (data.winnerId !== player.id) {
-                        wol.dom.addClass(victoryMessage,'lost');
-                    }
-                    break;
-            }
+        var messageLog = wol.$('#modal-message');
+        gameEnded = true;
+        switch(data.type) {
+            case 'player.leave':
+                wol.dom.removeClass(messageLog, 'hidden');
+                wol.dom.addClass(wol.$('#unit-actions'),'hidden');
+                log(data.message);
+                break;
+            case 'player.win':
+                if (data.winnerId === player.id) {
+                    showEndGame('Your team is victorious!');
+                } else {
+                    showEndGame('Your forces have been eliminated', true);
+                }
+                break;
         }
+
     }
 
     function findGame() {
@@ -431,7 +452,7 @@ require([
 
     function setTeam() {
         player.team = 'lemurians';
-        log('Setting team to :' + player.team);
+        log('Setting team to ' + player.team);
     }
     window.addEventListener('load', init);
 });
