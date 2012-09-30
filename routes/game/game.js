@@ -59,6 +59,7 @@ Game.prototype.addPlayer = function (player, team) {
         team: this.getTeam(player)
     });
     if (this.players.length === this.MAX_USERS) {
+        // when we have enough users, let's start a game.
         this.log('game.start', {
             id: this.id
         });
@@ -294,6 +295,7 @@ Game.prototype.playerReady = function(player) {
         if (readyCount === totalPlayers) {
             console.log('All clients ready to rock!');
             this.started = true;
+            this.log('players.ready');
             setTimeout(this.start.bind(this), 100);
         }
     }

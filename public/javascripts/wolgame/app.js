@@ -104,6 +104,7 @@ require([
      */
     function playersReady() {
         log('Players both ready. Initiating Game');
+        wol.play();
         hideMessageLog();
     }
 
@@ -136,6 +137,7 @@ require([
             wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
             wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
             wol.keys.on(wol.KeyCodes.V, showMoveCommand);
+            wol.pause();
             log('Map loaded. Waiting for opponent...');
             send('ready');
         } else {
