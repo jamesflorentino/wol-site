@@ -29,7 +29,7 @@ Game.prototype.maxCharge = 5;
  * Maximum number of users that is needed to start a game.
  * @type {Number}
  */
-Game.prototype.MAX_USERS = 1;
+Game.prototype.MAX_USERS = 2;
 /**
  * @type {Number}
  */
