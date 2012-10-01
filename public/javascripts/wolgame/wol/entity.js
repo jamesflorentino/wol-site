@@ -23,6 +23,7 @@ define([
         var animation = wol.create.animation(spritesheet);
         //
         entity.container.addChild(animation);
+        animation.mouseEnabled = false;
         // ### entity.play (frameName)
         // Forwards the timeline of the spritesheet to a certain frame name.
         entity.play = function(frame) {

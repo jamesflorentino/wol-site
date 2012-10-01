@@ -49,6 +49,12 @@ define([
                 }
             }
         },
+
+        touchEnabled: createjs.Touch.isSupported(),
+        touch: {
+            enable: createjs.Touch.enable, // function
+            disable: createjs.Touch.disable // function
+        },
         /**
          * An API for component registration which is then used to apply to entities in the
          * game.
@@ -272,6 +278,7 @@ define([
             container.appendChild(canvas);
             // initiate the createjs.Stage instance
             this.stage = new createjs.Stage(canvas);
+            createjs.Touch.enable(this.stage);
             this.canvas = canvas;
             // set the FPS setting.
             createjs.Ticker.useRAF = true;

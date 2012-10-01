@@ -305,6 +305,7 @@ define([
             // clear the previous activeUnit object's active hex sprite
             var hexSelect;
             var hexPlayerSide;
+            var _this = this;
             if (this.activeUnit) {
                 this.activeUnit.hexTiles.get('playerSide')[0].visible = true;
                 this.clearHexTiles(this.activeUnit, 'active');
@@ -313,6 +314,9 @@ define([
             hexSelect = this.getTexture('hex_player_selected');
             hexSelect.regX = 107 * 0.5;
             hexSelect.regY = 75 * 0.5;
+            hexSelect.onClick = (function() {
+                _this.emit('unit.show.move', unit);
+            });
             hexPlayerSide = unit.hexTiles.get('playerSide')[0];
             hexPlayerSide.visible = false;
             unit.container.addChildAt(hexSelect, hexPlayerSide.parent.getChildIndex(hexPlayerSide) + 1);

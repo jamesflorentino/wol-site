@@ -1,12 +1,51 @@
 doctype 5
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/game.css')
-    meta(name='apple-mobile-web-app-capable', content='yes')
-    meta(name='apple-mobile-web-app-status-bar-style', content='black-translucent')
-    //meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
-    meta(name='viewport', content='width=device-width, initial-scale=1, minimum-scale=0.25, maximum-scale=1')
-    block scripts
-  body
-    block content
+    head
+        title Wings Of Lemuria
+        link(rel='stylesheet', href='/stylesheets/game.css')
+        meta(name='apple-mobile-web-app-capable', content='yes')
+        meta(name='apple-mobile-web-app-status-bar-style', content='black-translucent')
+        meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
+        link(rel="apple-touch-icon", href="/images/touch-icon.png")
+        link(rel="apple-touch-icon", sizes="144x144", href="/images/icon_144x144.png")
+        link(rel="apple-touch-icon", sizes="114x114", href="/images/icon_114x114.png")
+        link(rel="apple-touch-icon", sizes="96x96", href="/images/icon_96x96.png")
+        link(rel="apple-touch-icon", sizes="72x72", href="/images/icon_72x72.png")
+        link(rel="apple-touch-icon", sizes="58x58", href="/images/icon_58x58.png")
+        link(rel="apple-touch-icon", sizes="57x57", href="/images/icon_57x57.png")
+        link(rel="apple-touch-icon", sizes="48x48", href="/images/icon_48x48.png")
+        link(href="images/apple-touch-startup-image-640x920.png", rel="apple-touch-startup-image")
+        block scripts
+    body
+        #add-to-homescreen.hidden Add this to your homescreen by touching the share icon below and click "add to homescreen"!
+        #mobile-message Please tilt your device to landscape mode to play the game.
+        #main
+            #ui
+                #victory-message
+                    .logo
+                    .message You win
+                    a.find.game(href='/game') Player another game
+                #modal-message
+                    ul.logs
+                .preloader.hidden
+                    .bar
+                    .border
+                #turn-list.hidden
+                    ul
+                #unit-actions.unit-active.hidden
+                    .title Active Unit
+                    .avatar
+                    .health
+                        .label HP
+                        .value 300/300
+                    .actions
+                        .title Actions
+                        .bars
+                            .bar.empty
+                            .bar.empty
+                            .bar.empty
+                    .commands
+                        .move.command Move
+                        .reinforce.command Reinforce
+                        .skip.command Skip
+            #game

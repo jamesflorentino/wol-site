@@ -29,7 +29,7 @@ Game.prototype.maxCharge = 5;
  * Maximum number of users that is needed to start a game.
  * @type {Number}
  */
-Game.prototype.MAX_USERS = 2;
+Game.prototype.MAX_USERS = 1;
 /**
  * @type {Number}
  */
@@ -156,6 +156,7 @@ Game.prototype.wait = function (ms) {
  */
 Game.prototype.start = function () {
     this.full = true;
+    this.started = true;
     // test units
     var unit;
     var player;
@@ -224,7 +225,7 @@ Game.prototype.calculateTurnList = function() {
             }
         } else {
             // declare the winner if there's only one unit left.
-            this.endGame(unit.playerId);
+            this.end(unit.playerId);
             clearInterval(interval);
         }
     });

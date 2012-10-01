@@ -3,7 +3,6 @@ module.exports = (function() {
     function Games() {
         this.dictionary = {};
         this.list = [];
-        this.vacant = [];
         this.length = 0;
     }
 
@@ -11,7 +10,6 @@ module.exports = (function() {
         if (game !== undefined && this.list.indexOf(game) === -1) {
             game.on('empty', this.remove.bind(this));
             this.list.push(game);
-            this.vacant.push(game.id);
             this.dictionary[game.id] = game;
         }
         this.length = this.list.length;
@@ -20,22 +18,28 @@ module.exports = (function() {
 
     Games.prototype.remove = function (game) {
         this.list.splice(this.list.indexOf(game), 1);
-        this.vacant.splice(this.vacant.indexOf(game), 1);
         delete this.dictionary[game.id];
         this.length = this.list.length;
     };
 
     Games.prototype.available = function () {
-        return this.get(this.vacant[0]);
+        //return this.get(this.vacant[0]);
+        var game;
+        var vacantGame = null;
+        for(var i= 0, _len = this.list.length; i<_len; i++) {
+            game = this.list[i];
+            if (!game.started) {
+                vacantGame = game;
+                break;
+            }
+        }
+        return vacantGame;
     };
 
     Games.prototype.occupy = function (game, user, team) {
         if (game.players.length < game.MAX_USERS) {
             game.addPlayer(user, team);
             game.name = 'game: ' + this.list.length;
-            if (game.players.length === game.MAX_USERS) {
-                this.vacant.splice(this.vacant.indexOf(game.id), 1);
-            }
         }
         return this;
     };

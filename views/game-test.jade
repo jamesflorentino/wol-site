@@ -3,35 +3,3 @@ extends layout_game
 block scripts
     script(src='/socket.io/socket.io.js')
     script(data-main="/javascripts/wolgame/app.js", src="/javascripts/wolgame/require.js")
-
-block content
-    #main
-        #ui
-            #victory-message
-                .logo
-                .message You win
-                a.find.game(href='/game') Player another game
-            #modal-message
-                ul.logs
-            .preloader.hidden
-                .bar
-                .border
-            #turn-list.hidden
-                ul
-            #unit-actions.unit-active.hidden
-                .title Active Unit
-                .avatar
-                .health
-                    .label HP
-                    .value 300/300
-                .actions
-                    .title Actions
-                    .bars
-                        .bar.empty
-                        .bar.empty
-                        .bar.empty
-                .commands
-                    .move.command Move
-                    .reinforce.command Reinforce
-                    .skip.command Skip
-        #game

@@ -79,6 +79,7 @@ require([
      * Load the assets later.
      */
     function init() {
+        checkUserAgent();
         wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
         socket = io.connect();
         socket
@@ -121,6 +122,7 @@ require([
             game.on('unit.act', gameUnitAct); // when a unit does an action
             game.on('unit.act.end', gameUnitActEnd);
             game.on('unit.move', gameUnitMove);
+            game.on('unit.show.move', showMoveCommand);
             game.on('unit.attack', gameUnitAttack);
 
             players.forEach(game.addPlayer.bind(game));
@@ -432,6 +434,33 @@ require([
                 log('You are now connected, ' + player.name);
                 findGame();
                 break;
+        }
+    }
+
+    function checkUserAgent() {
+        if ('standalone' in window.navigator && !window.navigator.standalone) {
+            wol.dom.removeClass(wol.$('#add-to-homescreen'), 'hidden');
+            wol.pause();
+            wol.$('#main').style.display = 'none';
+        } else {
+            if ('orientation' in window) {
+                var devicePixelRatio = window.devicePixelRatio;
+                var viewport = wol.$('meta[name=viewport]');
+                var scale = 1 / devicePixelRatio;
+                var orientChange = (function() {
+                    var scale = window.orientation === 0 ? 1 : 0.5;
+                    viewport.setAttribute(
+                        'content',
+                        'width=' + (window.innerWidth) +
+                        ', initial-scale=' + scale +
+                        ', max-scale=' + scale +
+                        ', min-scale=' + scale +
+                        ', user-scalable=1'
+                    );
+                });
+                window.onorientationchange = orientChange;
+                orientChange();
+            }
         }
     }
 
