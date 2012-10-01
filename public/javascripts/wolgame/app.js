@@ -79,20 +79,21 @@ require([
      * Load the assets later.
      */
     function init() {
-        checkUserAgent();
-        wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
-        socket = io.connect();
-        socket
-            .on('auth.response', authResponse)
-            .on('game.join', joinGame)
-            .on('game.start', startGame)
-            .on('game.end', endGame)
-            .on('player.add', addPlayer)
-            .on('players.ready', playersReady)
-        ;
-        log('initializing');
-        wol.dom.empty(wol.$('#modal-message ul'));
-        setAuthKey();
+        if (checkUserAgent()) {
+            wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
+            socket = io.connect();
+            socket
+                .on('auth.response', authResponse)
+                .on('game.join', joinGame)
+                .on('game.start', startGame)
+                .on('game.end', endGame)
+                .on('player.add', addPlayer)
+                .on('players.ready', playersReady)
+            ;
+            log('initializing');
+            wol.dom.empty(wol.$('#modal-message ul'));
+            setAuthKey();
+        }
     }
 
     function log(message) {
@@ -438,10 +439,12 @@ require([
     }
 
     function checkUserAgent() {
+        var result = true;
         if ('standalone' in window.navigator && !window.navigator.standalone) {
             wol.dom.removeClass(wol.$('#add-to-homescreen'), 'hidden');
             wol.pause();
             wol.$('#main').style.display = 'none';
+            result = false;
         } else {
             if ('orientation' in window) {
                 var devicePixelRatio = window.devicePixelRatio;
@@ -462,6 +465,7 @@ require([
                 orientChange();
             }
         }
+        return result;
     }
 
     /**
