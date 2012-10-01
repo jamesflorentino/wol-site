@@ -37,7 +37,7 @@ module.exports = (function() {
     };
 
     Games.prototype.occupy = function (game, user, team) {
-        if (game.players.length < game.MAX_USERS) {
+        if (game.players.length < game.maxPlayers) {
             game.addPlayer(user, team);
             game.name = 'game: ' + this.list.length;
         }

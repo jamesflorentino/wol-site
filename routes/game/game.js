@@ -7,16 +7,24 @@ var Grid = require('./grid');
 var Collection = require('./collection');
 
 
-function Game() {
+function Game(options) {
     this.id = utils.uuid();
     this.players = new Collection();
-    this.deadUnits = [];
     this.units = new Collection();
-    this.logs = [];
     this.grid = new Grid();
-    this.full = false;
+    this.maxPlayers = 2;
+    this.started = false;
+    this.deadUnits = [];
+    this.logs = [];
+    this.teams = {}; // key-pairs for teams
+    // override existing using customs
+    if (typeof options === 'object' && 'maxPlayers' in options) {
+        if (options.maxPlayers > 0) {
+            this.maxPlayers = options.maxPlayers;
+        }
+    }
+
     this.grid.generate(this.columns, this.rows);
-    this.teams = {};
     events.EventEmitter.call(this);
 }
 
@@ -25,11 +33,6 @@ util.inherits(Game, events.EventEmitter);
 Game.prototype.columns = 9;
 Game.prototype.rows = 9;
 Game.prototype.maxCharge = 5;
-/**
- * Maximum number of users that is needed to start a game.
- * @type {Number}
- */
-Game.prototype.MAX_USERS = 2;
 /**
  * @type {Number}
  */
@@ -58,7 +61,7 @@ Game.prototype.addPlayer = function (player, team) {
         index: this.players.length,
         team: this.getTeam(player)
     });
-    if (this.players.length === this.MAX_USERS) {
+    if (this.players.length === this.maxPlayers) {
         // when we have enough users, let's start a game.
         this.log('game.start', {
             id: this.id
@@ -155,7 +158,6 @@ Game.prototype.wait = function (ms) {
  * starts the game and sends a few unit into the game.
  */
 Game.prototype.start = function () {
-    this.full = true;
     this.started = true;
     // test units
     var unit;
@@ -287,7 +289,7 @@ Game.prototype.playerReady = function(player) {
     });
     var totalPlayers = this.players.length;
     var readyCount = 0;
-    if (!this.started && totalPlayers === this.MAX_USERS) {
+    if (!this.started && totalPlayers === this.maxPlayers) {
         for(var i=0; i<totalPlayers; i++) {
             if (this.players.at(i).ready) {
                 readyCount++;

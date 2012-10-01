@@ -48,6 +48,8 @@ require([
 
     var gameEnded = false;
 
+    var debug = false;
+
     var tpl = {
         sub: function(string, object) {
             var str = string;
@@ -394,6 +396,7 @@ require([
                 wol.dom.removeClass(messageLog, 'hidden');
                 wol.dom.addClass(wol.$('#unit-actions'),'hidden');
                 log(data.message);
+                showEndGame('The player has left', true);
                 break;
             case 'player.win':
                 if (data.winnerId === player.id) {
@@ -407,9 +410,10 @@ require([
     }
 
     function findGame() {
+        var mode = debug ? 'tutorial' : '2v2';
         setTeam();
         log('Finding game...');
-        send('game.find', { team: player.team });
+        send('game.find', { team: player.team, mode: mode });
     }
 
     /**
@@ -449,21 +453,24 @@ require([
             if ('orientation' in window) {
                 var devicePixelRatio = window.devicePixelRatio;
                 var viewport = wol.$('meta[name=viewport]');
-                var scale = 1 / devicePixelRatio;
+                var ratio = 1 / devicePixelRatio;
                 var orientChange = (function() {
-                    var scale = window.orientation === 0 ? 1 : 0.5;
+                    var scale = window.orientation === 0 ? 1 : ratio;
                     viewport.setAttribute(
                         'content',
-                        'width=' + (window.innerWidth) +
+                        'width=device-width' +
                         ', initial-scale=' + scale +
                         ', max-scale=' + scale +
                         ', min-scale=' + scale +
-                        ', user-scalable=1'
+                        ', user-scalable=0'
                     );
                 });
                 window.onorientationchange = orientChange;
                 orientChange();
             }
+        }
+        if (window.location.search.indexOf('tutorial') > -1) {
+            debug = true;
         }
         return result;
     }

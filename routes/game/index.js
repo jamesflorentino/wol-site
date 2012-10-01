@@ -118,16 +118,25 @@ var GameApp = function(io) {
          */
         function findGame(parameters) {
             var team = parameters.team;
+            var mode = parameters.mode;
             if (game === undefined) {
-                game = joinGame(games.available() || createGame(), team);
+                switch (mode) {
+                    case 'tutorial':
+                        game = joinGame(createGame(1), team);
+                        break;
+                    default:
+                        game = joinGame(games.available() || createGame(), team);
+                        break;
+                }
             }
         }
         /**
          * Creates a new game object.
          * @return {*}
          */
-        function createGame() {
-            var game = new Game();
+        function createGame(maxPlayers) {
+            maxPlayers || (maxPlayers = 2);
+            var game = new Game({ maxPlayers: maxPlayers });
             var gameID = game.id;
             game.on('log', function(event) {
                 io.sockets.in(gameID).emit(event.name, event.data);
