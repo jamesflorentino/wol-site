@@ -36,6 +36,11 @@ define([
             'marine': Marine
         },
 
+        /**
+         * Sorted Units
+         */
+        sortedUnits: [],
+
         activeUnit: null,
         /**
          * entry point
@@ -73,15 +78,28 @@ define([
             var unitClass = this.unitClasses[code];
             var player = this.players.get(playerId);
             if (unitClass && player) {
-                console.log(player);
                 var unit = new unitClass({ altUnit: player.index > 1 });
                 var tile = this.hexgrid.get(tileX, tileY);
                 this.addEntity(unit, id, code, name, playerId);
                 this.units.add(unit);
                 unit.stats.set(stats);
+
                 unit.move(tile);
                 unit.flip(data.direction);
                 unit.show();
+
+                // need to know the z-index of the unit
+                var resort = (function() {
+                    _this.sortedUnits.sort(function(a, b) {
+                        return a.tile.z - b.tile.z;
+                    });
+                    var index = _this.sortedUnits.indexOf(unit);
+                    _this.unitContainer.setChildIndex(unit.container, index);
+                });
+                _this.sortedUnits.push(unit);
+                unit.on('unit.move.node', resort);
+                resort();
+
                 // show the player side indicator
                 var hexPlayerSide = this.getTexture(
                     unit.playerId === this.player.id ? 'hex_player_a' : 'hex_player_b'
@@ -90,6 +108,7 @@ define([
                 hexPlayerSide.regY = 49 * 0.5;
                 unit.container.addChildAt(hexPlayerSide, 0);
                 unit.hexTiles.set('playerSide', [hexPlayerSide]);
+
                 // add a health gauge in the list
                 var barHealthBg = this.getTexture('bar_health_bg');
                 var barHealthBar = this.getTexture('bar_health');
@@ -109,8 +128,23 @@ define([
                     // show damage indicator
                     _this.unitDamage(unit, damage);
                 });
+
                 this.updateUnit(unit);
             }
+        },
+
+        getDepth: function(unit) {
+            var index = 0;
+            var length = this.sortedUnits.length;
+            var _unit;
+            for (var i = 0; i < length; i++) {
+                _unit = this.sortedUnits[i];
+                if (_unit.tile.z > unit.tile.z) {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
         },
 
         /**

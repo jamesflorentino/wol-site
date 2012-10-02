@@ -35,7 +35,6 @@ define([
             this.parent();
             var _this = this;
             // add spriteshsetes
-            console.log('alternate', parameters.altUnit);
             this.addComponent('spritesheet', wol.spritesheets.get(parameters.altUnit ? sheetNameAlt :  sheetName));
             this.addComponent('events');
             this.addComponent('hexgrid');

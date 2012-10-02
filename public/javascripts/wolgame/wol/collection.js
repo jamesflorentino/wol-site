@@ -54,12 +54,16 @@
 
             each : function(callback) {
                 for(var i=0; i<this.list.length; i++) {
-                    callback(this.list[i]);
+                    callback(this.list[i], i);
                 }
             },
 
             has : function (model) {
                 return this.list.indexOf(model) > -1;
+            },
+
+            sort: function (sortingAlgorithm) {
+                this.list.sort(sortingAlgorithm);
             }
         };
         return Collection;

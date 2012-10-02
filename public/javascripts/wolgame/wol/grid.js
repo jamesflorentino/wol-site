@@ -27,15 +27,18 @@ define([
         // ### grid.generate(columns, rows)
         // Populates the grid with tile data
         generate: function(columns, rows) {
-            var row, col, tile;
+            var row, col, index, tile;
             this.columns = columns;
             this.rows = rows;
-            for(col = 0; col < columns; col++) {
-                this._keys[col] = {};
-                for(row = 0; row < rows; row++) {
-                    tile = new Tile(col, row);
+            index = 0;
+
+            for(row = 0; row < rows; row++) {
+                for(col = 0; col < columns; col++) {
+                    tile = new Tile(col, row, index);
+                    this._keys[col] || (this._keys[col] = {});
                     this._keys[col][row] = tile;
                     this.tiles.push(tile);
+                    index++;
                 }
             }
         },

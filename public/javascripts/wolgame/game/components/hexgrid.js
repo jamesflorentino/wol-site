@@ -47,6 +47,7 @@ define([
                             entity._currentPos = coord;
                             // we assign the current active tile in the entity for reference.
                             entity.tile = tile;
+                            entity.emit('unit.move.node', entity.tile);
                         })
                         .to(coord, time);
                 });
@@ -69,6 +70,7 @@ define([
                 entity.container.x = coord.x;
                 entity.container.y = coord.y;
                 entity._currentPos = coord;
+                entity.emit('unit.move.node', tileOrTiles);
             }
         };
     });
