@@ -49,11 +49,11 @@ define([
                             entity.tile = tile;
                             entity.emit('unit.move.node', entity.tile);
                         })
-                        .to(coord, time);
+                        .to(coord, time)
                 });
                 // tells the entity we're finished moving which can be used to do
                 // stop a move animation.
-                tweenObj.call(function() {
+                tweenObj = tweenObj.call(function() {
                     entity.emit('hex.move.end');
                 });
             }

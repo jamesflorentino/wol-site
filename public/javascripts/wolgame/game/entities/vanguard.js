@@ -2,17 +2,17 @@ define([
 
     'wol/wol',
     'wol/entity',
-    'game/textures/marine',
+    'game/textures/vanguard',
     'game/components/hexgrid'
 
 ], function(wol, Entity, frameData, hexgrid) {
     "use strict";
 
-    var sheetName = 'game.entities.marine';
-    var sheetNameAlt = 'game.entities.marine2';
+    var sheetName = 'game.entities.vanguard';
+    var sheetNameAlt = 'game.entities.vanguard2';
 
     // add spritesheet data to the resource manager
-    wol.events.on('sheet.mirror.marine', function() {
+    wol.events.on('sheet.mirror.vanguard', function() {
         var mirroredFrameData = JSON.parse(JSON.stringify(frameData));
         mirroredFrameData.images = [mirroredFrameData.images[0].replace('.png','_2.png')];
         wol.spritesheets.add(sheetNameAlt, mirroredFrameData);
@@ -21,20 +21,22 @@ define([
 
 
     /**
-    * Marine
-    * ============================================
-    * super awesome solider
-    **/
+     * vanguard
+     * ============================================
+     * super awesome solider
+     **/
     return wol.Entity.extend({
 
         init: function(parameters) {
             this.parent();
             var _this = this;
             // add spriteshsetes
-            this.addComponent('spritesheet', wol.spritesheets.get(parameters.altUnit ? sheetNameAlt :  sheetName));
+            var altUnit = parameters ? parameters.altUnit : false;
+            //altUnit = true;
+            this.addComponent('spritesheet', wol.spritesheets.get(altUnit ? sheetNameAlt :  sheetName));
             this.addComponent('events');
             this.addComponent('hexgrid');
-            this.moveDuration = 500;
+            this.moveDuration = 1150;
 
             this.sequence('move_start', 'move')
                 .sequence('move_end', 'idle')
@@ -43,24 +45,26 @@ define([
                 .sequence('defend_end', 'idle')
                 .sequence('hit', 'defend_hold')
                 .sequence('die_start', 'die_end')
-                ;
-
+            ;
             this.play('idle');
             // Keyframe animations
             this.on('hex.move.start', function(){
-                //_this.play('moving_restore');
+                // we set the next keyframe for move, to move_end
+                // because we've set that earlier in hex.move.end
+                _this.sequence('move', 'move');
                 _this.play('move_start');
             });
             // when the unit stops moving
             this.on('hex.move.end', function(){
-                _this.play('move_end');
+                _this.sequence('move', 'move_end');
+                //_this.play('move_end');
             });
             // when the unit is told to attack
             this.on('unit.attack.start', function() {
                 _this.play('attack');
-                var delay = 150;
+                var delay = 900;
                 wol.tween.get(this)
-                    .wait(200)
+                    .wait(900)
                     .call(function() {
                         _this.emit('unit.attack.hit');
                     })
@@ -68,15 +72,7 @@ define([
                     .call(function() {
                         _this.emit('unit.attack.hit');
                     })
-                    .wait(delay)
-                    .call(function() {
-                        _this.emit('unit.attack.hit');
-                    })
-                    .wait(delay)
-                    .call(function() {
-                        _this.emit('unit.attack.hit');
-                    })
-                    .wait(delay)
+                    .wait(300)
                     .call(function() {
                         _this.emit('unit.attack.end');
                     })

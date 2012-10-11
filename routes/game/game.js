@@ -41,17 +41,20 @@ Game.prototype.maxTurnList = 10;
  * The unit that's currently taking its turn.
  * @type {null}
  */
+
 Game.prototype.activeUnit = null;
 /**
  * The player object who won this game.
  * @type {null}
  */
+
 Game.prototype.winner = null;
 /**
  * Add the users into the list.
  * @param player
  * @return {*}
  */
+
 Game.prototype.addPlayer = function (player, team) {
     this.players.add(player);
     this.setTeam(player, team);
@@ -79,6 +82,65 @@ Game.prototype.addUnit = function (unit) {
         this.units.add(unit);
     }
     return this;
+};
+
+/**
+ *
+ * @param unit
+ * @param tile
+ */
+Game.prototype.actUnit = function(unit, tile) {
+    // reach for attack.
+    console.log('// -------------- Game.actUnit');
+    var reachTiles = this.grid.neighbors(unit.tile, unit.stats.get('reach').value);
+    var player = this.players.get(unit.playerId);
+    // check if it's within the range.
+    var affectedTiles;
+    var splashValue;
+    var affectedUnits;
+    if (reachTiles.indexOf(tile) > -1) {
+        // get affected units based on splash attribute
+        splashValue = unit.stats.get('splash').value;
+        // initialize an array that is covered by the unit's splash radius.
+        // todo - there should at least be a ratio value for the splash damage depending
+        // on proximity.
+        affectedTiles = [tile].concat(this.grid.neighbors(tile, splashValue));
+        // initialize an array that will find all existing entities in the tiles.
+        // provided with a special case filter that will remove anything that doesn't
+        // meet the unit's targeting criteria.
+        affectedUnits = this.filterUnitsInTiles(affectedTiles, function(entity) {
+            return entity !== unit;
+        });
+    } else {
+        // return an invalid move if it's invalid. This is to tell the client
+        // that the current player did an invalid move.
+        // todo - I probably need to change this to only send the information to the other player.
+        this.log('error', {
+            playerId:unit.playerId,
+            unitId:unit.id,
+            type:'INVALID_MOVE',
+            message:player.name + ' attempted to attack ' + unit.name + '(' + unit.id + ')' + 'at ' + tile.id
+        });
+    }
+};
+
+/**
+ * Gets all units in the list of tiles.
+ * @param tiles
+ * @return {Array}
+ */
+Game.prototype.filterUnitsInTiles = function(tiles, condition) {
+    var result = [];
+    var tile;
+    for (var i = 0; i < tiles.length; i++) {
+        tile = tiles[i];
+        if (tile.entity) {
+            if (condition === undefined || condition(tile.entity)) {
+                result.push(tile);
+            }
+        }
+    }
+    return result;
 };
 
 /**
@@ -167,7 +229,7 @@ Game.prototype.start = function () {
     // this.log('game.start', {id: this.id});
     // 1. Spawn first player's unit
     player = this.players.at(0);
-    unit = this.createUnit('marine', player);
+    unit = this.createUnit('vanguard', player);
     unit.face('right');
     unit.stats.get('recharge').setValue(1);
     this.spawnUnit(unit,
@@ -176,15 +238,28 @@ Game.prototype.start = function () {
             Math.floor(this.rows * 0.5)
         )
     );
+
+    player = this.players.at(0);
+    unit = this.createUnit('vanguard', player);
+    unit.face('right');
+    unit.stats.get('recharge').setValue(1);
+    this.spawnUnit(unit,
+        this.grid.get(
+            0,
+            Math.floor(this.rows * 0.5) - 1
+        )
+    );
+
     // 2. Spawn second player's unit
     player = this.players.at(this.players.length-1);
-    unit = this.createUnit('marine', player);
+    unit = this.createUnit('vanguard', player);
     unit.face('left');
     unit.stats.get('recharge').setValue(2);
     this.spawnUnit(
         unit,
         this.grid.get(
-            this.columns - 1,
+            //this.columns - 1,
+            1,
             Math.floor(this.rows * 0.5)
         )
     );
@@ -235,6 +310,9 @@ Game.prototype.calculateTurnList = function() {
     interval = setInterval(calculate, 10);
 };
 
+/**
+ *
+ */
 Game.prototype.unitTurn = function() {
     var unit,
         id = this.turnList.shift()
@@ -255,6 +333,7 @@ Game.prototype.unitTurn = function() {
         this.calculateTurnList();
     }
 };
+
 /**
  * Spawns a unit in the game.
  * @param unit
@@ -320,16 +399,27 @@ Game.prototype.userDisconnect = function() {
 Game.prototype.move = function(unit, tile, correction) {
     var actionStat = unit.stats.get('actions');
     var actions = actionStat.value;
-    if (actions > 0) {
-        actionStat.setValue(actions - 1);
-        unit.move(tile);
-        this.log('unit.move', {
-            id: unit.id,
-            x: unit.tile.x,
-            y: unit.tile.y,
-            correction: correction
+    var movableTiles;
+    movableTiles = this.grid.neighbors(unit.tile, unit.stats.get('range').value);
+    if (movableTiles.indexOf(tile) > -1) {
+        if (actions > 0) {
+            actionStat.setValue(actions - 1);
+            unit.move(tile);
+            this.log('unit.move', {
+                id:unit.id,
+                x:unit.tile.x,
+                y:unit.tile.y,
+                correction:correction
+            });
+            this.checkActions(unit);
+        }
+    } else {
+        this.log('error', {
+            type: 'INVALID_MOVE',
+            unitId: unit.id,
+            playerId: unit.playerId,
+            message: ''
         });
-        this.checkActions(unit);
     }
 };
 
@@ -349,10 +439,9 @@ Game.prototype.attack = function(unit, target) {
         });
         if(healthStat.value === 0) {
             this.deadUnits.push(target.id);
-            console.log('WAHH PATAY!!!');
-            this.checkWinningConditions();
+            //this.checkWinningConditions();
         }
-        this.checkActions(unit);
+        //this.checkActions(unit);
     }
 };
 

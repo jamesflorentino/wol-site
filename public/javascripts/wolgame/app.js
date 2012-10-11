@@ -83,7 +83,8 @@ require([
     function init() {
         if (checkUserAgent()) {
             wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
-            socket = io.connect();
+            wol.events.emit('sheet.mirror.vanguard'); // preload the mirrored marine.
+            socket = io.connect("http://" + window.location.hostname + ":3000");
             socket
                 .on('auth.response', authResponse)
                 .on('game.join', joinGame)
@@ -185,11 +186,11 @@ require([
 
     function gameUnitAttack(parameters) {
         var unit = parameters.unit;
-        var target = parameters.target;
-        if (game && target && game.activeUnit === unit) {
+        if (game.activeUnit === unit) {
             send('unit.attack', {
                 id: unit.id,
-                targetId: target.id
+                x: parameters.x,
+                y: parameters.y
             })
         }
     }
@@ -334,6 +335,7 @@ require([
      * @param data
      */
     function addPlayer(data) {
+        console.log('addPlayer', data);
         players.push(data);
         teamUsers[data.id] = data;
     }

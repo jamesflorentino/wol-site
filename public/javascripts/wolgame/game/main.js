@@ -2,14 +2,16 @@ define([
     'wol/wol',
     'wol/collection',
     'game/base',
+    'wol/events',
     'game/entities/marine',
-    'wol/events'
+    'game/entities/vanguard'
 ], function(
     wol,
     Collection,
     Base,
+    Events,
     Marine,
-    Events
+    Vanguard
     ) {
 
     return Base.extend({
@@ -33,7 +35,8 @@ define([
          * from the server.
          */
         unitClasses: {
-            'marine': Marine
+            'marine': Marine,
+            'vanguard': Vanguard
         },
 
         /**
@@ -83,22 +86,24 @@ define([
                 this.addEntity(unit, id, code, name, playerId);
                 this.units.add(unit);
                 unit.stats.set(stats);
-
                 unit.move(tile);
                 unit.flip(data.direction);
                 unit.show();
-
                 // need to know the z-index of the unit
                 var resort = (function() {
                     _this.sortedUnits.sort(function(a, b) {
                         return a.tile.z - b.tile.z;
                     });
-                    var index = _this.sortedUnits.indexOf(unit);
-                    _this.unitContainer.setChildIndex(unit.container, index);
+                    var sortedIntegers = [];
+                    _this.sortedUnits.forEach(function(a){
+                        sortedIntegers.push(a.tile.z);
+                    });
+                    console.log(sortedIntegers);
+                    var sortedIndex = _this.sortedUnits.indexOf(unit);
+                    _this.unitContainer.addChildAt(unit.container, sortedIndex);
                 });
                 _this.sortedUnits.push(unit);
                 unit.on('unit.move.node', resort);
-                resort();
 
                 // show the player side indicator
                 var hexPlayerSide = this.getTexture(
@@ -130,6 +135,8 @@ define([
                 });
 
                 this.updateUnit(unit);
+
+                resort();
             }
         },
 
@@ -185,7 +192,6 @@ define([
             var unitAttack, unitAttackHit;
             var damage = unit.stats.get('damage').value;
             var _this = this;
-            //
             unitAttack = (function() {
                 unit.off('unit.attack.end', unitAttack);
                 unit.off('unit.attack.hit', unitAttackHit);
@@ -260,7 +266,8 @@ define([
                     _this.actUnit(unit);
                     _this.emit('unit.attack', {
                         unit: unit,
-                        target: target
+                        x: tile.x,
+                        y: tile.y
                     });
                 });
             });

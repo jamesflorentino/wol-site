@@ -163,14 +163,14 @@ var GameApp = function(io) {
         }
 
         function unitAttack(parameters) {
-            var id = parameters.id;
-            var targetId = parameters.targetId;
-            var unit;
-            var target;
-            if (game.winner === null) {
-                if ((unit = game.units.get(id)) && (target = game.units.get(targetId))) {
-                    if (unit === game.activeUnit) {
-                        game.attack(unit, target);
+            var tile;
+            // check if there's a current game.
+            if (game && game.winner === null) {
+                // check if the current active unit is from the players.
+                if (game.activeUnit && game.activeUnit.playerId === player.id) {
+                    tile = game.grid.get(parameters.x, parameters.y);
+                    if (tile) {
+                        game.actUnit(game.activeUnit, tile);
                     }
                 }
             }
@@ -189,15 +189,12 @@ var GameApp = function(io) {
 
         function unitMove(data) {
             var tile;
-            var unitId = data.id;
             var activeUnit = game.activeUnit;
-            var unit;
+            // if the game isn't finished yet
             if (game.winner === null) {
-                if (unit = game.units.get(data.id)) {
-                    if (activeUnit === unit && activeUnit.playerId === player.id) {
-                        if (tile = game.grid.get(data.x, data.y)) {
-                            game.move(unit, tile);
-                        }
+                if (activeUnit && activeUnit.playerId === player.id) {
+                    if (tile = game.grid.get(data.x, data.y)) {
+                        game.move(activeUnit, tile);
                     }
                 }
             }

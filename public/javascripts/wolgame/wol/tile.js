@@ -34,8 +34,6 @@ define([
             this.entity = null;
         }
     });
-
-
 });
 
 

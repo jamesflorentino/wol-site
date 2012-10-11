@@ -144,7 +144,8 @@ Grid.prototype.neighbors = function(tile, radius) {
     centerY = tile.y;
     result = [];
     isOddRow = centerY % 2 > 0;
-    for (i = 1; 1 <= radius ? i <= radius : i >= radius; 1 <= radius ? i++ : i--) {
+    //for (i = 1; 1 <= radius ? i <= radius : i >= radius; 1 <= radius ? i++ : i--) {
+    for (i=1; i <= radius; i++) {
         east = this.delta(centerX, centerY, this.EAST, isOddRow, i);
         result = result.concat(east);
         west = this.delta(centerX, centerY, this.WEST, isOddRow, i);

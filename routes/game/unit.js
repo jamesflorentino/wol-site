@@ -15,7 +15,6 @@ function Unit(code, attributes) {
     this.stats.add(new Stat('health', 800));
     // base damage
     this.stats.add(new Stat('damage', 200));
-    //this.stats.add(new Stat('speed', 10));
     // number of tiles it can move in an action.
     this.stats.add(new Stat('range', 2));
     // number of tiles it can hit its target
@@ -25,10 +24,10 @@ function Unit(code, attributes) {
     // gets filled up by 1 bar, when it reaches max
     // the unit gets its turn.
     this.stats.add(new Stat('recharge', 5));
-
+    // Radius to the damage done to a tile.
+    this.stats.add(new Stat('splash', 0));
     // override stats with custom settings
     this.stats.set(attributes.stats);
-
     events.EventEmitter.call(this);
 }
 
@@ -41,7 +40,11 @@ util.inherits(Unit, events.EventEmitter);
 Unit.prototype.move = function(tile) {
     this.x = tile.x;
     this.y = tile.y;
+    if (this.tile) {
+        this.tile.vacate();
+    }
     this.tile = tile;
+    this.tile.occupy(this);
 };
 
 Unit.prototype.face = function (leftOrRight) {
