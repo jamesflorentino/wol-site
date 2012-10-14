@@ -98,19 +98,47 @@ Game.prototype.actUnit = function(unit, tile) {
     var affectedTiles;
     var splashValue;
     var affectedUnits;
-    if (reachTiles.indexOf(tile) > -1) {
+    var actions;
+    var damage;
+    var actionData;
+    var _this = this;
+
+    actions = unit.stats.get('actions').value;
+    console.log('---------------');
+    console.log('| unit attacking.... actions: ', unit.stats.get('actions'));
+    console.log('---------------');
+    if (reachTiles.indexOf(tile) > -1 && actions > 0) {
+        damage = unit.stats.get('damage').value;
         // get affected units based on splash attribute
         splashValue = unit.stats.get('splash').value;
         // initialize an array that is covered by the unit's splash radius.
-        // todo - there should at least be a ratio value for the splash damage depending
-        // on proximity.
+        // todo - there should at least be a ratio value for the splash damage depending on proximity.
         affectedTiles = [tile].concat(this.grid.neighbors(tile, splashValue));
         // initialize an array that will find all existing entities in the tiles.
         // provided with a special case filter that will remove anything that doesn't
         // meet the unit's targeting criteria.
-        affectedUnits = this.filterUnitsInTiles(affectedTiles, function(entity) {
-            return entity !== unit;
+        affectedUnits = this.filterUnitsInTiles(affectedTiles, function (entity) {
+            return entity !== unit && entity.stats.get('health').value > 0;
         });
+        var targetUnits = [];
+        affectedUnits.forEach(function (targetUnit) {
+            var targetHealthStat = targetUnit.stats.get('health');
+            targetHealthStat.reduce(damage);
+            targetUnits.push({
+                id: targetUnit.id,
+                damage: damage
+            });
+            if (targetUnit.stats.get('health').value === 0) {
+                _this.deadUnits.push(targetUnit.id);
+            }
+        });
+        this.log('unit.attack', {
+            id: unit.id,
+            targets: targetUnits
+        });
+        unit.stats.get('actions').reduce(1);
+        this.checkActions(unit);
+        this.checkWinningConditions();
     } else {
         // return an invalid move if it's invalid. This is to tell the client
         // that the current player did an invalid move.
@@ -121,6 +149,28 @@ Game.prototype.actUnit = function(unit, tile) {
             type:'INVALID_MOVE',
             message:player.name + ' attempted to attack ' + unit.name + '(' + unit.id + ')' + 'at ' + tile.id
         });
+    }
+};
+
+Game.prototype.attack = function(unit, target) {
+    var actionStat = unit.stats.get('actions');
+    var damageStat = unit.stats.get('damage');
+    var healthStat = target.stats.get('health');
+
+    if (actionStat.value > 0 && healthStat.value > 0) {
+        actionStat.reduce(1);
+        healthStat.reduce(damageStat.value);
+        console.log('|   remaining health', healthStat.value);
+        this.log('unit.attack', {
+            id: unit.id,
+            targetId: target.id,
+            damage: damageStat.value
+        });
+        if(healthStat.value === 0) {
+            this.deadUnits.push(target.id);
+            //this.checkWinningConditions();
+        }
+        //this.checkActions(unit);
     }
 };
 
@@ -136,7 +186,7 @@ Game.prototype.filterUnitsInTiles = function(tiles, condition) {
         tile = tiles[i];
         if (tile.entity) {
             if (condition === undefined || condition(tile.entity)) {
-                result.push(tile);
+                result.push(tile.entity);
             }
         }
     }
@@ -206,7 +256,6 @@ Game.prototype.backlogs = function(cb) {
     }
     return this;
 };
-
 /**
  * Delays the next function call
  * @param ms
@@ -216,6 +265,7 @@ Game.prototype.wait = function (ms) {
     this.__callDelay = ms;
     return this;
 };
+
 /**
  * starts the game and sends a few unit into the game.
  */
@@ -229,7 +279,7 @@ Game.prototype.start = function () {
     // this.log('game.start', {id: this.id});
     // 1. Spawn first player's unit
     player = this.players.at(0);
-    unit = this.createUnit('vanguard', player);
+    unit = this.createUnit('marine', player);
     unit.face('right');
     unit.stats.get('recharge').setValue(1);
     this.spawnUnit(unit,
@@ -239,27 +289,15 @@ Game.prototype.start = function () {
         )
     );
 
-    player = this.players.at(0);
-    unit = this.createUnit('vanguard', player);
-    unit.face('right');
-    unit.stats.get('recharge').setValue(1);
-    this.spawnUnit(unit,
-        this.grid.get(
-            0,
-            Math.floor(this.rows * 0.5) - 1
-        )
-    );
-
     // 2. Spawn second player's unit
     player = this.players.at(this.players.length-1);
-    unit = this.createUnit('vanguard', player);
+    unit = this.createUnit('marine', player);
     unit.face('left');
     unit.stats.get('recharge').setValue(2);
     this.spawnUnit(
         unit,
         this.grid.get(
-            //this.columns - 1,
-            1,
+            this.columns - 1,
             Math.floor(this.rows * 0.5)
         )
     );
@@ -423,28 +461,6 @@ Game.prototype.move = function(unit, tile, correction) {
     }
 };
 
-Game.prototype.attack = function(unit, target) {
-    var actionStat = unit.stats.get('actions');
-    var damageStat = unit.stats.get('damage');
-    var healthStat = target.stats.get('health');
-
-    if (actionStat.value > 0 && healthStat.value > 0) {
-        actionStat.reduce(1);
-        healthStat.reduce(damageStat.value);
-        console.log('|   remaining health', healthStat.value);
-        this.log('unit.attack', {
-            id: unit.id,
-            targetId: target.id,
-            damage: damageStat.value
-        });
-        if(healthStat.value === 0) {
-            this.deadUnits.push(target.id);
-            //this.checkWinningConditions();
-        }
-        //this.checkActions(unit);
-    }
-};
-
 Game.prototype.checkWinningConditions = function() {
     var playerUnitsLeft = {};
     this.players.each(function(player) {
@@ -466,7 +482,8 @@ Game.prototype.checkWinningConditions = function() {
     });
     console.log('winning players', winningPlayers.length);
     console.log('losing players', losingPlayers.length);
-    if (winningPlayers.length === 1) {
+    // todo - the condition for the this.players.length is just temporary
+    if (winningPlayers.length === 1 && this.players.length > 1) {
         this.end(winningPlayers[0].id);
     }
 };

@@ -14,8 +14,9 @@ define([
         /**
          *
          * @param id
-         * @param name
          * @param code
+         * @param name
+         * @param playerId
          */
         entity.metaData = function(id, code, name, playerId) {
             this.id = id;
@@ -31,17 +32,26 @@ define([
             if (otherEntity)
                 otherEntity.defend(entity);
         };
-        // .defend
-        // -------
-        // enables the unit to defend itself from another. 
+        /**
+         * enables the unit to defend itself from another.
+         * @param otherEntity
+         */
         entity.defend = function(otherEntity) {
             if (this === otherEntity)
                 return;
             entity.emit('unit.defend.start');
         };
+
+        /**
+         *
+         */
         entity.defendEnd = function() {
             entity.emit('unit.defend.end');
         };
+        /**
+         *
+         * @param damage
+         */
         entity.receiveDamage = function(damage) {
             entity.stats.get('health').reduce(damage);
             if (entity.stats.get('health').value === 0) {

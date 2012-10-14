@@ -122,14 +122,15 @@ require([
         if (!gameEnded) {
             game = g;
             game.player = player;
-            game.on('unit.update', gameUnitUpdate);
+            game.on('unit.update', gameUnitUpdate); //
             game.on('unit.act', gameUnitAct); // when a unit does an action
-            game.on('unit.act.end', gameUnitActEnd);
+            game.on('unit.act.end', gameUnitActEnd); // when a unit ends its turn
             game.on('unit.move', gameUnitMove);
             game.on('unit.show.move', showMoveCommand);
             game.on('unit.attack', gameUnitAttack);
 
             players.forEach(game.addPlayer.bind(game));
+
             socket
                 .on('unit.spawn', unitSpawn)
                 .on('unit.attack', unitAttack)
@@ -225,15 +226,27 @@ require([
 
     function unitAttack(parameters) {
         var id = parameters.id;
-        var targetId = parameters.targetId;
-        var damage = parameters.damage;
+        var targets = parameters.targets;
         var unit;
-        var target;
+        // verify if unit id exists in the game.
         if (unit = game.units.get(id)) {
+            // ignore if the sender is the current player.
             if (unit.playerId !== player.id) {
-                if (target = game.units.get(targetId)) {
-                    game.unitAttack(unit, target);
+                //game.unitAttack(unit, targets);
+                // verify the target ids
+                var targetData;
+                var target;
+                var targetsFiltered = [];
+                for(var i=0; i<targets.length; i++) {
+                    targetData = targets[i];
+                    if (target = game.units.get(targetData.id)) {
+                        targetsFiltered.push({
+                            unit: target,
+                            damage: targetData.damage
+                        });
+                    }
                 }
+                game.unitAttack(unit, targetsFiltered);
             }
         }
     }
@@ -350,6 +363,7 @@ require([
      * @param data
      */
     function send(topic, data) {
+        console.log('sending...', topic, data);
         socket.emit(topic, data);
     }
 
