@@ -279,12 +279,23 @@ Game.prototype.start = function () {
     // this.log('game.start', {id: this.id});
     // 1. Spawn first player's unit
     player = this.players.at(0);
-    unit = this.createUnit('marine', player);
+    unit = this.createUnit('vanguard', player);
     unit.face('right');
     unit.stats.get('recharge').setValue(1);
     this.spawnUnit(unit,
         this.grid.get(
             0,
+            Math.floor(this.rows * 0.5)
+        )
+    );
+
+    player = this.players.at(0);
+    unit = this.createUnit('vanguard', player);
+    unit.face('right');
+    unit.stats.get('recharge').setValue(1);
+    this.spawnUnit(unit,
+        this.grid.get(
+            2,
             Math.floor(this.rows * 0.5)
         )
     );
@@ -297,7 +308,8 @@ Game.prototype.start = function () {
     this.spawnUnit(
         unit,
         this.grid.get(
-            this.columns - 1,
+            //this.columns - 1,
+            1,
             Math.floor(this.rows * 0.5)
         )
     );

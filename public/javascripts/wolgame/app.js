@@ -363,7 +363,7 @@ require([
      * @param data
      */
     function send(topic, data) {
-        console.log('sending...', topic, data);
+        //console.log('sending...', topic, data);
         socket.emit(topic, data);
     }
 

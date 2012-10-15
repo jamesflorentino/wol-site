@@ -290,7 +290,7 @@ define([
             var neighbors = this.hexgrid.neighbors(unit.currentTile, reach);
             var occupied = wol.filter(neighbors, function(tile) {
                 return tile.entity
-                    && tile.entity.playerId !== _this.player.id
+                    //&& tile.entity.playerId !== _this.player.id
                     && tile.entity.stats.get('health').value > 0
                     ;
             });
@@ -298,14 +298,16 @@ define([
                 var tile = occupied[i];
                 _this.add(hex, _this.hexContainer);
                 hex.onClick = (function() {
-                    // get all the affected tiles
+                    // get all the affected tiles by radius
                     var affectedUnits = (function() {
-                        var neighbors = _this.hexgrid.neighbors(unit.tile, unit.stats.get('splash').value);
+                        var neighbors = [tile].concat(
+                            _this.hexgrid.neighbors(tile, unit.stats.get('splash').value)
+                        );
                         var units = [];
                         var affectedUnit;
                         for(var i= 0, total = neighbors.length; i < total; i++) {
                             affectedUnit = neighbors[i].entity;
-                            if (affectedUnit && affectedUnit.stats && affectedUnit.stats.get('health').value > 0) {
+                            if (affectedUnit && affectedUnit !== unit && affectedUnit.stats.get('health').value > 0) {
                                 units.push({
                                     unit: affectedUnit,
                                     damage: damage
