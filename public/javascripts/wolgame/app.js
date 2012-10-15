@@ -84,7 +84,7 @@ require([
         if (checkUserAgent()) {
             wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
             wol.events.emit('sheet.mirror.vanguard'); // preload the mirrored marine.
-            socket = io.connect("http://" + window.location.hostname + ":3000");
+            socket = io.connect();
             socket
                 .on('auth.response', authResponse)
                 .on('game.join', joinGame)

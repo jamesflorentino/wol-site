@@ -49,7 +49,7 @@ app.configure('development', function() {
 var port = 8080;
 var server = http.createServer(app).listen(port);
 
-io = io.listen(3000);
+io = io.listen(server);
 game = new Game(io);
 
 // routes
