@@ -1,14 +1,8 @@
-require([
-    'wol/wol',
-    'game/main',
-    'cookies',
-    'wol/keys'
-], function(
-    wol,
-    Game,
-    Cookies,
-    keys
-    ){
+requirejs.config({
+    baseUrl: 'javascripts/wolgame'
+});
+require(['wol/wol','game/main','cookies','wol/keys'],
+function(wol, Game, Cookies, keys){
     "use strict";
 
     // use for name

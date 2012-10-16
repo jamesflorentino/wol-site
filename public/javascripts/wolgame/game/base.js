@@ -1,4 +1,4 @@
-define('game/base', function(require) {
+define('game/base', function(require, exports, module) {
     "use strict";
     var wol = require('wol/wol')
     ,   Game = require('wol/game')
@@ -20,7 +20,7 @@ define('game/base', function(require) {
     // Include the elements sprite sheet
     wol.spritesheets.add('elements', elements);
 
-    return Game.extend({
+    var HexGridGame = {
 
         hexgrid: new HexGrid(),
         background: null,
@@ -31,7 +31,6 @@ define('game/base', function(require) {
         cachedTextures: {},
 
         init: function() {
-            // Invoke any parent requirements.
             this.parent();
             this.background = wol.create.bitmap(wol.resources.get(URI_BACKGROUND));
             this.add(this.background);
@@ -72,9 +71,9 @@ define('game/base', function(require) {
                 _this.add(hex, container);
             });
             /**/
-            // Cache the hexTile container.
-            // We wait for a tick before we cache it. Because sometimes
-            // Chrome fails to render on initial load.
+                // Cache the hexTile container.
+                // We wait for a tick before we cache it. Because sometimes
+                // Chrome fails to render on initial load.
             wol.create.cache(container, wol.width, wol.height);
             this.add(container, this.hexContainer);
         },
@@ -179,6 +178,6 @@ define('game/base', function(require) {
             }
             return [];
         }
-    });
-
+    };
+    return module.exports = Game.extend(HexGridGame);
 });

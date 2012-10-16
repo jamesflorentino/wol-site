@@ -1,20 +1,14 @@
-define([
-    'wol/wol',
-    'wol/collection',
-    'game/base',
-    'wol/events',
-    'game/entities/marine',
-    'game/entities/vanguard'
-], function(
-    wol,
-    Collection,
-    Base,
-    Events,
-    Marine,
-    Vanguard
-) {
+define('game/main', function(require, exports, module) {
+    "use strict";
 
-    return Base.extend({
+    var wol = require('wol/wol')
+    ,   Base = require('game/base')
+    ,   Events = require('wol/events')
+    ,   Marine = require('game/entities/marine')
+    ,   Vanguard = require('game/entities/vanguard')
+    ;
+
+    var TurnBasedGame = {
         /**
          * A collection of users in the game.
          */
@@ -410,7 +404,8 @@ define([
             var hexPlayerSide;
             var _this = this;
             if (this.activeUnit) {
-                this.activeUnit.hexTiles.get('playerSide')[0].visible = true;
+                var playerSideSprite = this.activeUnit.hexTiles.get('playerSide')[0];
+                playerSideSprite.visible = true;
                 this.clearHexTiles(this.activeUnit, 'active');
             }
             // get the texture from the buffer and use it as an image resource
@@ -461,5 +456,7 @@ define([
             });
 
         }
-    });
+    };
+
+    return module.exports = Base.extend(TurnBasedGame);
 });
