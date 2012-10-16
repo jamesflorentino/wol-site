@@ -351,6 +351,7 @@ function(wol, Game, Cookies, keys){
         var victoryMessage = wol.$('#victory-message');
         wol.dom.addClass(victoryMessage, 'active');
         wol.dom.query(victoryMessage, '.message').textContent = message;
+        wol.dom.addClass(wol.$('#players'), 'hidden');
         if (lost) {
             wol.dom.addClass(victoryMessage,'lost');
         }
