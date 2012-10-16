@@ -1,16 +1,12 @@
 define([
-
     'wol/wol',
     'wol/entity',
     'game/textures/vanguard',
     'game/components/hexgrid'
-
 ], function(wol, Entity, frameData, hexgrid) {
     "use strict";
-
     var sheetName = 'game.entities.vanguard';
     var sheetNameAlt = 'game.entities.vanguard2';
-
     // add spritesheet data to the resource manager
     wol.events.on('sheet.mirror.vanguard', function() {
         var mirroredFrameData = JSON.parse(JSON.stringify(frameData));

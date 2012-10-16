@@ -1,16 +1,7 @@
-// # wol.Game
-// Game instances are responsible for managing entities inside a game session.
-// This is intended so that it's easier to create and switch between game instances.
-// * * *
+define('wol/game', function(require) {
 
-//
-define([
-
-    'wol/wol'
-
-], function(wol) {
-
-    "use strict";
+    var wol = require('wol/wol')
+        ;
 
     return wol.Game = wol.Class.extend({
 

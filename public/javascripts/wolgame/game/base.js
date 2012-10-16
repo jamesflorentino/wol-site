@@ -1,36 +1,21 @@
-define([
-    'wol/wol',
-    'wol/game',
-    'game/hexgrid',
-    'game/textures/elements',
-    'game/hex',
-    'game/components/hexgrid',
-    'game/components/hextile',
-    'game/components/unit',
-    'game/components/stats',
-    'wol/keys'
-
-], function(
-    wol,
-    Game,
-    HexGrid,
-    elements,
-    Hex,
-    HexGridComponent,
-    HexTileComponent,
-    UnitComponent,
-    Stats,
-    Keys
-    ) {
-
+define('game/base', function(require) {
     "use strict";
+    var wol = require('wol/wol')
+    ,   Game = require('wol/game')
+    ,   HexGrid = require('game/hexgrid')
+    ,   elements = require('game/textures/elements')
+    ,   Hex = require('game/hex')
+    ,   HexGridComponent = require('game/components/hexgrid')
+    ,   HexTileComponent = require('game/components/hextile')
+    ,   UnitComponent = require('game/components/unit')
+    ,   StatComponent = require('game/components/stats')
+    ,   KeyboardComponent = require('wol/keys')
+    ;
 
     var URI_BACKGROUND = 'media/background.png';
 
     // Include assets to the imageQueue
-    wol.resources.add(
-        URI_BACKGROUND
-    );
+    wol.resources.add(URI_BACKGROUND);
 
     // Include the elements sprite sheet
     wol.spritesheets.add('elements', elements);
@@ -38,17 +23,11 @@ define([
     return Game.extend({
 
         hexgrid: new HexGrid(),
-
         background: null,
-
         hexContainer: wol.create.container(),
-
         unitContainer: wol.create.container(),
-
         columns: 9,
-
         rows: 9,
-
         cachedTextures: {},
 
         init: function() {
@@ -62,8 +41,12 @@ define([
             this.createStaticGridDisplay(this.hexgrid);
         },
         /**
-         * Adds an entity to the display list as well as the components needed for the game.
+         *
          * @param entity
+         * @param id
+         * @param code
+         * @param name
+         * @param playerId
          * @return {*}
          */
         addEntity: function(entity, id, code, name, playerId) {

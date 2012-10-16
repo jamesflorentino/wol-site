@@ -1,8 +1,4 @@
-define([
-
-], function() {
-    "use strict";
-
+define("game/hex", function() {
     return {
         WIDTH: 84,
         HEIGHT: 56,
@@ -24,5 +20,4 @@ define([
             };
         }
     };
-
 });

@@ -1,15 +1,8 @@
-define([
-    'createjs/create',
-    'wol/events',
-    'wol/utils',
-    'wol/collection'
-], function(
-    createjsNS,
-    Events,
-    utils,
-    Collection
-){
-    "use strict";
+define('wol/wol', function(require){
+    var createjsNS = require('createjs/create'),
+        Events = require('wol/events'),
+        utils = require('wol/utils'),
+        Collection = require('wol/collection');
 
     var createjs = window.createjs;
 
@@ -71,7 +64,7 @@ define([
                 if (!this._dictionary[name]) {
                     this._dictionary[name] = component;
                 }
-                return this;
+                return component;
             },
             /**
              * Retrieves the component if it exists.
@@ -271,15 +264,14 @@ define([
         init: function (gameClass, container, width, height, callback) {
             wol.debug('canvas INITIALIZING');
             // create the canvas element to use for the stage
-            var canvas = document.createElement('canvas');
+            var canvas = this.canvas = document.createElement('canvas');
             this.width = canvas.width = width;
             this.height = canvas.height = height;
-            // insert it into the ndoe container.
-            container.appendChild(canvas);
             // initiate the createjs.Stage instance
             this.stage = new createjs.Stage(canvas);
             createjs.Touch.enable(this.stage);
-            this.canvas = canvas;
+            // insert it into the container.
+            container.appendChild(canvas);
             // set the FPS setting.
             createjs.Ticker.useRAF = true;
             createjs.Ticker.setFPS(30);
@@ -383,7 +375,6 @@ define([
             }
             return result;
         }
-
     };
 
     /* Simple JavaScript Inheritance

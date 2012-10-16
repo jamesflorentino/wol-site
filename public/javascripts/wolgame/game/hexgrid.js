@@ -1,9 +1,4 @@
-define([
-
-       'wol/wol',
-       'wol/grid'
-
-], function(wol){
+define(['wol/wol', 'wol/grid'], function(wol, Grid){
     var HexGrid;
     return HexGrid = wol.Grid.extend({
         EAST: 'east',
