@@ -1,6 +1,6 @@
 @import "nib"
 @import "easing"
-@import url(http://fonts.googleapis.com/css?family=Exo:400,700,800italic);
+@import "/images/spritesheets/icons.css"
 
 color-green = #13bbc9
 color-white = white
@@ -47,7 +47,7 @@ body, html
     cursor default
 
 body
-    font-family: Exo, Helvetica Neue, Arial, sans-serif
+    font-family: 'Titillium Web', Helvetica Neue, Arial, sans-serif
 
 canvas
     user-select: none
@@ -119,143 +119,158 @@ canvas
             opacity: 0
             margin-left: -5px
 
+//----------------------------
+// Main UI container
+//----------------------------
 #ui
     z-index: 1
+//----------------------------
+// Preloader
+//----------------------------
+#preloader
+    position: absolute
+    width: 100%
+    height: 100%
+    z-index 3
 
-    .preloader
+    &.hidden
+        visibility: hidden
+
+    .border
+    .bar
+        background: rgba(color-green, 0.25)
         position: absolute
-        width: 100%
-        height: 100%
-        background-color: black
+        top: 50%
+        left: 50px
+        right: 50px
+        height: 3px
+        border: 1px solid rgba(white, 0.12)
+        margin-top: -15px
+        border-radius: 3px
 
-        &.hidden
-            visibility: hidden
+    .bar
+        background-color: white
+        border-color: transparent
+        box-shadow: 0 0 10px 1px #33aaa3
+        z-index: 1
+        transition: 600ms width
 
-        .border
-        .bar
-            background: #111
-            position: absolute
-            top: 50%
-            left: 10px
-            right: 10px
-            height: 3px
-            border: 1px solid rgba(white, 0.12)
-            margin-top: -15px
-            border-radius: 3px
+//----------------------------
+// Unit actions
+//----------------------------
+#unit-actions
+    glow()
+    font-size: 12px
+    text-transform: uppercase
+    color: color-green
+    background: black
+    width: 500px
+    height: 40px
+    z-index: 2
+    position: absolute
+    bottom: 15px
+    left: 15px
+    transition: 400ms
+    border-radius: 5px
 
-        .bar
-            background-color: white
-            border-color: transparent
-            box-shadow: 0 0 10px 1px #33aaa3
-            z-index: 1
-            transition: 600ms
+    &.hidden
+        transform: translatey(200%);
 
-    #unit-actions
+    > .title
+        position: absolute
+        top: -25px
+        left: 0px
+
+    .avatar
         glow()
-        font-size: 12px
-        text-transform: uppercase
-        color: color-green
-        background: black
-        width: 500px
-        height: 40px
-        z-index: 2
+        background-color: black
+        width: 28px
+        height: 28px
         position: absolute
-        bottom: 15px
-        left: 15px
-        transition: 400ms
-        border-radius: 5px
+        left: 5px
+        top: 5px
+        overflow: hidden
 
-        &.hidden
-            transform: translatey(200%);
+    .health
+        position: absolute
+        left: 55px
+        top: 11px
 
-        > .title
-            position: absolute
-            top: -25px
-            left: 0px
+        .label
+            float: left
+            margin-right: 5px
 
-        .avatar
-            glow()
-            background-color: black
-            width: 28px
-            height: 28px
-            position: absolute
-            left: 5px
-            top: 5px
-            overflow: hidden
+        .value
+            float: left
+            color: color-white
+            font-weight: 600
 
-        .health
-            position: absolute
-            left: 55px
-            top: 11px
+    .actions
+        position: absolute
+        left: 145px
+        top: 11px
+        height: 16px
 
-            .label
-                float: left
-                margin-right: 5px
-
-            .value
-                float: left
-                color: color-white
-                font-weight: 600
-
-        .actions
-            position: absolute
-            left: 145px
-            top: 11px
+        .title
+            line-height: 16px
             height: 16px
+            float: left
+            font-weight normal
+            font-size: inherit
+            color inherit
 
-            .title
-                line-height: 16px
-                height: 16px
-                float: left
-                font-weight normal
-                font-size: inherit
-                color inherit
+        .bars
+            margin-left: 5px
+            float: left
+            width 130px
 
-            .bars
-                margin-left: 5px
-                float: left
-                width 130px
+        .bar
+            glow()
+            box-sizing: border-box
+            width: 0
+            height: 16px
+            background: rgba(color-green, 0.5)
+            float: left
+            border: 1px solid color-green
+            &:not(:first-child)
+                border-left-color: black
 
-            .bar
-                glow()
-                box-sizing: border-box
-                width: 0
-                height: 16px
+            &:first-child
+                border-left-radius(5px)
+
+            &:last-child
+                border-right-radius(5px)
+
+            &.empty
+                opacity: 0.25
+                //animation: pop-then-fade-out 500ms forwards
+
+    .commands
+        position: absolute
+        top: 4px
+        right: 5px
+
+        .command
+            bold-text()
+            button()
+            height 30px
+            line-height 30px
+            border: 1px solid color-green
+            padding: 0 6px
+            background: rgba(color-green, 0.15)
+            float: left
+            margin: 0
+            margin-left: 2px
+            transition: 200ms
+            box-shadow: 0 0 10px color-green inset
+            font-weight bold
+            &:hover
                 background: rgba(color-green, 0.5)
-                float: left
-                border: 1px solid color-green
-                &:not(:first-child)
-                    border-left-color: black
+                color: color-white
 
-                &:first-child
-                    border-left-radius(5px)
-
-                &:last-child
-                    border-right-radius(5px)
-
-                &.empty
-                    opacity: 0.25
-                    //animation: pop-then-fade-out 500ms forwards
-
-        .commands
-            position: absolute
-            top: 5px
-            right: 5px
-
-            .command
-                bold-text()
-                button()
-                border: 1px solid color-green
-                padding: 5px
-                background: rgba(color-green, 0.15)
-                float: left
-                margin-left: 2px
-                transition: 200ms
-                box-shadow: 0 0 10px color-green inset
-                &:hover
-                    background: rgba(color-green, 0.5)
-                    color: color-white
-//
+//----------------------------
+// victory modal
+//----------------------------
 #victory-message
     position absolute
     top 0
@@ -339,7 +354,7 @@ canvas
             background black
 
 #modal-message
-    box-shadow 0 0 65px color-green inset
+    box-shadow 0 0 15px rgba(color-green, 0.25) inset
     background rgba(#223237, 0.85)
     color white
     position absolute
@@ -381,6 +396,41 @@ canvas
                 font-weight bold
                 opacity 1
                 animation modal-list-item-last 400ms infinite alternate
+
+//----------------------------
+// Players
+//----------------------------
+#players
+    position absolute
+    top 10px
+    left 10px
+    right 10px
+    height 30px
+    line-height 30px
+    z-index 99
+    color white
+    font-weight bold
+    border-radius 5px
+    transition 1000ms easeOutExpo
+    background rgba(black, 0.75)
+    glow()
+
+    .sprite
+        margin 0 5px
+    .center
+        margin auto
+        width 50%
+        text-align center
+    .left
+        position absolute
+        left 10px
+        top 0
+    .right
+        position absolute
+        right 10px
+        top 0
+    &.hidden
+        top -50px
 
 //----------------------------
 // mobile message
@@ -425,15 +475,18 @@ canvas
     &.hidden
         display none
 
-
-// animations
+//----------------------------
+// Animations
+//----------------------------
 @keyframes modal-list-item-last
     from
         border-left-color color-green
     to
         border-left-color transparent
 
-
+//----------------------------
+// Animation: pop-then-fade-out
+//----------------------------
 @keyframes pop-then-fade-out
     0%
         transform: scale(1)
@@ -444,7 +497,7 @@ canvas
         opacity: 0.25
 
 //----------------------------
-// mediaqueries
+// other mediaqueries
 //----------------------------
 @media screen and (orientation:portrait)
     #mobile-message

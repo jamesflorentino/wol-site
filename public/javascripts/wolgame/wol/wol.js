@@ -304,9 +304,9 @@ define('wol/wol', function(require){
         },
         // create preloader
         makeLoadBars: function () {
-            var preloader = wol.$('#ui .preloader');
-            var border = wol.$('#ui .preloader .border');
-            var bar = wol.$('#ui .preloader .bar');
+            var preloader = wol.$('#preloader');
+            var border = wol.dom.query(preloader, '.border');
+            var bar = wol.dom.query(preloader, '.bar');
             var initW = border.clientWidth;
             wol.dom.removeClass(preloader, 'hidden');
             wol.events.on(wol.Events.PRELOAD_PROGRESS, function (perc) {
@@ -431,4 +431,4 @@ define('wol/wol', function(require){
 
     return wol;
 
-})
+});

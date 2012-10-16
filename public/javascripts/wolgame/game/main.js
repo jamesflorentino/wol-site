@@ -286,7 +286,7 @@ define('game/main', function(require, exports, module) {
             var neighbors = this.hexgrid.neighbors(unit.currentTile, reach);
             var occupied = wol.filter(neighbors, function(tile) {
                 return tile.entity
-                    //&& tile.entity.playerId !== _this.player.id
+                    && tile.entity.playerId !== _this.player.id // prevent unit from targetting other people
                     && tile.entity.stats.get('health').value > 0
                     ;
             });

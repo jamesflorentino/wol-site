@@ -15,6 +15,7 @@ html
         link(rel="apple-touch-icon", sizes="57x57", href="/images/icon_57x57.png")
         link(rel="apple-touch-icon", sizes="48x48", href="/images/icon_48x48.png")
         link(href="images/apple-touch-startup-image-640x920.png", rel="apple-touch-startup-image")
+        link(href='http://fonts.googleapis.com/css?family=Titillium+Web:700', rel='stylesheet', type='text/css')
         block scripts
     body
         #add-to-homescreen.hidden Add this to your homescreen by touching the share icon below and click "add to homescreen"!
@@ -27,9 +28,17 @@ html
                     a.find.game(href='/game') Player another game
                 #modal-message
                     ul.logs
-                .preloader.hidden
+                #preloader.hidden
                     .bar
                     .border
+                #players.hidden
+                    .center
+                    .left
+                        i.sprite.player_red
+                        span.name Player
+                    .right
+                        i.sprite.player_yellow
+                        span.name You
                 #turn-list.hidden
                     ul
                 #unit-actions.unit-active.hidden

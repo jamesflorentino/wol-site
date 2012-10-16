@@ -133,6 +133,8 @@ function(wol, Game, Cookies, keys){
                 .on('unit.turn', unitTurn)
                 .on('units.turn.list', unitsTurnList)
             ;
+
+            setPlayersInfo();
             // initialize mouse events
             wol.dom.click(wol.$('#unit-actions .move.command'), showMoveCommand);
             wol.dom.click(wol.$('#unit-actions .skip.command'), skipTurn);
@@ -144,6 +146,18 @@ function(wol, Game, Cookies, keys){
         } else {
             log('Map loaded. But opponent left the game.');
         }
+    }
+
+    function setPlayersInfo() {
+        var playersElement = wol.$('#players')
+            ,playerLeftElement = wol.dom.query(playersElement, '.left')
+            ,playerRightElement = wol.dom.query(playersElement, '.right')
+            ,playerA = players[0]
+            ,playerB = players[players.length-1]
+            ;
+        wol.dom.query(playerLeftElement, '.name').textContent = playerA.id == player.id ? 'You' : 'Enemy';
+        wol.dom.query(playerRightElement, '.name').textContent = playerB.id == player.id ? 'You' : 'Enemy';
+        wol.dom.removeClass(playersElement,'hidden');
     }
 
     function hideUnitActionMenu() {
@@ -301,6 +315,11 @@ function(wol, Game, Cookies, keys){
             // active unit is used to identify if the unit commands need to be shown.
             unit.tileStart = unit.tile;
             unit.stats.get('actions').reset();
+            setBannerText(
+                unit.playerId === player.id ?
+                    "It's currently your unit's turn." :
+                    'The enemy is taking its turn.'
+            );
             if (unit.playerId === player.id) {
                 unit.enable();
                 // show the unit action panel
@@ -342,7 +361,6 @@ function(wol, Game, Cookies, keys){
      * @param data
      */
     function addPlayer(data) {
-        console.log('addPlayer', data);
         players.push(data);
         teamUsers[data.id] = data;
     }
@@ -359,6 +377,11 @@ function(wol, Game, Cookies, keys){
     function send(topic, data) {
         //console.log('sending...', topic, data);
         socket.emit(topic, data);
+    }
+
+    function setBannerText(message) {
+        var bannerElement = wol.$('#players .center');
+        bannerElement.textContent = message;
     }
 
     /**
