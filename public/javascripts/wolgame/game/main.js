@@ -12,7 +12,7 @@ define([
     Events,
     Marine,
     Vanguard
-    ) {
+) {
 
     return Base.extend({
         /**
@@ -45,6 +45,7 @@ define([
         sortedUnits: [],
 
         activeUnit: null,
+
         /**
          * entry point
          */
@@ -57,6 +58,7 @@ define([
             this.off = events.off.bind(events);
             this.emit = events.emit.bind(events);
         },
+
         /**
          * add a player to the collection
          * @param data
