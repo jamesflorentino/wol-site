@@ -118,7 +118,10 @@ Game.prototype.actUnit = function(unit, tile) {
         // provided with a special case filter that will remove anything that doesn't
         // meet the unit's targeting criteria.
         affectedUnits = this.filterUnitsInTiles(affectedTiles, function (entity) {
-            return entity !== unit && entity.stats.get('health').value > 0;
+            return entity !== unit
+                && entity.stats.get('health').value > 0
+                && entity.playerId !== unit.playerId
+                ;
         });
         var targetUnits = [];
         affectedUnits.forEach(function (targetUnit) {

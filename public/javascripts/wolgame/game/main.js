@@ -303,7 +303,7 @@ define('game/main', function(require, exports, module) {
                         var affectedUnit;
                         for(var i= 0, total = neighbors.length; i < total; i++) {
                             affectedUnit = neighbors[i].entity;
-                            if (affectedUnit && affectedUnit !== unit && affectedUnit.stats.get('health').value > 0) {
+                            if (_this.validTarget(unit, affectedUnit)) {
                                 units.push({
                                     unit: affectedUnit,
                                     damage: damage
@@ -324,6 +324,20 @@ define('game/main', function(require, exports, module) {
                 });
             });
             this.setHexTiles(unit, 'reach', hexReach);
+        },
+
+        /**
+         *
+         * @param {Entity} unit
+         * @param {Entity} target
+         * @return {Boolean}
+         */
+        validTarget: function(unit, target) {
+            return target
+                && target !== unit
+                && target.stats.get('health').value > 0
+                && unit.playerId !== target.playerId
+                ;
         },
 
         /**

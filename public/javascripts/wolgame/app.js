@@ -87,6 +87,7 @@ function(wol, Game, Cookies, keys){
                 .on('player.add', addPlayer)
                 .on('players.ready', playersReady)
             ;
+            wol.dom.removeClass(wol.$('#modal-message'), 'hidden');
             log('initializing');
             wol.dom.empty(wol.$('#modal-message ul'));
             setAuthKey();
@@ -141,10 +142,10 @@ function(wol, Game, Cookies, keys){
             wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
             wol.keys.on(wol.KeyCodes.V, showMoveCommand);
             wol.pause();
-            log('Map loaded. Waiting for opponent...');
+            log('> Map loaded. Waiting for opponent...');
             send('ready');
         } else {
-            log('Map loaded. But opponent left the game.');
+            log('> Map loaded. But opponent left the game.');
         }
     }
 
@@ -157,7 +158,10 @@ function(wol, Game, Cookies, keys){
             ;
         wol.dom.query(playerLeftElement, '.name').textContent = playerA.id == player.id ? 'You' : 'Enemy';
         wol.dom.query(playerRightElement, '.name').textContent = playerB.id == player.id ? 'You' : 'Enemy';
-        wol.dom.removeClass(playersElement,'hidden');
+        wol.wait(1000, function() {
+            wol.dom.removeClass(playersElement,'hidden');
+        });
+
     }
 
     function hideUnitActionMenu() {
@@ -366,6 +370,10 @@ function(wol, Game, Cookies, keys){
         teamUsers[data.id] = data;
     }
 
+    /**
+     *
+     * @param data
+     */
     function unitSpawn(data) {
         game.unitSpawn(data);
     }

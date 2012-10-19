@@ -308,12 +308,21 @@ define('wol/wol', function(require){
             var border = wol.dom.query(preloader, '.border');
             var bar = wol.dom.query(preloader, '.bar');
             var initW = border.clientWidth;
+            var _this = this;
             wol.dom.removeClass(preloader, 'hidden');
+            var transformProperty = '';
+            var transform = bar.style[transformProperty = 'webkitTransform'] !== null
+                || bar.style[transformProperty = 'mozTransform'] !== null
+                || bar.style[transformProperty = 'oTransform'] !== null
+                ;
+
             wol.events.on(wol.Events.PRELOAD_PROGRESS, function (perc) {
-                bar.style.width = (initW * perc) + 'px';
+                bar.style[transformProperty] = 'scalex(' + perc + ')';
+                console.log(perc);
             });
             wol.events.on(wol.Events.GAME_START, function () {
-                preloader.style.display = 'none';
+                wol.dom.addClass(preloader, 'hidden');
+                wol.dom.addClass(_this.canvas, 'active');
             });
         },
         ready: function (callback) {

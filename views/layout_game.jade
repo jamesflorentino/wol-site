@@ -23,14 +23,28 @@ html
         #main
             #ui
                 #victory-message
-                    .logo
-                    .message You win
+                    .logo.sprite.victory_message_logo
+                    .message You are victorious!
                     a.find.game(href='/game') Player another game
-                #modal-message
-                    ul.logs
-                #preloader.hidden
-                    .bar
+                #modal-message.sprite.message_log_container
+                    .log-container
+                        ul.logs
+                            li Hey what's up
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                            li YO shizzy mah nizzy
+                #preloader
                     .border
+                        .bar
+                    .top.sprite.preloader_bg_top
+                    .bottom.sprite.preloader_bg_bottom
                 #players.hidden
                     .center
                     .left
