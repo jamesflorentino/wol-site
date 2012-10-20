@@ -1,11 +1,9 @@
-define([
-
-    'wol/wol'
-
-], function(wol) {
+define(function(require, exports, module) {
     "use strict";
 
-    return wol.Tile = wol.Class.extend({
+    var Class = require('./class');
+
+    var Tile = {
         init: function(x, y, index) {
             this.x = x;
             this.y = y;
@@ -33,7 +31,9 @@ define([
         vacate: function() {
             this.entity = null;
         }
-    });
+    };
+
+    return module.exports = Class.extend(Tile);
 });
 
 

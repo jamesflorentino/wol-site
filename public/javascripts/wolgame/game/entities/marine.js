@@ -1,12 +1,11 @@
-define([
-
-    'wol/wol',
-    'wol/entity',
-    'game/textures/marine',
-    'game/components/hexgrid'
-
-], function(wol, Entity, frameData, hexgrid) {
+define('game/entities/marine', function(require, exports, module) {
     "use strict";
+
+    var wol = require('../../wol/wol'),
+        Entity = require('../../wol/entity'),
+        frameData = require('../textures/marine'),
+        HexGridComponent = require('../components/hexgrid')
+        ;
 
     var sheetName = 'game.entities.marine';
     var sheetNameAlt = 'game.entities.marine2';
@@ -19,14 +18,7 @@ define([
     });
     wol.spritesheets.add(sheetName, frameData);
 
-
-    /**
-    * Marine
-    * ============================================
-    * super awesome solider
-    **/
-    return wol.Entity.extend({
-
+    var Marine = {
         init: function(parameters) {
             this.parent();
             var _this = this;
@@ -43,7 +35,7 @@ define([
                 .sequence('defend_end', 'idle')
                 .sequence('hit', 'defend_hold')
                 .sequence('die_start', 'die_end')
-                ;
+            ;
 
             this.play('idle');
             // Keyframe animations
@@ -95,5 +87,7 @@ define([
                 _this.play('die_start');
             });
         }
-    });
+    };
+
+    return module.exports = Entity.extend(Marine);
 });

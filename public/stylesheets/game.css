@@ -42,25 +42,6 @@ canvas {
 #game {
   display: inline-block;
 }
-#game canvas {
-  -webkit-filter: brightness(-0.05);
-  -moz-filter: brightness(-0.05);
-  -ms-filter: brightness(-0.05);
-  -o-filter: brightness(-0.05);
-  filter: brightness(-0.05);
-  -webkit-transition: 1000ms 1500ms;
-  -moz-transition: 1000ms 1500ms;
-  -o-transition: 1000ms 1500ms;
-  -ms-transition: 1000ms 1500ms;
-  transition: 1000ms 1500ms;
-}
-#game canvas.active {
-  -webkit-filter: brightness(0);
-  -moz-filter: brightness(0);
-  -ms-filter: brightness(0);
-  -o-filter: brightness(0);
-  filter: brightness(0);
-}
 .title {
   color: #fff;
   font-weight: bold;

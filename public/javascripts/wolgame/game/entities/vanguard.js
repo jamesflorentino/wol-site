@@ -1,13 +1,14 @@
-define([
-    'wol/wol',
-    'wol/entity',
-    'game/textures/vanguard',
-    'game/components/hexgrid'
-], function(wol, Entity, frameData, hexgrid) {
+define(function(require, exports, module) {
     "use strict";
+
+    var wol = require('../../wol/wol');
+    var Entity = require('../../wol/entity');
+    var frameData = require('../textures/vanguard');
+    var HexGridComponent = require('../components/hexgrid');
+
     var sheetName = 'game.entities.vanguard';
     var sheetNameAlt = 'game.entities.vanguard2';
-    // add spritesheet data to the resource manager
+
     wol.events.on('sheet.mirror.vanguard', function() {
         var mirroredFrameData = JSON.parse(JSON.stringify(frameData));
         mirroredFrameData.images = [mirroredFrameData.images[0].replace('.png','_2.png')];
@@ -15,13 +16,7 @@ define([
     });
     wol.spritesheets.add(sheetName, frameData);
 
-
-    /**
-     * vanguard
-     * ============================================
-     * super awesome solider
-     **/
-    return wol.Entity.extend({
+    var Vanguard = {
 
         init: function(parameters) {
             this.parent();
@@ -87,5 +82,7 @@ define([
                 _this.play('die_start');
             });
         }
-    });
+    };
+
+    return module.exports = Entity.extend(Vanguard);
 });

@@ -1,6 +1,8 @@
-define(['wol/wol', 'wol/grid'], function(wol, Grid){
-    var HexGrid;
-    return HexGrid = wol.Grid.extend({
+define(function(require, exports, module){
+    var wol = require('../wol/wol'),
+        Grid = require('../wol/grid');
+
+    var HexGrid = {
         EAST: 'east',
         WEST: 'west',
         SOUTHEAST: 'southEast',
@@ -16,29 +18,29 @@ define(['wol/wol', 'wol/grid'], function(wol, Grid){
             switch (direction) {
                 case this.EAST:
                     result += (isOddRow ? Math.floor(i * 0.5) * -1 : Math.ceil(i * 0.5) * -1) + index;
-                break;
+                    break;
                 case this.WEST:
                     result += (isOddRow ? Math.ceil(i * 0.5) : Math.floor(i * 0.5)) - index;
-                break;
+                    break;
                 case this.SOUTHEAST:
                     result += (isOddRow ? Math.ceil(index * 0.5) : Math.floor(index * 0.5)) - i;
-                break;
+                    break;
                 case this.NORTHEAST:
                     result += Math.floor(index * 0.5) + i - Math.floor(i * 0.5);
-                if (isOddRow) {
-                    if (index % 2 && (index + i) % 2) result++;
-                } else {
-                    if (index % 2 === 0 && (index + i) % 2) result--;
-                }
-                break;
+                    if (isOddRow) {
+                        if (index % 2 && (index + i) % 2) result++;
+                    } else {
+                        if (index % 2 === 0 && (index + i) % 2) result--;
+                    }
+                    break;
                 case this.SOUTHWEST:
                     result -= Math.ceil(index * 0.5) + i - Math.ceil(i * 0.5);
-                if (isOddRow) {
-                    if (index % 2 && (index + i) % 2) result++;
-                } else {
-                    if (index % 2 === 0 && (index + i) % 2) result--;
-                }
-                break;
+                    if (isOddRow) {
+                        if (index % 2 && (index + i) % 2) result++;
+                    } else {
+                        if (index % 2 === 0 && (index + i) % 2) result--;
+                    }
+                    break;
                 case this.NORTHWEST:
                     result += (isOddRow ? Math.ceil(index * -0.5) : Math.floor(index * -0.5)) + i;
             }
@@ -53,19 +55,19 @@ define(['wol/wol', 'wol/grid'], function(wol, Grid){
             switch (direction) {
                 case this.EAST:
                     result += i;
-                break;
+                    break;
                 case this.WEST:
                     result += i * -1;
-                break;
+                    break;
                 case this.SOUTHEAST:
                     result += index;
-                break;
+                    break;
                 case this.SOUTHWEST:
                     result += index - i;
-                break;
+                    break;
                 case this.NORTHEAST:
                     result += (index * -1) + i;
-                break;
+                    break;
                 case this.NORTHWEST:
                     result += index * -1;
             }
@@ -122,5 +124,7 @@ define(['wol/wol', 'wol/grid'], function(wol, Grid){
             vectorY = Math.pow(start.y - destination.y, 2);
             return Math.sqrt(vectorX + vectorY);
         }
-    });
+    };
+
+    return module.exports = Grid.extend(HexGrid);
 });

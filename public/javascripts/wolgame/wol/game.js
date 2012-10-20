@@ -1,9 +1,10 @@
-define('wol/game', function(require) {
+define('wol/game', function(require, exports, module) {
 
-    var wol = require('wol/wol')
+    var wol = require('./wol'),
+        Class = require('./class')
         ;
 
-    return wol.Game = wol.Class.extend({
+    var Game = {
 
         init: function() {
             // create a fresh container
@@ -21,6 +22,8 @@ define('wol/game', function(require) {
             return this;
         }
 
-    });
+    };
+
+    return module.exports = Class.extend(Game);
 
 })

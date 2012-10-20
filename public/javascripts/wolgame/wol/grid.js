@@ -1,31 +1,43 @@
-// # wol.Grid
-// A collection of tile data that can be used for position and map-based games.
-// * * *
-
-//
-define([
-
-    'wol/wol',
-    'wol/tile'
-
-], function(wol, Tile) {
-
+define(function(require, exports, module) {
     "use strict";
 
-    return wol.Grid = wol.Class.extend({
+    var wol = require('./wol'),
+        Tile = require('./tile'),
+        Class = require('./class');
+
+    var Grid = {
+        columns: 0,
+        rows: 0,
+        _keys: {},
+        tiles: [],
         init: function() {
-            // ### grid.columns
+            /**
+             *
+             * @type {Number}
+             */
             this.columns = 0;
-            // ### grid.columns
+            /**
+             *
+             * @type {Number}
+             */
             this.rows = 0;
-            // ### grid._keys
-            // _private_
+            /**
+             *
+             * @type {Object}
+             * @private
+             */
             this._keys = {};
-            // ### grid._tiles
+            /**
+             *
+             * @type {Array}
+             */
             this.tiles = [];
         },
-        // ### grid.generate(columns, rows)
-        // Populates the grid with tile data
+        /**
+         * Populate the grid
+         * @param {Number} columns
+         * @param {Number} rows
+         */
         generate: function(columns, rows) {
             var row, col, index, tile;
             this.columns = columns;
@@ -42,14 +54,20 @@ define([
                 }
             }
         },
-        // ### grid.get(x,y)
-        // A function to get a tile reference in the grid.
+        /**
+         * Get Grid
+         * @param x
+         * @param y
+         * @return {*}
+         */
         get: function(x, y) {
             if (!this._keys[x]) {
                 return null;
             }
             return this._keys[x][y];
         }
-    });
+    };
+
+    return module.exports = Class.extend(Grid);
 
 });
