@@ -21,6 +21,7 @@ define(function(require, exports, module) {
         init: function(parameters) {
             this.parent();
             var _this = this;
+            _this.gaugeY = -90;
             // add spriteshsetes
             var altUnit = parameters ? parameters.altUnit : false;
             //altUnit = true;

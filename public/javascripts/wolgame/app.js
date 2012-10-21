@@ -87,11 +87,24 @@ function(wol, Game, Cookies, keys){
                 .on('player.add', addPlayer)
                 .on('players.ready', playersReady)
             ;
+            document.body.oncontextmenu = disableContextMenu;
             wol.dom.removeClass(wol.$('#modal-message'), 'hidden');
+            wol.events.on('volume.on', soundOn);
+            wol.events.on('volume.off', soundOff);
+            wol.dom.click(wol.$('#settings .sound-icon'), toggleSound);
             log('initializing');
             wol.dom.empty(wol.$('#modal-message ul'));
             setAuthKey();
         }
+    }
+
+    /**
+     * Disable to prevent accidentally clicking the Go back menu
+     * @param event
+     */
+    function disableContextMenu(event) {
+        console.log('context menu is disabled to prevent accidentally clicking "go back"');
+        return false;
     }
 
     function log(message) {
@@ -329,9 +342,6 @@ function(wol, Game, Cookies, keys){
                 // show the unit action panel
                 var actionPanel = wol.$('#unit-actions');
                 var healthStat = unit.stats.get('health');
-                // update the health info
-                wol.$(actionPanel, '.health .value').textContent =
-                    healthStat.value + '/' + healthStat.max;
                 wol.dom.removeClass(actionPanel, 'hidden');
                 // update the avatar
                 var avatarElement = wol.$(actionPanel, '.avatar');
@@ -428,6 +438,25 @@ function(wol, Game, Cookies, keys){
             wol.init(Game, canvasContainer, 960, 640, ready);
             log('loading game');
         }
+    }
+
+    /**
+     *
+     */
+    function toggleSound() {
+        var soundIcon = wol.$('#settings .sound-icon');
+        wol.dom.hasClass(soundIcon, 'off') ? wol.sound.volume(1) : wol.sound.volume(0);
+        console.log('toggle');
+    }
+
+    function soundOn(id) {
+        console.log('volume.on');
+        wol.dom.removeClass(wol.$('#settings .sound-icon'), 'off');
+    }
+
+    function soundOff(id) {
+        console.log('volume.off');
+        wol.dom.addClass(wol.$('#settings .sound-icon'), 'off');
     }
 
     function endGame(data) {

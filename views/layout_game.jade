@@ -15,7 +15,7 @@ html
         link(rel="apple-touch-icon", sizes="57x57", href="/images/icon_57x57.png")
         link(rel="apple-touch-icon", sizes="48x48", href="/images/icon_48x48.png")
         link(href="images/apple-touch-startup-image-640x920.png", rel="apple-touch-startup-image")
-        link(href='http://fonts.googleapis.com/css?family=Titillium+Web:700', rel='stylesheet', type='text/css')
+        link(href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Orbitron:400|Titillium+Web:700', rel='stylesheet', type='text/css')
         block scripts
     body
         #add-to-homescreen.hidden Add this to your homescreen by touching the share icon below and click "add to homescreen"!
@@ -23,23 +23,12 @@ html
         #main
             #ui
                 #victory-message
+                    a.find.game(href='/game') Player another game
                     .logo.sprite.victory_message_logo
                     .message You are victorious!
-                    a.find.game(href='/game') Player another game
                 #modal-message.sprite.message_log_container
                     .log-container
                         ul.logs
-                            li Hey what's up
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
-                            li YO shizzy mah nizzy
                 #preloader
                     .border
                         .bar
@@ -47,28 +36,35 @@ html
                     .bottom.sprite.preloader_bg_bottom
                 #players.hidden
                     .center
-                    .left
-                        i.sprite.player_red
-                        span.name Player
-                    .right
-                        i.sprite.player_yellow
-                        span.name You
+                    .sprite.players_bg
+                        .left
+                            i.sprite.player_red
+                            span.name Player
+                        .right
+                            i.sprite.player_yellow
+                            span.name You
+                #settings
+                    i.sprite.sound-icon
                 #turn-list.hidden
                     ul
                 #unit-actions.unit-active.hidden
                     .title Active Unit
-                    .avatar
-                    .health
-                        .label HP
-                        .value 300/300
-                    .actions
-                        .title Actions
-                        .bars
-                            .bar.empty
-                            .bar.empty
-                            .bar.empty
-                    .commands
-                        .move.command Move
-                        .reinforce.command Reinforce
-                        .skip.command Skip
+                    .sprite.unit_turn_bg
+                        .avatar
+                        .actions
+                            .title Actions
+                            .bars
+                                .bar
+                                .bar
+                                .bar
+                        .commands
+                            .move.command.sprite.btn_primary
+                                i.btn_primary_hover.sprite
+                                span Move
+                            .reinforce.command.sprite.btn_primary
+                                i.btn_primary_hover.sprite
+                                span Units
+                            .skip.command.sprite.btn_cancel
+                                i.btn_cancel_hover.sprite
+                                span Skip
             #game

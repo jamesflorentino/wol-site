@@ -1,7 +1,7 @@
 /* ----------------------------------------------------
    created with http://www.texturepacker.com 
    ----------------------------------------------------
-   $TexturePacker:SmartUpdate:75017a238cb6fc1339e6b6836f63c9f0$
+   $TexturePacker:SmartUpdate:726ca3fb44fdd8699baecb8094bb9cc7$
    ----------------------------------------------------
 
    usage: <span class="{-spritename-} sprite"></span>
@@ -12,9 +12,16 @@
 
 .sprite {display:inline-block; overflow:hidden; background-repeat: no-repeat;background-image:url(icons.png);}
 
+.btn_cancel {width:54px; height:45px; background-position: -599px -911px}
+.btn_cancel_hover {width:58px; height:49px; background-position: -529px -962px}
+.btn_primary {width:64px; height:45px; background-position: -589px -962px}
+.btn_primary_hover {width:68px; height:49px; background-position: -529px -911px}
 .message_log_container {width:615px; height:253px; background-position: -2px -656px}
-.player_red {width:11px; height:11px; background-position: -619px -894px}
-.player_yellow {width:11px; height:11px; background-position: -619px -881px}
+.player_red {width:11px; height:11px; background-position: -466px -996px}
+.player_yellow {width:11px; height:11px; background-position: -453px -996px}
+.players_bg {width:449px; height:36px; background-position: -2px -978px}
 .preloader_bg_bottom {width:960px; height:340px; background-position: -2px -2px}
 .preloader_bg_top {width:960px; height:310px; background-position: -2px -344px}
+.sound-icon {width:20px; height:16px; background-position: -453px -978px}
+.unit_turn_bg {width:525px; height:65px; background-position: -2px -911px}
 .victory_message_logo {width:275px; height:223px; background-position: -619px -656px}

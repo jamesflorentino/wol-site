@@ -1,6 +1,6 @@
 @import "nib"
 @import "easing"
-@import "/images/spritesheets/icons.css"
+@import "../images/spritesheets/icons.css"
 
 color-green = #13bbc9
 color-white = white
@@ -34,7 +34,7 @@ glow()
 
 glow-text()
     outer-glow = 0 0 10px color-green
-    shadow = 0 0 5px color-green
+    shadow = 0 0 15px color-green
     text-shadow outer-glow, shadow
 
 bold-text()
@@ -57,6 +57,8 @@ body, html
 
 body
     font-family: font-body
+    font-weight: 100
+    letter-spacing: 1px
 
 canvas
     user-select: none
@@ -85,8 +87,7 @@ canvas
 
 .title
     color white
-    font-weight: bold
-    font-size: 12px
+    font-size: 10px
     glow-text()
 
 #turn-list
@@ -97,7 +98,7 @@ canvas
     transition 400ms
 
     &.hidden
-        bottom: -30px - 42px
+        display none
 
     ul
         margin 0
@@ -164,7 +165,7 @@ canvas
         z-index: 1
         transition: 600ms
         transform-origin 0 0
-        width 100%
+        width 0
 
     .message
         color white
@@ -198,75 +199,56 @@ canvas
 // Unit actions
 //----------------------------
 #unit-actions
-    glow()
     font-size: 12px
+    font-weight: 100
     text-transform: uppercase
     color: color-green
-    background: black
-    width: 500px
-    height: 40px
-    z-index: 2
     position: absolute
     bottom: 15px
     left: 15px
     transition: 400ms
-    border-radius: 5px
 
     &.hidden
         transform: translatey(200%);
 
     > .title
         position: absolute
-        top: -25px
-        left: 0px
+        top: -15px
+        left: 10px
 
     .avatar
-        glow()
         background-color: black
-        width: 28px
-        height: 28px
+        width: 39px
+        height: 39px
         position: absolute
-        left: 5px
-        top: 5px
+        left: 12px
+        top: 10px
         overflow: hidden
-
-    .health
-        position: absolute
-        left: 45px
-        top: 15px
-
-        .label
-            float: left
-            margin-right: 5px
-
-        .value
-            float: left
-            color: color-white
-            font-weight: 600
 
     .actions
         position: absolute
-        left: 145px
-        top: 11px
+        left: 84px
+        top: 26px
         height: 16px
 
         .title
             line-height: 16px
             height: 16px
             float: left
-            font-weight normal
-            font-size: inherit
-            color inherit
+            font-size: 10px
+            color: white
 
         .bars
-            margin-left: 5px
+            margin-left: 8px
             float: left
-            width 130px
+            width 120px
+            position relative
+            top -2px
 
         .bar
             glow()
             box-sizing: border-box
-            width: 0
+            width 30%
             height: 16px
             background: rgba(color-green, 0.5)
             float: left
@@ -275,37 +257,59 @@ canvas
                 border-left-color: black
 
             &:first-child
-                border-left-radius(5px)
+                border-left-radius(3px)
 
             &:last-child
-                border-right-radius(5px)
+                border-right-radius(3px)
 
             &.empty
-                opacity: 0.25
-                //animation: pop-then-fade-out 500ms forwards
+                opacity 0.5
+                //animation pop-then-fade-out easeInOutQuart 500ms forwards
 
     .commands
-        position: absolute
-        top: 4px
-        right: 5px
+        position absolute
+        top 8px
+        left 300px
 
         .command
-            bold-text()
             button()
-            height 30px
-            line-height 30px
-            border: 1px solid color-green
-            padding: 0 6px
-            background: rgba(color-green, 0.15)
-            float: left
-            margin: 0
-            margin-left: 2px
-            transition: 200ms
-            box-shadow: 0 0 10px color-green inset
-            font-weight bold
+            font-size 10px
+            font-weight 100
+            line-height 45px
+            padding 0
+            text-align center
+            vertical-align middle
+            margin 0
+            margin-left 10px
+            color color-white
+            position relative
+
+            &:first-child
+                margin-left 0
+
             &:hover
-                background: rgba(color-green, 0.5)
-                color: color-white
+                i.sprite
+                    opacity 0.99
+                span
+                    shadow = 0 0 5px color-green
+                    text-shadow shadow, shadow, shadow
+
+            &.skip
+                margin-left 23px
+
+            i.sprite
+                display block
+                position absolute
+                top -1px
+                left -2px
+                transition 250ms easeOutExpo
+                transform-origin 50% 50%
+                opacity 0.1
+            span
+                transition 250ms
+                display block
+                transform translate3d(0,0,0)
+
 
 //----------------------------
 // victory modal
@@ -319,6 +323,7 @@ canvas
     z-index 5
     color white
     perspective 1200px
+    transform-style preserve-3d
     display none
     background linear-gradient(top, black, transparent)
 
@@ -337,9 +342,11 @@ canvas
             transform translateZ(1000px)
             visibility hidden
             animation 1200ms 300ms zoom-in ease forwards
-        .find
+
+        .find.game
+            transform translateZ(3em)
             visibility hidden
-            animation 900ms 1200ms flash-in-fade forwards
+            animation 900ms 1200ms flash-in easeOutQuint forwards
 
     .logo
         position absolute
@@ -353,7 +360,6 @@ canvas
         right 0
         top 120px
         font-size 18px
-        font-weight bold
         text-transform uppercase
         glow = 0 0 20px #6dcff6
         text-shadow glow, 0 0 40px #6dcff6
@@ -366,7 +372,6 @@ canvas
         box-sizing border-box
         position absolute
         font-size 10px
-        font-weight 100
         letter-spacing 1px
         top 150px
         left 380px
@@ -377,14 +382,19 @@ canvas
         button()
         glow()
         text-shadow 0 0 5px cyan
-        transform translate(0,0)
-        opacity 0.99
-        z-index 1
+        transform translate3d(0,0,0)
+        z-index 99
+        transition 300ms
+
 
         &:hover
             color white
             background black
+            border-color white
 
+//----------------------------
+// Mdoal Message
+//----------------------------
 #modal-message
     color white
     position absolute
@@ -438,35 +448,46 @@ canvas
 //----------------------------
 #players
     position absolute
-    top 10px
-    left 10px
-    right 10px
-    height 30px
-    line-height 30px
+    top 0
+    left 0
+    width 100%
     z-index 99
+    transition 1200ms easeInOutExpo
+    glow-text()
     color white
-    font-weight bold
-    border-radius 5px
-    transition 1000ms easeOutBack
-    background rgba(black, 0.75)
-    glow()
+    pointer-events none
 
-    .sprite
-        margin 0 5px
-    .center
+    .players_bg
         margin auto
-        width 50%
-        text-align center
+        display block
+        position relative
+
     .left
         position absolute
-        left 10px
-        top 0
+        top 7px
+        left 18px
+
+        .sprite
+            margin-right 5px
+
     .right
         position absolute
-        right 10px
-        top 0
+        top 7px
+        right 18px
+
+        .sprite
+            margin-right 5px
+
+    .center
+        position absolute
+        top 50px
+        width 100%
+        text-align center
+        font-size 14px
+        text-transform uppercase
+
     &.hidden
-        transform translateY(-50px)
+        transform translateY(-200%)
 
 //----------------------------
 // mobile message
@@ -512,6 +533,24 @@ canvas
         display none
 
 //----------------------------
+// Settings
+//----------------------------
+#settings
+    position absolute
+    top 0
+    left 0
+    width 100%
+
+    .sound-icon
+        position absolute
+        right 30px
+        top 10px
+        button()
+
+        &.off
+            opacity 0.5
+
+//----------------------------
 // Animations
 //----------------------------
 @keyframes modal-list-item-last
@@ -528,9 +567,11 @@ canvas
         transform: scale(1)
     50%
         transform: scale(1.2)
+        filter(brightness(1))
     100%
         transform: scale(1)
         opacity: 0.25
+        filter(brightness(0))
 
 @keyframes rotate-y-axis
     from
@@ -565,19 +606,19 @@ canvas
         visibility visible
         opacity 1
 
-@keyframes flash-in-fade
+@keyframes flash-in
     0%
-        transform scale(0)
+        transform translateZ(1em) scale(0)
+        opacity 0
         visibility visible
-    25%
-        transform scale(1)
-        filter(brightness(0.5) hue-rotate(-20deg))
     50%
-        transform scale(1.05)
+        transform translateZ(1em) scale(1.1)
+        filter(brightness(0.5))
     100%
-        transform scale(1)
-        filter(brightness(0) hue-rotate(0))
+        filter(brightness(0))
+        transform translateZ(1em) scale(1)
         visibility visible
+        opacity 1
 
 
 

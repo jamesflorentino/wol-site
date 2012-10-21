@@ -1,35 +1,20 @@
-define('wol/wol', function(require){
-    var createjsNS = require('createjs/create'),
-        Events = require('wol/events'),
-        utils = require('wol/utils'),
-        Collection = require('wol/collection');
+define('wol/wol', function(require, exports, module){
+    "use strict";
+    var Events = require('./events'),
+        utils = require('./utils'),
+        wait = utils.wait,
+        Collection = require('./collection')
+    ;
 
-    var createjs = window.createjs;
+    // anonymous requires
+    require('../createjs/create');
+    // To enable functions like .bind, .etc
+    require('./browser-mixins');
 
-    (function() {
-        // Shim for function binding.
-        if (!Function.prototype.bind) {
-            Function.prototype.bind = function(oThis) {
-                if (typeof this !== "function") {
-                    // closest thing possible to the ECMAScript 5 internal IsCallable function
-                    throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-                }
-                var aArgs = Array.prototype.slice.call(arguments, 1),
-                    fToBind = this,
-                    fNOP = function() {},
-                    fBound = function() {
-                        return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
-                    };
-                fNOP.prototype = this.prototype;
-                fBound.prototype = new fNOP();
-                return fBound;
-            };
-        }
-    })();
-
-    var wait = function (ms, cb) {
-        return setTimeout(cb, ms);
-    };
+    var createjs = window.createjs,
+        SoundJS = createjs.SoundJS,
+        PreloadJS = createjs.PreloadJS
+    ;
 
     /**
      * The namespace for the game's core authority.
@@ -40,6 +25,39 @@ define('wol/wol', function(require){
             units: {
                 mirrored: {
                 }
+            }
+        },
+
+        sound: {
+
+            /**
+             *
+             * @param {String} id
+             */
+            play: function(id) {
+                SoundJS.play(id);
+                wol.events.emit('sound.on', id);
+            },
+
+            /**
+             *
+             * @param {String} id
+             */
+            pause: function(id) {
+                SoundJS.pause(id);
+            },
+
+            /**
+             * Set the volume of the sound
+             * @param {Number} volume
+             * @param {String} id
+             */
+            volume: function(volume, id) {
+                SoundJS.setVolume(volume, id);
+                (volume === 0
+                    ? wol.events.emit('volume.off', id)
+                    : wol.events.emit('volume.on', id)
+                );
             }
         },
 
@@ -224,15 +242,29 @@ define('wol/wol', function(require){
             }
         },
 
+        /**
+         * Handles the preloading of assets.
+         */
         resources: {
             manifest: [],
-            loader: new createjs.PreloadJS(),
+            loader: new PreloadJS(),
+
+            /**
+             * Include a url to the manifest before preloading starts.
+             * @param urlOrUrls
+             */
             add: function (urlOrUrls) {
                 var list = Array.prototype.slice.call(arguments);
                 for (var i = 0; i < list.length; i++) {
                     this.manifest.push(list[i]);
                 }
             },
+
+            /**
+             * Return a resource
+             * @param idOrUrl
+             * @return {*}
+             */
             get: function (idOrUrl) {
                 var result = this.loader.getResult(idOrUrl);
                 if (result === undefined) {
@@ -240,7 +272,13 @@ define('wol/wol', function(require){
                 }
                 return this.loader.getResult(idOrUrl).result;
             },
+
+            /**
+             * Preload a resource
+             * @param callback
+             */
             preload: function (callback) {
+                this.loader.installPlugin(SoundJS);
                 this.loader.onProgress = function () {
                     wol.events.emit(wol.Events.PRELOAD_PROGRESS, this.loader.progress);
                 }.bind(this);
@@ -385,6 +423,5 @@ define('wol/wol', function(require){
         }
     };
 
-    return wol;
-
+    return module.exports = wol;
 });

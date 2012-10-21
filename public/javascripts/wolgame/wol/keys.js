@@ -1,11 +1,7 @@
-define([
-
-       'wol/wol',
-       'wol/events'
-
-], function (wol, Events) {
-
+define(function (require) {
     "use strict";
+    var wol = require('./wol'),
+        Events = require('./events');
 
     wol.KeyCodes = {
         MAC_ENTER: 3,
@@ -91,8 +87,14 @@ define([
         }
     };
 
-    document.addEventListener('keydown', function(e){
-        wol.keys.emit(e.keyCode);
+    window.addEventListener('load', function() {
+        document.body.oncontextmenu = function(e) {
+            events.emit('contextmenu', e);
+        };
+
+        document.addEventListener('keydown', function(e){
+            return wol.keys.emit(e.keyCode);
+        });
     });
 
     return wol.keys;

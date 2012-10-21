@@ -12,10 +12,12 @@ define('game/base', function(require, exports, module) {
     ,   KeyboardComponent = require('wol/keys')
     ;
 
-    var URI_BACKGROUND = 'media/background.png';
+    var URI_BACKGROUND = '/media/background.png';
 
     // Include assets to the imageQueue
     wol.resources.add(URI_BACKGROUND);
+
+    wol.resources.add('/media/into-hyperspace.mp3');
 
     // Include the elements sprite sheet
     wol.spritesheets.add('elements', elements);
@@ -30,6 +32,9 @@ define('game/base', function(require, exports, module) {
         rows: 9,
         cachedTextures: {},
 
+        /**
+         * Entry point
+         */
         init: function() {
             this.parent();
             this.background = wol.create.bitmap(wol.resources.get(URI_BACKGROUND));
@@ -38,6 +43,14 @@ define('game/base', function(require, exports, module) {
             this.add(this.unitContainer);
             this.hexgrid.generate(this.columns, this.rows);
             this.createStaticGridDisplay(this.hexgrid);
+            // play the background music
+            wol.sound.play(
+                '/media/into-hyperspace.mp3',
+                '', // interrupt
+                0, // delay
+                0, // offset
+                -1 // loop
+            );
         },
         /**
          *

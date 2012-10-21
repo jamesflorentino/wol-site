@@ -22,6 +22,7 @@ define('game/entities/marine', function(require, exports, module) {
         init: function(parameters) {
             this.parent();
             var _this = this;
+            _this.gaugeY = -80;
             // add spriteshsetes
             this.addComponent('spritesheet', wol.spritesheets.get(parameters.altUnit ? sheetNameAlt :  sheetName));
             this.addComponent('events');

@@ -1,4 +1,4 @@
-(function() {
+define(function(require, exports, module) {
     "use strict";
 
     var Module = {
@@ -7,17 +7,11 @@
         },
         isArray: function(obj) {
             return !!(obj && obj.push && obj.splice);
+        },
+        wait: function (ms, cb) {
+            return setTimeout(cb, ms);
         }
     };
 
-    // For AMD libraries like RequireJS.
-    if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-        define(function() {
-            return Module;
-        });
-    }
-    // For Node.js and Ringo.js
-    if (typeof module == 'object' && module) {
-        module.exports = Module;
-    }
-})();
+    return module.exports = Module;
+});

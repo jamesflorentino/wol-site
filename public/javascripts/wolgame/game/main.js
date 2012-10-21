@@ -45,7 +45,7 @@ define('game/main', function(require, exports, module) {
          */
         init: function () {
             this.parent();
-            this.hexContainer.y = this.unitContainer.y = 150;
+            this.hexContainer.y = this.unitContainer.y = 120;
             this.hexContainer.x = this.unitContainer.x = 80;
             var events = new Events();
             this.on = events.on.bind(events);
@@ -110,10 +110,10 @@ define('game/main', function(require, exports, module) {
                 // add a health gauge in the list
                 var barHealthBg = this.getTexture('bar_health_bg');
                 var barHealthBar = this.getTexture('bar_health');
-                barHealthBg.y = -100;
+                barHealthBg.y = typeof unit.gaugeY === 'number' ? unit.gaugeY : -80;
                 barHealthBg.x = -23;
-                barHealthBar.y = barHealthBg.y + 1;
-                barHealthBar.x = barHealthBg.x + 1;
+                barHealthBar.y = barHealthBg.y + 2;
+                barHealthBar.x = barHealthBg.x + 3;
                 unit.container.addChild(barHealthBg);
                 unit.container.addChild(barHealthBar);
 
