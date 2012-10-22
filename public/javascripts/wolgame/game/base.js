@@ -32,6 +32,7 @@ define('game/base', function(require, exports, module) {
         rows: 9,
         cachedTextures: {},
 
+
         /**
          * Entry point
          */
@@ -46,8 +47,8 @@ define('game/base', function(require, exports, module) {
             // play the background music
             wol.sound.play(
                 '/media/into-hyperspace.mp3',
-                '', // interrupt
-                0, // delay
+                null, // interrupt
+                null, // delay
                 0, // offset
                 -1 // loop
             );

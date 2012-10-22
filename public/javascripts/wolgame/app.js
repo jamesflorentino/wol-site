@@ -44,6 +44,10 @@ function(wol, Game, Cookies, keys){
 
     var debug = false;
 
+    var host = window.location.hostname.indexOf('local') > -1
+        ? 'http://localhost:3000/'
+        : 'http://wingsoflemuria.com:3000';
+
     var tpl = {
         sub: function(string, object) {
             var str = string;
@@ -78,7 +82,8 @@ function(wol, Game, Cookies, keys){
         if (checkUserAgent()) {
             wol.events.emit('sheet.mirror.marine'); // preload the mirrored marine.
             wol.events.emit('sheet.mirror.vanguard'); // preload the mirrored marine.
-            socket = io.connect();
+            //socket = io.connect('http://wingsoflemuria.com:8080/');
+            socket = io.connect(host);
             socket
                 .on('auth.response', authResponse)
                 .on('game.join', joinGame)
@@ -118,6 +123,7 @@ function(wol, Game, Cookies, keys){
     function playersReady() {
         log('Players both ready. Initiating Game');
         wol.play();
+        wol.preloader.hide();
         hideMessageLog();
     }
 

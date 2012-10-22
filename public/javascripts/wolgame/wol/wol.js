@@ -3,7 +3,8 @@ define('wol/wol', function(require, exports, module){
     var Events = require('./events'),
         utils = require('./utils'),
         wait = utils.wait,
-        Collection = require('./collection')
+        Collection = require('./collection'),
+        KeyManager = require('./keys')
     ;
 
     // anonymous requires
@@ -27,7 +28,8 @@ define('wol/wol', function(require, exports, module){
                 }
             }
         },
-
+        KeyCodes: KeyManager.KeyCodes,
+        keys: KeyManager,
         sound: {
 
             /**
@@ -278,12 +280,13 @@ define('wol/wol', function(require, exports, module){
              * @param callback
              */
             preload: function (callback) {
-                this.loader.installPlugin(SoundJS);
-                this.loader.onProgress = function () {
-                    wol.events.emit(wol.Events.PRELOAD_PROGRESS, this.loader.progress);
-                }.bind(this);
-                this.loader.onComplete = callback;
-                this.loader.loadManifest(this.manifest);
+                var _this = this;
+                _this.loader.installPlugin(SoundJS);
+                _this.loader.onProgress = (function () {
+                    wol.events.emit(wol.Events.PRELOAD_PROGRESS, _this.loader.progress);
+                });
+                _this.loader.onComplete = callback;
+                _this.loader.loadManifest(_this.manifest);
             }
         },
         tween: createjs.Tween,
@@ -314,15 +317,15 @@ define('wol/wol', function(require, exports, module){
             createjs.Ticker.useRAF = true;
             createjs.Ticker.setFPS(30);
             createjs.Ticker.addListener(this.update.bind(this));
+            // Enable the key manager
+            this.keys.init();
             this.pause();
             this.makeLoadBars();
             // set the dom events
             this.setDomEvents();
             // start preloading the assets in the manifest and assign
             // a callback.
-            wol.debug('preload START');
             this.resources.preload(function () {
-                wol.debug('preload FINISHED');
                 wol.events
                     .emit(wol.Events.READY, wol)
                     .off(wol.Events.READY);
@@ -347,20 +350,30 @@ define('wol/wol', function(require, exports, module){
             var bar = wol.dom.query(preloader, '.bar');
             var initW = border.clientWidth;
             var _this = this;
-            wol.dom.removeClass(preloader, 'hidden');
+            this.preloader.show();
             var transformProperty = '';
             var transform = bar.style[transformProperty = 'webkitTransform'] !== null
                 || bar.style[transformProperty = 'mozTransform'] !== null
                 || bar.style[transformProperty = 'oTransform'] !== null
                 ;
 
-            wol.events.on(wol.Events.PRELOAD_PROGRESS, function (perc) {
-                bar.style[transformProperty] = 'scalex(' + perc + ')';
+            wol.events.on(wol.Events.PRELOAD_PROGRESS, function (progressRatio) {
+                bar.style[transformProperty] = 'scalex(' + progressRatio + ')';
             });
             wol.events.on(wol.Events.GAME_START, function () {
-                wol.dom.addClass(preloader, 'hidden');
                 wol.dom.addClass(_this.canvas, 'active');
             });
+        },
+        preloader: {
+            show: function() {
+                var preloader = wol.$('#preloader');
+                wol.dom.removeClass(preloader, 'hidden');
+            },
+
+            hide: function() {
+                var preloader = wol.$('#preloader');
+                wol.dom.addClass(preloader, 'hidden');
+            }
         },
         ready: function (callback) {
             wol.events.on(wol.Events.READY, callback);

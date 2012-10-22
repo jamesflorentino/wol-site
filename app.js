@@ -49,7 +49,8 @@ app.configure('development', function() {
 var port = 8080;
 var server = http.createServer(app).listen(port);
 
-io = io.listen(server);
+//io = io.listen(server);
+io = io.listen(3000); // force to listen to port 3000
 game = new Game(io);
 
 // routes
@@ -65,9 +66,9 @@ io.configure(function () {
     io.set('log level', 1);                    // reduce logging
     io.set('transports', [                     // enable all transports (optional if you want flashsocket)
         'websocket'
-        , 'flashsocket'
-        , 'htmlfile'
-        , 'xhr-polling'
-        , 'jsonp-polling'
+        //, 'flashsocket'
+        //, 'htmlfile'
+        //, 'xhr-polling'
+        //, 'jsonp-polling'
     ]);
 });
