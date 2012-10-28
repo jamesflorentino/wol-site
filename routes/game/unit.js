@@ -28,6 +28,7 @@ function Unit(code, attributes) {
     this.stats.add(new Stat('splash', 0));
     // override stats with custom settings
     this.stats.set(attributes.stats);
+
     events.EventEmitter.call(this);
 }
 

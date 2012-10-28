@@ -40,6 +40,8 @@ define('game/main', function(require, exports, module) {
 
         activeUnit: null,
 
+        debug: false,
+
         /**
          * entry point
          */
@@ -286,8 +288,8 @@ define('game/main', function(require, exports, module) {
             var neighbors = this.hexgrid.neighbors(unit.currentTile, reach);
             var occupied = wol.filter(neighbors, function(tile) {
                 return tile.entity
-                    && tile.entity.playerId !== _this.player.id // prevent unit from targetting other people
                     && tile.entity.stats.get('health').value > 0
+                    && tile.entity.playerId !== _this.player.id // prevent unit from targeting own units
                     ;
             });
             var hexReach = this.createTiles(occupied, 'hex_attack', function(hex, i) {
@@ -336,7 +338,7 @@ define('game/main', function(require, exports, module) {
             return target
                 && target !== unit
                 && target.stats.get('health').value > 0
-                && unit.playerId !== target.playerId
+                //&& unit.playerId !== target.playerId
                 ;
         },
 

@@ -171,6 +171,7 @@ require(['wol/wol','game/main','cookies','wol/keys'], function(wol, Game, Cookie
         if (!gameEnded) {
             game = g;
             game.player = player;
+            game.debug = debug;
             game.on('unit.update', gameUnitUpdate); //
             game.on('unit.act', gameUnitAct); // when a unit does an action
             game.on('unit.act.end', gameUnitActEnd); // when a unit ends its turn
@@ -408,6 +409,7 @@ require(['wol/wol','game/main','cookies','wol/keys'], function(wol, Game, Cookie
         wol.dom.addClass(victoryMessage, 'active');
         wol.dom.query(victoryMessage, '.message').textContent = message;
         wol.dom.addClass(wol.$('#players'), 'hidden');
+        wol.dom.addClass(wol.$('#unit-actions'), 'hidden');
         if (lost) {
             wol.dom.addClass(victoryMessage,'lost');
         }

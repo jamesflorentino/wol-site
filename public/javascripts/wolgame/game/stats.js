@@ -1,8 +1,6 @@
-define([
-
-    'game/stat'
-
-], function (Stat) {
+define(function (require, exports, module) {
+    "use strict";
+    var Stat = require('./stat');
 
     function Stats(stats) {
         this.list = [];
@@ -25,14 +23,20 @@ define([
      */
     Stats.prototype.set = function (stats) {
         var stat;
+        var keyValue;
         var value;
+        var max;
         for (var key in stats) {
-            value = stats[key];
-            if (value.max) {
-                value = value.max;
+            keyValue = stats[key];
+            if (typeof keyValue === 'object' && keyValue.max && keyValue.value) {
+                value = keyValue.value;
+                max = keyValue.max;
+            } else if (typeof keyValue === 'number') {
+                max = value = keyValue;
             }
             if (stat = this.get(key)) {
-                stat.setMax(value);
+                stat.setMax(max);
+                stat.setValue(value);
             } else {
                 this.add(new Stat(key, value));
             }
@@ -44,6 +48,7 @@ define([
      */
     Stats.prototype.toJSON = function() {
         var attr = {};
+        var stat;
         for(var i=0; i<this.list.length;i++) {
             stat = this.list[i];
             attr[stat.name] = {
@@ -63,5 +68,4 @@ define([
     };
 
     return Stats;
-
 });
