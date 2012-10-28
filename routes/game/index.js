@@ -5,7 +5,6 @@ var Game = require('./game');
 var utils = require('./utils');
 
 var GameApp = function(io) {
-
     "use strict";
 
     var players = new Players();

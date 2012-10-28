@@ -96,9 +96,6 @@ define(function (require, exports, module) {
         },
         ready: function() {
             var _this = this;
-            document.body.oncontextmenu = function(e) {
-                _this.events.emit('contextmenu', e);
-            };
 
             document.onkeydown = function(e){
                 return _this.emit(e.keyCode);

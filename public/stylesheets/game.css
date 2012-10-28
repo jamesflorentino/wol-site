@@ -149,7 +149,7 @@ canvas {
   -o-transform-origin: 0 0;
   -ms-transform-origin: 0 0;
   transform-origin: 0 0;
-  width: 0;
+  width: 100%;
 }
 #preloader .message {
   color: #fff;

@@ -1,8 +1,8 @@
 requirejs.config({
     baseUrl: 'javascripts/wolgame'
 });
-require(['wol/wol','game/main','cookies','wol/keys'],
-function(wol, Game, Cookies, keys){
+
+require(['wol/wol','game/main','cookies','wol/keys'], function(wol, Game, Cookies, keys){
     "use strict";
 
     // use for name
@@ -34,21 +34,56 @@ function(wol, Game, Cookies, keys){
      */
     var player = {};
 
+    /**
+     * List of players in the game.
+     * @type {Array}
+     */
     var players = [];
 
+    /**
+     * A dictionary of the list of teams.
+     * @type {Object}
+     */
     var teamUsers = {};
 
+    /**
+     * Tells the state of the menu. E.g. 'cancel', 'move', etc.
+     * @type {null}
+     */
     var menuState = null;
 
+    /**
+     * A flag to determine if the game is already finished.
+     * @type {Boolean}
+     */
     var gameEnded = false;
 
+    /**
+     * Tinkering mode.
+     * @type {Boolean}
+     */
     var debug = false;
 
+    /**
+     * Debug mode
+     * @type {String}
+     */
     var host = window.location.hostname.indexOf('local') > -1
-        ? 'http://localhost:3000/'
+        ? 'http://thor.local:3000/'
         : 'http://wingsoflemuria.com:3000';
 
+    /**
+     * Template for generating html.
+     * @type {Object}
+     */
     var tpl = {
+
+        /**
+         * Basic template substitution
+         * @param string
+         * @param object
+         * @return {*}
+         */
         sub: function(string, object) {
             var str = string;
             for(var key in object) {
@@ -169,11 +204,11 @@ function(wol, Game, Cookies, keys){
     }
 
     function setPlayersInfo() {
-        var playersElement = wol.$('#players')
-            ,playerLeftElement = wol.dom.query(playersElement, '.left')
-            ,playerRightElement = wol.dom.query(playersElement, '.right')
-            ,playerA = players[0]
-            ,playerB = players[players.length-1]
+        var playersElement = wol.$('#players'),
+            playerLeftElement = wol.dom.query(playersElement, '.left'),
+            playerRightElement = wol.dom.query(playersElement, '.right'),
+            playerA = players[0],
+            playerB = players[players.length-1]
             ;
         wol.dom.query(playerLeftElement, '.name').textContent = playerA.id == player.id ? 'You' : 'Enemy';
         wol.dom.query(playerRightElement, '.name').textContent = playerB.id == player.id ? 'You' : 'Enemy';
