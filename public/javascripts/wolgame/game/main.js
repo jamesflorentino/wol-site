@@ -1,11 +1,11 @@
 define('game/main', function(require, exports, module) {
     "use strict";
 
-    var wol = require('wol/wol')
-    ,   Base = require('game/base')
-    ,   Events = require('wol/events')
-    ,   Marine = require('game/entities/marine')
-    ,   Vanguard = require('game/entities/vanguard')
+    var wol = require('../wol/wol'),
+        Base = require('./base'),
+        Events = require('../wol/events'),
+        Marine = require('./entities/marine'),
+        Vanguard = require('./entities/vanguard')
     ;
 
     var TurnBasedGame = {

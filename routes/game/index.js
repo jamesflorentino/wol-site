@@ -49,6 +49,18 @@ var GameApp = function(io) {
                     type: 'new_user'
                 });
             }
+            // when the client disconnects, we check if the game is empty,
+            // then remove the game from the list.
+            subscribe('disconnect', function() {
+                player.disconnect();
+                if (game) {
+                    if (game.connectedPlayers() === 0) {
+                        games.remove(game);
+                    } else {
+                        game.userDisconnect();
+                    }
+                }
+            });
             subscribe('player.set.name', setName);
         }
 
@@ -93,16 +105,6 @@ var GameApp = function(io) {
             // which is useful for watching replays.
             game.backlogs(function(name, data){
                 publish(name, data);
-            });
-            // when the client disconnects, we check if the game is empty,
-            // then remove the game from the list.
-            subscribe('disconnect', function() {
-                player.disconnect();
-                if (game.connectedPlayers() === 0) {
-                    games.remove(game);
-                } else {
-                    game.userDisconnect();
-                }
             });
             // when the player's assets are loaded
             subscribe('ready', playerReady);

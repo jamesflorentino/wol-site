@@ -196,10 +196,10 @@ require(['wol/wol','game/main','cookies','wol/keys'], function(wol, Game, Cookie
             wol.keys.on(wol.KeyCodes.ESC, showCancelCommand);
             wol.keys.on(wol.KeyCodes.V, showMoveCommand);
             wol.pause();
-            log('> Map loaded. Waiting for opponent...');
+            log('Map loaded. Waiting for opponent...');
             send('ready');
         } else {
-            log('> Map loaded. But opponent left the game.');
+            log('Map loaded. But opponent left the game.');
         }
     }
 
@@ -271,6 +271,7 @@ require(['wol/wol','game/main','cookies','wol/keys'], function(wol, Game, Cookie
             y: tile.y
         })
     }
+
 
     function unitMove(data) {
         var unit, tile;

@@ -208,6 +208,7 @@ define('wol/wol', function(require, exports, module){
          */
         spritesheets: {
             sheets: {},
+            count: 0,
             add: function (name, frameData) {
                 var i, images, imageUri;
                 var _this = this;
@@ -234,9 +235,21 @@ define('wol/wol', function(require, exports, module){
                     });
                 }
             },
+
+            /**
+             *
+             * @param name
+             * @return {*}
+             */
             get: function (name) {
                 return this.sheets[name];
             },
+            /**
+             *
+             * @param name
+             * @param frameName
+             * @return {*}
+             */
             extract: function (name, frameName) {
                 var animation = wol.create.animation(this.get(name));
                 animation.gotoAndStop(frameName);

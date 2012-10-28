@@ -1,15 +1,15 @@
 define('game/base', function(require, exports, module) {
     "use strict";
-    var wol = require('wol/wol')
-    ,   Game = require('wol/game')
-    ,   HexGrid = require('game/hexgrid')
-    ,   elements = require('game/textures/elements')
-    ,   Hex = require('game/hex')
-    ,   HexGridComponent = require('game/components/hexgrid')
-    ,   HexTileComponent = require('game/components/hextile')
-    ,   UnitComponent = require('game/components/unit')
-    ,   StatComponent = require('game/components/stats')
-    ,   KeyboardComponent = require('wol/keys')
+    var wol = require('wol/wol'),
+        Game = require('wol/game'),
+        HexGrid = require('game/hexgrid'),
+        elements = require('game/textures/elements'),
+        Hex = require('game/hex'),
+        HexGridComponent = require('game/components/hexgrid'),
+        HexTileComponent = require('game/components/hextile'),
+        UnitComponent = require('game/components/unit'),
+        StatComponent = require('game/components/stats'),
+        KeyboardComponent = require('wol/keys')
     ;
 
     var URI_BACKGROUND = '/media/background.png';
