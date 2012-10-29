@@ -411,9 +411,8 @@ require(['wol/wol','game/main','cookies','wol/keys'], function(wol, Game, Cookie
         wol.dom.addClass(wol.$('#players'), 'hidden');
         wol.dom.addClass(wol.$('#unit-actions'), 'hidden');
         if (lost) {
-            wol.dom.addClass(victoryMessage,'lost');
+            wol.dom.addClass(victoryMessage, 'lost');
         }
-        log(message);
     }
 
     /**
