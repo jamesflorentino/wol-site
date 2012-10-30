@@ -300,7 +300,7 @@ Game.prototype.start = function () {
         )
     );
 
-    /**
+    /**/
     unit = this.createUnit('vanguard', player);
     unit.face('right');
     this.spawnUnit(unit,
@@ -318,13 +318,13 @@ Game.prototype.start = function () {
     this.spawnUnit(
         unit,
         this.grid.get(
-            //this.columns - 1,
-            1,
+            this.columns - 1,
+            //1,
             (Math.floor(this.rows * 0.5) - 1)
         )
     );
 
-    /**
+    /**/
     unit = this.createUnit('marine', player);
     unit.face('left');
     this.spawnUnit(
